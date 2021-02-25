@@ -7,25 +7,25 @@
 
 # 目录结构说明:
 .
-├── alg   跨平台/多任务算法实现部分                                      
-│   ├── alg_manager  算法任务管理层                                                                
+├── alg   跨平台/多任务算法实现部分
+│   ├── alg_manager  算法任务管理层
 │   │   ├── hd_alg  人头检测
-│   │   │   └── ttf                            
+│   │   │   └── ttf
 │   │   └── util  通用接口实现
-│   └── engine_manager  引擎管理层         
+│   └── engine_manager  引擎管理层
 │       └── engine_interface
-│           ├── hisi_3516dv300  海思3516dv300                   
+│           ├── hisi_3516dv300  海思3516dv300
 │           └── openvino_backend  x64-openvino
-├── data  模型/测试图片位置 
+├── data  模型/测试图片位置
 │   ├── image
 │   │   └── head_detect
 │   └── model
 │       ├── hisi3516_dv300
 │       └── openvino
-├── demo  使用demo源码              
+├── demo  使用demo源码
 │   ├── hisi_3516dv300
 │   └── openvino
-├── opencv  opencv头文件处（ps:实现部分没有依赖opencv，只是给测试程序使用）   
+├── opencv  opencv头文件处（ps:实现部分没有依赖opencv，只是给测试程序使用）
 │   ├── opencv
 │   └── opencv2
 │       ├── calib3d
@@ -74,31 +74,31 @@
 │       ├── videoio
 │       ├── videostab
 │       └── viz
-└── platform  平台依赖源码/库   
-    ├── hisi_3516dv300           
-    │   ├── audio
-    │   ├── common
-    │   ├── common_sys
-    │   ├── include
-    │   ├── rtsp-v2
-    │   ├── sample_nnie_software
-    │   └── tools
-    └── openvino
-        ├── builders
-        ├── c_api
-        ├── cldnn
-        ├── cpp
-        ├── details
-        │   └── os
-        ├── gna
-        ├── gpu
-        │   └── details
-        ├── hetero
-        ├── multi-device
-        ├── os
-        │   └── windows
-        ├── samples
-        └── vpu
+└── platform  平台依赖源码/库
+├── hisi_3516dv300
+│   ├── audio
+│   ├── common
+│   ├── common_sys
+│   ├── include
+│   ├── rtsp-v2
+│   ├── sample_nnie_software
+│   └── tools
+└── openvino
+├── builders
+├── c_api
+├── cldnn
+├── cpp
+├── details
+│   └── os
+├── gna
+├── gpu
+│   └── details
+├── hetero
+├── multi-device
+├── os
+│   └── windows
+├── samples
+└── vpu
 
 # 编译运行步骤:
 

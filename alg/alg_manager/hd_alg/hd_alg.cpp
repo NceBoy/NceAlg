@@ -14,7 +14,7 @@ namespace nce_alg
 		alg_cfg.threshold = 0.3;
 		alg_cfg.st_cfg.hd_config.nms_thresh = 0.6;
 		alg_cfg.isLog = false;
-		//alg_cfg.hd_config.....
+		input_info = NULL;
 	}
 
 	NCE_S32 alg_priv::alg_priv_engine_init()

@@ -1,4 +1,4 @@
-add_definitions(-DPLATFORM=${PLATFORM})
+
 
 INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/platform/openvino/)
 INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/platform/openvino/common/)

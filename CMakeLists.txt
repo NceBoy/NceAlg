@@ -9,7 +9,7 @@ if(CMAKE_BUILD_TYPE MATCHES "Debug")
 SET(CMAKE_BUILD_TYPE_POSTFIX "d")
 endif()
 
-
+add_definitions(-DPLATFORM=${PLATFORM})
 include(${PROJECT_SOURCE_DIR}/platform/${PLATFORM}/${PLATFORM}.cmake) 
 
 
@@ -22,6 +22,7 @@ INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/alg/alg_manager/util/)
 INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/alg/engine_manager/)
 INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/alg/engine_manager/engine_interface/hisi_3516dv300/)
 INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/alg/engine_manager/engine_interface/openvino_backend/)
+INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/alg/engine_manager/engine_interface/host/)
 INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR})
 
 INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/opencv)

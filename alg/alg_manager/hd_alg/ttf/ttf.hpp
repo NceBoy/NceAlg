@@ -14,6 +14,17 @@ extern "C"{
 using namespace std;
 namespace nce_alg
 {
+    class ttf_host : public hd_alg
+    {
+    public:
+
+        NCE_S32 alg_get_result(alg_result_info & results)
+        {
+            return NCE_SUCCESS;
+        };
+
+
+    };
     class ttf_openvino : public hd_alg
     {
     public:

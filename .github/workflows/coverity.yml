@@ -1,0 +1,58 @@
+name: coverity-scan
+
+on:
+  push:
+    branches: [ master ]
+  workflow_dispatch:
+
+env:
+  # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
+  BUILD_TYPE: Debug
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: true
+
+    - name: Create Build Environment
+      run: cmake -E make_directory ${{github.workspace}}/build
+
+    - name: Download Coverity Build Tool
+      working-directory: ${{github.workspace}}/build
+      shell: bash
+      run: |
+        wget -q https://scan.coverity.com/download/cxx/linux64 --post-data "token=$TOKEN&project=NceBoy%2FNceAlg" -O cov-analysis-linux64.tar.gz
+        mkdir cov-analysis-linux64
+        tar xzf cov-analysis-linux64.tar.gz --strip 1 -C cov-analysis-linux64
+      env:
+        TOKEN: ${{ secrets.COVERITY_SCAN_TOKEN }}
+
+    - name: Configure CMake
+      working-directory: ${{github.workspace}}/build
+      shell: bash
+      run: cmake $GITHUB_WORKSPACE -DCMAKE_TOOLCHAIN_FILE=$GITHUB_WORKSPACE/platform/host/host_toolchain.cmake -DPLATFORM=host -DOPENCVOPTION=OFF -DEXE_TEST=ON -DCMAKE_BUILD_TYPE=Debug
+
+
+    - name: Build with cov-build
+      working-directory: ${{github.workspace}}/build
+      shell: bash
+      run: |
+        export PATH=$(pwd)/cov-analysis-linux64/bin:$PATH
+        cov-build --dir cov-int cmake --build . -v
+    - name: Submit the result to Coverity Scan
+      working-directory: ${{github.workspace}}/build
+      shell: bash
+      run: |
+        tar czvf NceAlg.tgz cov-int
+        curl --form token=xDnqyM9zMivLilhi4HV-_A \
+          --form email=451017151@qq.com \
+          --form file=@NceAlg.tgz \
+          --form version="Version" \
+          --form description="Description" \
+          https://scan.coverity.com/builds?project=NceBoy%2FNceAlg
+      env:
+        TOKEN: ${{ secrets.COVERITY_SCAN_TOKEN }}

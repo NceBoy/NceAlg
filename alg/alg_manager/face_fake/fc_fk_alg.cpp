@@ -17,7 +17,9 @@ namespace nce_alg
 		alg_cfg.isLog = false;
 		score = new NCE_F32[3];
 		input_info = NULL;
-		//alg_cfg.hd_config.....
+		memset(&tmp_result,0,sizeof(alg_result));
+		memset(&head_info,0,sizeof(person_head));
+		memset(&model_image_info,0,sizeof(img_info));
 	}
 
 	NCE_S32 fc_fk_alg_priv::alg_priv_engine_init()

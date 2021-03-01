@@ -16,7 +16,8 @@ namespace nce_alg
 		alg_cfg.st_cfg.hd_config.nms_thresh = 0.6;
 		alg_cfg.isLog = false;
 		input_info = NULL;
-		//alg_cfg.hd_config.....
+        	u32Stride = 0;
+        	memset(&model_image_info,0,sizeof(img_info));
 	}
 
 	NCE_S32 hd_alg_priv::alg_priv_engine_init()

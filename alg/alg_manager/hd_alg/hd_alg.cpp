@@ -5,7 +5,7 @@
 #include "hd_alg.hpp"
 #include<memory>
 #include "IEngine.hpp"
-
+#include<string.h>
 using namespace std;
 namespace nce_alg
 {

@@ -5,6 +5,7 @@
 #include "fc_fk_alg.hpp"
 #include<memory>
 #include "IEngine.hpp"
+#include<string.h>
 //TODO:去除打印
 
 using namespace std;

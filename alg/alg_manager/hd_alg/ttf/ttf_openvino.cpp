@@ -13,20 +13,21 @@ namespace nce_alg
 			printf("Failed to init pPriv of alg");
 			return NCE_FAILED;
 		}
-		pPriv->engine_result["hm"] = NULL;
-		pPriv->engine_result["wh"] = NULL;
 
-        ret = pPriv->engine_ptr->engine_get_result(pPriv->engine_result);
+		pPriv->st_engine_result["hm"] = engine_result{0};
+		pPriv->st_engine_result["wh"] = engine_result{0};
+
     
         pPriv->tmp_result.clear();
         pPriv->head_info.clear();
         NCE_F32  ratio   = 4;
-        NCE_U32  width   = 160;
-        NCE_U32  height  = 160;
-        NCE_U32  channel = 1;
-        NCE_U32  stride  = 160;
-        NCE_F32* cls = (NCE_F32*)pPriv->engine_result["hm"];
-        NCE_F32* reg = (NCE_F32*)pPriv->engine_result["wh"];
+
+		NCE_U32  width   = pPriv->st_engine_result["hm"].u32FeatWidth;
+		NCE_U32  height  = pPriv->st_engine_result["hm"].u32FeatHeight;
+		NCE_U32  stride  = pPriv->st_engine_result["hm"].u32Stride;
+
+        NCE_F32* cls = (NCE_F32*)pPriv->st_engine_result["hm"].pu32Feat;
+        NCE_F32* reg = (NCE_F32*)pPriv->st_engine_result["wh"].pu32Feat;
 
         NCE_U32 feature_size   = width  * height;
 
@@ -48,7 +49,8 @@ namespace nce_alg
             NCE_U32 y1    = cur_h * ratio - top;
             NCE_U32 x2    = cur_w * ratio + right;
             NCE_U32 y2    = cur_h * ratio + down;
-            NCE_BOOL fake = true;
+			
+            NCE_F32 fake = true;
             NCE_S32  angle[3] = {0, 0, 0};
             pPriv->head_info.push_back(person_head{fake, angle[0], angle[1], angle[2]});
             //cun shu xing

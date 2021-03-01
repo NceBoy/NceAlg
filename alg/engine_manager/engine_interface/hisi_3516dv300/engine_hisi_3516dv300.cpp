@@ -39,11 +39,11 @@ namespace nce_alg
             SAMPLE_SVP_NNIE_MODEL_S stENnieModel;
             SAMPLE_SVP_NNIE_PARAM_S stENnieParam;
             SAMPLE_SVP_NNIE_CFG_S   stNnieCfg;
+
             NCE_U32                 u32Stride;
             NCE_U32                 u32Ch;
             NCE_U32                 u32Height;
             NCE_U32                 u32Width;
-
 
             engine_priv()
             {
@@ -286,7 +286,7 @@ namespace nce_alg
                 }
                 SAMPLE_SVP_NNIE_PERF_STAT_END();
                 SAMPLE_SVP_NNIE_PERF_STAT_OP_FORWARD_AFTER_DST_FLUSH_TIME();
-
+			
                 return s32Ret;
             }
         
@@ -298,11 +298,11 @@ namespace nce_alg
 
     hisi_3516dv300_engine::hisi_3516dv300_engine()
     {
-        pPriv = shared_ptr<hisi_3516dv300_engine::engine_priv>(new hisi_3516dv300_engine::engine_priv());
+        pPriv = shared_ptr<engine_priv>(new hisi_3516dv300_engine::engine_priv());
     };
 
 
-    NCE_S32 hisi_3516dv300_engine::engine_init(const engine_param_info & st_engine_param_info)
+    NCE_S32 hisi_3516dv300_engine::engine_init(const engine_param_info & st_engine_param_info, img_info & st_img_info)
     {
         HI_S32 s32Ret = HI_SUCCESS;
         /*Set configuration parameter*/
@@ -336,6 +336,9 @@ namespace nce_alg
             "Error,HI_MPI_SVP_NNIE_AddTskBuf failed!\n");
         SAMPLE_SVP_TRACE_INFO("NNIE AddTskBuf end!\n");
 
+		st_img_info.u32Height =pPriv->u32Height;
+		st_img_info.u32Width =pPriv->u32Width;
+		st_img_info.u32channel =pPriv->u32Ch;
         return NCE_SUCCESS;
 
     CNN_FAIL_1:
@@ -394,15 +397,20 @@ namespace nce_alg
          return NCE_FAILED;
     }
 
-    NCE_S32 hisi_3516dv300_engine::engine_get_result(map<string, NCE_S32*> & engine_result)
+    NCE_S32 hisi_3516dv300_engine::engine_get_result(map<string, engine_result> & st_engine_result)
     {
-        std::map<string, HI_S32*>::iterator iter;
+        std::map<string, engine_result>::iterator iter;
         NCE_S32 count = 0;
-        for (iter=engine_result.begin(); iter!=engine_result.end(); iter++)
+        for (iter=st_engine_result.begin(); iter!=st_engine_result.end(); iter++)
         {
-            iter->second = (HI_S32*)((HI_U8*)pPriv->stENnieParam.astSegData[0].astDst[count].u64VirAddr);
+            iter->second.pu32Feat 	   = (HI_S32*)((size_t)pPriv->stENnieParam.astSegData[0].astDst[count].u64VirAddr);
+			iter->second.u32FeatWidth  = pPriv->stENnieParam.astSegData[0].astDst[count].unShape.stWhc.u32Width;
+			iter->second.u32FeatHeight = pPriv->stENnieParam.astSegData[0].astDst[count].unShape.stWhc.u32Height;
+			iter->second.u32ch 		   = pPriv->stENnieParam.astSegData[0].astDst[count].unShape.stWhc.u32Chn;
+			iter->second.u32Stride     = pPriv->stENnieParam.astSegData[0].astDst[count].u32Stride / sizeof(size_t);
             count++;
         }
+		
         return NCE_SUCCESS;
     }
 

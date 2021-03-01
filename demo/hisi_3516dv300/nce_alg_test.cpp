@@ -56,7 +56,7 @@ int main(int argc, char *argv[])
 		frame.u32Height = 640;
 		frame.u32Width = 640;
 		frame.format = PACKAGE;
-		nce_alg::RB_REPLACE_PACKAGE(frame);
+		//nce_alg::RB_REPLACE_PACKAGE(frame);
 
 
 		engine_param_info openvino_param;

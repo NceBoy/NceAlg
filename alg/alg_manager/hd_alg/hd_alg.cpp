@@ -9,15 +9,17 @@
 using namespace std;
 namespace nce_alg
 {
-	alg_priv::alg_priv()
+
+	hd_alg_priv::hd_alg_priv()
 	{
 		alg_cfg.threshold = 0.3;
 		alg_cfg.st_cfg.hd_config.nms_thresh = 0.6;
 		alg_cfg.isLog = false;
 		input_info = NULL;
+		//alg_cfg.hd_config.....
 	}
 
-	NCE_S32 alg_priv::alg_priv_engine_init()
+	NCE_S32 hd_alg_priv::alg_priv_engine_init()
 	{
 		engine_manager(engine_ptr);
 		return NCE_SUCCESS;
@@ -28,10 +30,9 @@ namespace nce_alg
     NCE_S32 hd_alg::alg_engine_init(const engine_param_info &st_engine_param_info)
     {
         NCE_S32 ret = NCE_FAILED;
-		pPriv = shared_ptr<alg_priv>(new alg_priv());
+		pPriv = shared_ptr<hd_alg_priv>(new hd_alg_priv());
         ret = pPriv->alg_priv_engine_init();
-        ret = pPriv->engine_ptr->engine_init(st_engine_param_info);
-
+        ret = pPriv->engine_ptr->engine_init(st_engine_param_info, pPriv->model_image_info);
         return ret;
     }
 
@@ -48,7 +49,13 @@ namespace nce_alg
     NCE_S32 hd_alg::alg_inference(img_info & pc_img)
     {
         NCE_S32 ret = NCE_FAILED;
-
+		if (pPriv->model_image_info.u32channel != pc_img.u32channel ||
+			pPriv->model_image_info.u32Height != pc_img.u32Height ||
+			pPriv->model_image_info.u32Width != pc_img.u32Width)
+		{
+			printf("model image_info doesn't match input image_info");
+			return ret;
+		}
         ret = pPriv->engine_ptr->engine_inference(pc_img);
 		pPriv->input_info = &pc_img;
         return ret;

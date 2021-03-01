@@ -1,5 +1,5 @@
-#ifndef __TTF_OPENVINO_HPP__
-#define __TTF_OPENVINO_HPP__
+#ifndef __TTF_HPP__
+#define __TTF_HPP__
 #include<iostream>
 #include "alg_type.h"
 #include "hd_alg.hpp"
@@ -28,13 +28,19 @@ namespace nce_alg
     class ttf_openvino : public hd_alg
     {
     public:
-
-
         NCE_S32 alg_get_result(alg_result_info & results);
 
     };
 
 	class ttf_hisi_3516dv300 : public hd_alg
+    {
+    public:
+
+        NCE_S32 alg_get_result(alg_result_info & results);
+
+
+    };
+    class ttf_hisi_3559av100 : public hd_alg
     {
     public:
 

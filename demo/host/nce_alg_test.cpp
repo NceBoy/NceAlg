@@ -36,7 +36,7 @@ int main(int argc, char *argv[])
 
     
 
-		//Mat image = imread(pcSrcFile);
+		Mat image = imread(pcSrcFile);
 
 		//cvtColor(image, image, COLOR_BGR2RGB);
 
@@ -48,12 +48,12 @@ int main(int argc, char *argv[])
 		int ret;
 
 		img_info frame;
-		frame.image = pu8PicAddr;
+		frame.image = image.data;
 		frame.u32channel = 3;
 		frame.u32Height = 640;
 		frame.u32Width = 640;
 		frame.format = PACKAGE;
-		//nce_alg::RB_REPLACE_PACKAGE(frame);
+		nce_alg::RB_REPLACE_PACKAGE(frame);
 
 		engine_param_info openvino_param;
 		openvino_param.pc_model_path = pcModelName;
@@ -83,12 +83,12 @@ int main(int argc, char *argv[])
 			int x2 = result->x2;
 			int y2 = result->y2;
 
-			//rectangle(image, Point(x1, y1), Point(x2, y2), Scalar(0, 0, 255));
+			rectangle(image, Point(x1, y1), Point(x2, y2), Scalar(0, 0, 255));
 
 		}
 		hd_model.nce_alg_destroy();
 
-		//imwrite("test.jpg", image);
+		imwrite("test.jpg", image);
 	}
     //HI_MPI_SYS_Munmap((void *)&u64VirAddr, 640*640*12);
 

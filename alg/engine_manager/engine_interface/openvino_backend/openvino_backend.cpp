@@ -58,7 +58,7 @@ namespace nce_alg
     };
 
 
-    NCE_S32 openvino_engine::engine_init(const engine_param_info & st_engine_param_info)
+    NCE_S32 openvino_engine::engine_init(const engine_param_info & st_engine_param_info, img_info & st_img_info)
     {
 
 		char* pc_device = st_engine_param_info.st_engine_info.st_openvino_param.pc_device_name;
@@ -83,6 +83,11 @@ namespace nce_alg
         pPriv->executableNetwork = pPriv->ie.LoadNetwork(pPriv->network, pc_device);
         pPriv->requestCurr       = pPriv->executableNetwork.CreateInferRequest();
 
+		u32Stride = pPriv->u32Width;
+
+		st_img_info.u32channel = pPriv->u32Dims;
+		st_img_info.u32Width = pPriv->u32Width;
+		st_img_info.u32Height = pPriv->u32Height;
         return NCE_SUCCESS;
 
     }
@@ -110,13 +115,19 @@ namespace nce_alg
 	  return NCE_SUCCESS;
     }
 
-    NCE_S32 openvino_engine::engine_get_result(map<string, NCE_S32*> & engine_result)
+    NCE_S32 openvino_engine::engine_get_result(map<string, engine_result> & st_engine_result)
     {
-		std::map<string, NCE_S32*>::iterator iter;
+		std::map<string, engine_result>::iterator iter;
         NCE_S32 count = 0;
-        for (iter=engine_result.begin(); iter!=engine_result.end(); iter++)
+        for (iter=st_engine_result.begin(); iter!=st_engine_result.end(); iter++)
         {
-            iter->second = (NCE_S32*)pPriv->requestCurr.GetBlob(iter->first)->buffer();
+			InferenceEngine::Blob::Ptr  feat     = pPriv->requestCurr.GetBlob(iter->first);
+			InferenceEngine::SizeVector featdims = feat->getTensorDesc().getDims();
+            iter->second.pu32Feat       = (NCE_S32*)pPriv->requestCurr.GetBlob(iter->first)->buffer();
+			iter->second.u32FeatHeight = featdims[2];
+			iter->second.u32FeatWidth  = featdims[3];
+			iter->second.u32Stride     = featdims[3];
+			iter->second.u32ch         = featdims[1];
             count++;
         }
 

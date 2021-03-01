@@ -22,14 +22,14 @@ namespace nce_alg
     public:
         hisi_3516dv300_engine();
 
-        NCE_S32 engine_init(const engine_param_info & st_engine_param_info);
+        NCE_S32 engine_init(const engine_param_info & st_engine_param_info, img_info & st_img_info);
 
         NCE_S32 engine_inference(img_info & pc_img);
 
-        NCE_S32 engine_get_result(map<string, NCE_S32*> & engine_result);
+        NCE_S32 engine_get_result(map<string, engine_result> & st_engine_result);
 
         NCE_S32 engine_destroy();
-    
+
     private:
         class engine_priv;
         shared_ptr<engine_priv> pPriv;

@@ -1,5 +1,5 @@
-#ifndef __HD_ALG__
-#define __HD_ALG__
+#ifndef __HD_ALG_HPP__
+#define __HD_ALG_HPP__
 
 #include<iostream>
 #include "alg_type.h"
@@ -31,18 +31,20 @@ Ialg.hpp
 using namespace std;
 namespace nce_alg
 {
-
-	class alg_priv
+	class hd_alg_priv
 	{
 	public:
-		task_config_info    	alg_cfg;
-		shared_ptr<IEngine> 	engine_ptr;
-		map<string, NCE_S32*>   engine_result;
-		vector<alg_result>      tmp_result;
-		vector<person_head>     head_info;
-		img_info* 			    input_info;
+		task_config_info    		 alg_cfg;
+		shared_ptr<IEngine> 		 engine_ptr;
+		map<string, engine_result>   st_engine_result;
+		vector<alg_result>     	 	 tmp_result;
+		vector<person_head>     	 head_info;
+		img_info* 			    	 input_info;
+		NCE_S32						 u32Stride;
+		img_info					 model_image_info;
 
-		alg_priv();
+
+		hd_alg_priv();
 
 		NCE_S32 alg_priv_engine_init();
 
@@ -62,8 +64,9 @@ namespace nce_alg
 	
 	protected:
 
-		shared_ptr<alg_priv> pPriv;
+		shared_ptr<hd_alg_priv> pPriv;
     };
+
 }
 
 #ifdef __cplusplus

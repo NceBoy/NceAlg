@@ -1,5 +1,6 @@
 #include "nce_alg.hpp"
 #include "ttf.hpp"
+#include "sil.hpp"
 #include "engine_manager.hpp"
 
 #define __strcat_task_cls(ALG, ENGINE) ALG##_##ENGINE
@@ -14,17 +15,17 @@ namespace nce_alg
         switch(st_taskcls)
         {
             case PERSON_HEAD:
-                alg_ptr = shared_ptr<IAlg>(new strcat_task_cls(ttf, PLATFORM)());
+                alg_ptr = shared_ptr<strcat_task_cls(ttf, PLATFORM)>(new strcat_task_cls(ttf, PLATFORM)());
                 break;
 
             case PERSON_FACE:
-                alg_ptr = shared_ptr<IAlg>(new strcat_task_cls(ttf, PLATFORM)());
+                alg_ptr = shared_ptr<strcat_task_cls(ttf, PLATFORM)>(new strcat_task_cls(ttf, PLATFORM)());
                 break; 
             case FACE_FAKE:
-                alg_ptr = shared_ptr<IAlg>(new strcat_task_cls(ttf, PLATFORM)());
+                alg_ptr = shared_ptr<strcat_task_cls(sil, PLATFORM)>(new strcat_task_cls(sil, PLATFORM)());
                 break; 
             default:
-                alg_ptr = shared_ptr<IAlg>(new strcat_task_cls(ttf, PLATFORM)());
+                alg_ptr = shared_ptr<strcat_task_cls(ttf, PLATFORM)>(new strcat_task_cls(ttf, PLATFORM)());
                 break;         
         }
         return alg_ptr;
@@ -51,7 +52,9 @@ namespace nce_alg
     NCE_S32 nce_alg_machine::nce_alg_inference(img_info & pc_img)
     {
        NCE_S32 ret = NCE_FAILED;  
+	   printf("Begin nce_alg_inference");
        ret = pPriv->alg_inference(pc_img);
+	   printf("finish nce_alg_inference");
        return ret;   
     }
 

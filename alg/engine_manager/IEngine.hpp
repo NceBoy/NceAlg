@@ -15,11 +15,22 @@ extern "C" {
 using namespace std;
 namespace nce_alg
 {
+	typedef struct engine_result
+	{
+		
+		NCE_S32  u32Stride;
+		NCE_S32  u32FeatWidth;
+		NCE_S32  u32FeatHeight;
+		NCE_S32  u32ch;
+
+		NCE_S32* pu32Feat;
+	}engine_result;
+
     class IEngine
     {
     public:
 
-        virtual NCE_S32 engine_init(const engine_param_info & st_engine_param_info)
+        virtual NCE_S32 engine_init(const engine_param_info & st_engine_param_info, img_info & st_img_info)
         {
             return NCE_FAILED;
         }
@@ -28,7 +39,7 @@ namespace nce_alg
         {
             return NCE_FAILED;
         }
-        virtual NCE_S32 engine_get_result(map<string, NCE_S32*> & engine_result)
+        virtual NCE_S32 engine_get_result(map<string, engine_result> & st_engine_result)
         {
             return NCE_FAILED;
         }
@@ -37,6 +48,7 @@ namespace nce_alg
         {
             return NCE_FAILED;
         }
+
     };
 }
 

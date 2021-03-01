@@ -2,7 +2,7 @@
 #include "alg_type.h"
 #include <vector>
 #include <algorithm>
-
+#include <math.h>
 using namespace std;
 namespace nce_alg
 {
@@ -97,6 +97,21 @@ namespace nce_alg
 			}
 		}
 
+		return NCE_SUCCESS;
+	}
+
+	NCE_S32 softmax(NCE_U32 dim, NCE_F32* score)
+	{
+		NCE_F32 sum = 0;
+		for (NCE_U32 i=0; i < dim; i++)
+		{
+			sum = sum + exp(score[i]);
+		}
+
+		for (NCE_U32 i=0; i < dim; i++)
+		{
+			score[i] = exp(score[i])/sum;
+		}
 		return NCE_SUCCESS;
 	}
 

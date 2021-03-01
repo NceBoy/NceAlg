@@ -13,7 +13,7 @@ typedef unsigned long long      NCE_U64;
 typedef unsigned int            NCE_U32;
 typedef int                     NCE_BOOL;
 
-
+//TO DO: 删除
 typedef enum
 {
     HISI,
@@ -38,7 +38,7 @@ typedef enum
 
 typedef struct person_head
 {
-    NCE_BOOL      fake;
+    NCE_F32      fake;
     NCE_S32   angle[3]; //角度的三个顺序
 }person_head;
 

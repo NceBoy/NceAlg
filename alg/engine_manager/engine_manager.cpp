@@ -1,8 +1,8 @@
 #include "engine_manager.hpp"
+#include "engine_hisi_3559av100.hpp"
 #include "engine_hisi_3516dv300.hpp"
 #include "openvino_backend.hpp"
 #include "host_engine.hpp"
-
 
 using namespace std;
 namespace nce_alg

@@ -1,4 +1,10 @@
 # NceAlg
+
+<a href="https://scan.coverity.com/projects/nceboy-ncealg">
+  <img alt="Coverity Scan Build Status"
+       src="https://scan.coverity.com/projects/nceboy-ncealg/badge.svg"/>
+</a>
+
 # 介绍:
 这是一套跨平台的异构算法框架
 - 跨平台：支持x64/hisi(nnie)/ipu/dsp等不同网络推理单元。
@@ -133,6 +139,21 @@ make install
 
 在板端为LD_LIBRARY_PATH增加对应opencv动态库路径，即可运行。
 
+
+### 编译HISI_3559av100
+
+```bash
+cd NceAlg
+mkdir build
+cmake .. 
+cmake -DCMAKE_TOOLCHAIN_FILE=./platform/hisi_3559av100/hi3559.cmake -DPLATFORM=hisi_3559av100 -DOPENCVOPTION=ON -DEXE_TEST=OFF -DCMAKE_BUILD_TYPE=Debug
+make install
+```
+
+### 运行
+
+在板端为LD_LIBRARY_PATH增加对应opencv动态库路径，即可运行。
+
 ### 生成openvinoVS工程
 
 ```bash
@@ -161,7 +182,7 @@ ${工程路径}/NceAlg_cjy/NceAlg/platform/opencv_340/bin
 |                     | Windows CPU | Windows GPU | Linux CPU | Linux GPU | 加速单元(NNIE/IPUDSP) |
 | :-----------------: | :---------: | :---------: | :-------: | :-------: | :-------------------: |
 | **hisi_3516_dv300** |    **/**    |    **/**    |   **/**   |   **/**   |         **✔️**         |
-| **hisi_3559av100**  |    **/**    |    **/**    |   **/**   |   **/**   |         **/**         |
+| **hisi_3559av100**  |    **/**    |    **/**    |   **/**   |   **/**   |         **✔️**         |
 |     **RK3399**      |    **/**    |    **/**    |   **/**   |   **/**   |         **/**         |
 |    **openvino**     |    **✔️**    |    **?**    |   **/**   |   **/**   |         **/**         |
 |       **MNN**       |    **/**    |    **/**    |   **/**   |   **/**   |         **/**         |

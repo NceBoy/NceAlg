@@ -49,12 +49,12 @@ int main(int argc, char *argv[])
 
 		int ret;
 
-		img_info frame;
+		img_t frame;
 		frame.image = image.data;
-		frame.format = PACKAGE;
+		frame.image_attr.format = PACKAGE;
 
 
-		engine_param_info openvino_param;
+		param_info openvino_param;
 		openvino_param.pc_model_path = pcModelName;
 		openvino_param.st_engine_info.st_openvino_param.pc_device_name = "CPU";
 

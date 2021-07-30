@@ -3,6 +3,7 @@
 
 #include<alg_type.h>
 #include<IEngine.hpp>
+#include"factory.hpp"
 #include<map>
 #include<memory>
 
@@ -17,16 +18,16 @@ extern "C"{
 
 namespace nce_alg
 {
-    class hisi_3516dv300_engine: public IEngine
+    class hisi_3516dv300_engine: public IEngine,public NceEngineCreator<hisi_3516dv300_engine>
     {
     public:
         hisi_3516dv300_engine();
 
-        NCE_S32 engine_init(const engine_param_info & st_engine_param_info, img_info & st_img_info);
+        NCE_S32 engine_init(const param_info & st_param_info, img_info & st_img_info,map<int, tmp_map_result> & st_result_map);
 
-        NCE_S32 engine_inference(img_info & pc_img);
+        NCE_S32 engine_inference(img_t & pc_img);
 
-        NCE_S32 engine_get_result(map<string, engine_result> & st_engine_result);
+        NCE_S32 engine_get_result(map<int, tmp_map_result> & st_engine_result);
 
         NCE_S32 engine_destroy();
 

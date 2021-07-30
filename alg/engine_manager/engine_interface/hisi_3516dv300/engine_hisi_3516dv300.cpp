@@ -71,11 +71,11 @@ namespace nce_alg
 				return NCE_SUCCESS;
 			}
 
-            HI_S32 SAMPLE_SVP_NNIE_FillSrcData(SAMPLE_SVP_NNIE_PARAM_S *pstNnieParam, img_info *Frame)
+            HI_S32 SAMPLE_SVP_NNIE_FillSrcData(SAMPLE_SVP_NNIE_PARAM_S *pstNnieParam, img_t *Frame)
             {
                 HI_U8 *pu8ImgTmp_stack = NULL;
 
-				if (Frame->format == PACKAGE)
+				if (Frame->image_attr.format == PACKAGE)
 				{
 					package2planner(Frame->image, pu8ImageTmp);	
                     pu8ImgTmp_stack = pu8ImageTmp;
@@ -302,11 +302,12 @@ namespace nce_alg
     };
 
 
-    NCE_S32 hisi_3516dv300_engine::engine_init(const engine_param_info & st_engine_param_info, img_info & st_img_info)
+    NCE_S32 hisi_3516dv300_engine::engine_init(const param_info & st_param_info, img_info & st_img_info, map<int, tmp_map_result> & st_result_map)
     {
         HI_S32 s32Ret = HI_SUCCESS;
         /*Set configuration parameter*/
         HI_U32 u32PicNum = 1;
+        HI_U32 i = 0;
         /*Set configuration parameter*/
         pPriv->stNnieCfg.u32MaxInputNum = u32PicNum; //max input image num in each batch
         pPriv->stNnieCfg.u32MaxRoiNum = 0;
@@ -317,7 +318,7 @@ namespace nce_alg
 
         /*CNN Load model*/
         SAMPLE_SVP_TRACE_INFO("Cnn Load model!\n");
-        s32Ret = SAMPLE_COMM_SVP_NNIE_LoadModel(st_engine_param_info.pc_model_path, &pPriv->stENnieModel);
+        s32Ret = SAMPLE_COMM_SVP_NNIE_LoadModel(st_param_info.pc_model_path, &pPriv->stENnieModel);
         SAMPLE_SVP_CHECK_EXPR_GOTO(HI_SUCCESS != s32Ret,CNN_FAIL_0,SAMPLE_SVP_ERR_LEVEL_ERROR,
             "Error,SAMPLE_COMM_SVP_NNIE_LoadModel failed!\n");
         /*CNN parameter initialization*/
@@ -336,9 +337,25 @@ namespace nce_alg
             "Error,HI_MPI_SVP_NNIE_AddTskBuf failed!\n");
         SAMPLE_SVP_TRACE_INFO("NNIE AddTskBuf end!\n");
 
-		st_img_info.u32Height =pPriv->u32Height;
-		st_img_info.u32Width =pPriv->u32Width;
-		st_img_info.u32channel =pPriv->u32Ch;
+		st_img_info.u32Height = pPriv->u32Height;
+		st_img_info.u32Width = pPriv->u32Width;
+		st_img_info.u32channel = pPriv->u32Ch;
+        st_img_info.format = PLANNER;
+        //NCE强制要求RGB，给你脸了？
+        st_img_info.order = RGB;
+        //目前不分段
+        for(i = 0; i<pPriv->stENnieModel.stModel.astSeg[0].u16DstNum; i++)
+        {
+            st_result_map[i].tensor.u32ch = pPriv->stENnieParam.astSegData[0].astDst[i].unShape.stWhc.u32Chn;
+            st_result_map[i].tensor.u32FeatWidth  = pPriv->stENnieParam.astSegData[0].astDst[i].unShape.stWhc.u32Width;
+			st_result_map[i].tensor.u32FeatHeight = pPriv->stENnieParam.astSegData[0].astDst[i].unShape.stWhc.u32Height;
+			st_result_map[i].tensor.u32Stride   = pPriv->stENnieParam.astSegData[0].astDst[i].u32Stride / sizeof(size_t);
+            st_result_map[i].tensor.zp = 0;
+            st_result_map[i].tensor.fl = 0;
+            st_result_map[i].tensor.scale = 4096;
+            st_result_map[i].tensor.outfmt = PLANNER;
+        }
+
         return NCE_SUCCESS;
 
     CNN_FAIL_1:
@@ -354,7 +371,7 @@ namespace nce_alg
     }
 
 
-    NCE_S32 hisi_3516dv300_engine::engine_inference(img_info & pc_img)
+    NCE_S32 hisi_3516dv300_engine::engine_inference(img_t & pc_img)
     {
         HI_S32 s32Ret = HI_SUCCESS;
         SAMPLE_SVP_NNIE_INPUT_DATA_INDEX_S stInputDataIdx = {0};
@@ -397,17 +414,13 @@ namespace nce_alg
          return NCE_FAILED;
     }
 
-    NCE_S32 hisi_3516dv300_engine::engine_get_result(map<string, engine_result> & st_engine_result)
+    NCE_S32 hisi_3516dv300_engine::engine_get_result(map<int, tmp_map_result> & st_engine_result)
     {
-        std::map<string, engine_result>::iterator iter;
+        std::map<int, tmp_map_result>::iterator iter;
         NCE_S32 count = 0;
         for (iter=st_engine_result.begin(); iter!=st_engine_result.end(); iter++)
         {
             iter->second.pu32Feat 	   = (HI_S32*)((size_t)pPriv->stENnieParam.astSegData[0].astDst[count].u64VirAddr);
-			iter->second.u32FeatWidth  = pPriv->stENnieParam.astSegData[0].astDst[count].unShape.stWhc.u32Width;
-			iter->second.u32FeatHeight = pPriv->stENnieParam.astSegData[0].astDst[count].unShape.stWhc.u32Height;
-			iter->second.u32ch 		   = pPriv->stENnieParam.astSegData[0].astDst[count].unShape.stWhc.u32Chn;
-			iter->second.u32Stride     = pPriv->stENnieParam.astSegData[0].astDst[count].u32Stride / sizeof(size_t);
             count++;
         }
 		

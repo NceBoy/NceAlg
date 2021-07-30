@@ -275,7 +275,7 @@ namespace nce_alg
     }
 
 
-    NCE_S32 hisi_3559av100_engine::engine_inference(img_info & pc_img)
+    NCE_S32 hisi_3559av100_engine::engine_inference(img_t & pc_img)
     {
         HI_S32 s32Ret = HI_SUCCESS;
         SAMPLE_SVP_NNIE_INPUT_DATA_INDEX_S stInputDataIdx = {0};

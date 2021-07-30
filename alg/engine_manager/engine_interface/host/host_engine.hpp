@@ -25,7 +25,7 @@ namespace nce_alg
             return NCE_SUCCESS;
         };
 
-        NCE_S32 engine_inference(img_info & pc_img)
+        NCE_S32 engine_inference(img_t & pc_img)
         {
             return NCE_SUCCESS;
         };

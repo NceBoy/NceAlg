@@ -60,7 +60,7 @@ namespace nce_alg
 
         NCE_S32 alg_cfg_set(const task_config_info & st_task_config_info);
 
-        NCE_S32 alg_inference(img_info & pc_img);
+        NCE_S32 alg_inference(img_t & pc_img);
 
         NCE_S32 alg_destroy();
 	

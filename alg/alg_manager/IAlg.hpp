@@ -3,7 +3,8 @@
 
 #include<iostream>
 #include<alg_type.h>
-
+#include "self_type.hpp"
+#include <map>
 #ifdef __cplusplus
 #if __cplusplus
 
@@ -31,7 +32,7 @@ namespace nce_alg
     {
     public:
 
-        virtual NCE_S32 alg_engine_init(const engine_param_info &st_engine_param_info)
+        virtual NCE_S32 alg_init(const param_info &st_param_info, map<int, tmp_map_result> & st_result_map)
         {
             return NCE_FAILED;
         }
@@ -41,12 +42,12 @@ namespace nce_alg
             return NCE_FAILED;
         }  
 
-        virtual NCE_S32 alg_inference(img_info & pc_img)
+        virtual NCE_S32 alg_inference(img_t & pc_img)//后续改成图片预处理？
         {
             return NCE_FAILED;
         }
 
-        virtual NCE_S32 alg_get_result(alg_result_info & results)
+        virtual NCE_S32 alg_get_result(alg_result_info & results ,map<int, tmp_map_result> & st_result_map)
         {
             return NCE_FAILED;
         }

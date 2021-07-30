@@ -39,7 +39,7 @@ int main(int argc, char *argv[])
 	char  * pcSrcFile = argv[2];
 
     
-
+//opencv读进来 是hwc 也就是 pakcage
 		Mat image = imread(pcSrcFile);
 		//cvtColor(image, image, COLOR_BGR2RGB);
 
@@ -50,18 +50,18 @@ int main(int argc, char *argv[])
 
 		int ret;
 
-		img_info frame;
+		img_t frame;
 		frame.image = image.data;
-		frame.u32channel = 3;
-		frame.u32Height = 640;
-		frame.u32Width = 640;
-		frame.format = PACKAGE;
+		frame.image_attr.u32channel = 3;
+		frame.image_attr.u32Height = 640;
+		frame.image_attr.u32Width = 640;
+		frame.image_attr.order = BGR;
+		frame.image_attr.format = PACKAGE;
 		//nce_alg::RB_REPLACE_PACKAGE(frame);
 
 
-		engine_param_info openvino_param;
+		param_info openvino_param;
 		openvino_param.pc_model_path = pcModelName;
-		openvino_param.st_engine_info.st_openvino_param.pc_device_name = "CPU";
 
 
 		task_config_info task_config;
@@ -70,9 +70,9 @@ int main(int argc, char *argv[])
 		task_config.st_cfg.hd_config.nms_thresh = 0.6;
 		alg_result_info results;
 
-
-		nce_alg_machine hd_model(PERSON_HEAD);
-		hd_model.nce_alg_init(openvino_param);
+		img_info imgInfo;
+		nce_alg_machine hd_model(PERSON_HEAD,HISI_3516DV300);
+		hd_model.nce_alg_init(openvino_param,imgInfo);
 		hd_model.nce_alg_cfg_set(task_config);
 		hd_model.nce_alg_inference(frame);
 		hd_model.nce_alg_get_result(results);

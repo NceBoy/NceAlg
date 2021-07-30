@@ -131,9 +131,11 @@
 cd NceAlg
 mkdir build
 cmake .. 
-cmake -DCMAKE_TOOLCHAIN_FILE=./platform/hisi_3516dv300/hi3516d.cmake -DPLATFORM=hisi_3516dv300 -DOPENCVOPTION=ON -DEXE_TEST=OFF -DCMAKE_BUILD_TYPE=Debug
+cmake -Bbuild -DCMAKE_TOOLCHAIN_FILE=./platform/hisi_3516dv300/hi3516d.cmake -DPLATFORM=hisi_3516dv300 -DOPENCVOPTION=ON -DEXE_TEST=ON -DCMAKE_BUILD_TYPE=Debug
 make install
 ```
+cmake -Bbuild -DCMAKE_TOOLCHAIN_FILE=./platform/rv_1126/rv1126.cmake -DPLATFORM=rv_1126 -DOPENCVOPTION=ON -DEXE_TEST=ON -DCMAKE_BUILD_TYPE=Debug
+
 
 ### 运行
 

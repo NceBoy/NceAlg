@@ -65,17 +65,17 @@ namespace nce_alg
 		return NCE_SUCCESS;
 	}
 
-	NCE_S32 RB_REPLACE_PACKAGE(img_info & frame)
+	NCE_S32 RB_REPLACE_PACKAGE(img_t & frame)
 		//"Only used for rgb_package image"
 	{
 
-		for (NCE_U32 h = 0; h < frame.u32Width; h++)
+		for (NCE_U32 h = 0; h < frame.image_attr.u32Width; h++)
 		{
-			for (NCE_U32 w = 0; w < frame.u32Height; w++)
+			for (NCE_U32 w = 0; w < frame.image_attr.u32Height; w++)
 			{
-				NCE_U8 u8tmpB = frame.image[(h*frame.u32Width + w)*frame.u32channel + 0];
-				frame.image[(h*frame.u32Width + w)*frame.u32channel + 0] = frame.image[(h*frame.u32Width + w)*frame.u32channel + 2];
-				frame.image[(h*frame.u32Width + w)*frame.u32channel + 2] = u8tmpB;
+				NCE_U8 u8tmpB = frame.image[(h*frame.image_attr.u32Width + w)*frame.image_attr.u32channel + 0];
+				frame.image[(h*frame.image_attr.u32Width + w)*frame.image_attr.u32channel + 0] = frame.image[(h*frame.image_attr.u32Width + w)*frame.image_attr.u32channel + 2];
+				frame.image[(h*frame.image_attr.u32Width + w)*frame.image_attr.u32channel + 2] = u8tmpB;
 			}
 		}
 
@@ -83,17 +83,17 @@ namespace nce_alg
 		return NCE_SUCCESS;
 	}
 
-	NCE_S32 RB_REPLACE_PLANNER(img_info & frame)
+	NCE_S32 RB_REPLACE_PLANNER(img_t & frame)
 		//"Only used for rgb_package image"
 	{
-		NCE_U32 u32ImageSize = frame.u32Width * frame.u32Height;
-		for (NCE_U32 h = 0; h < frame.u32Width; h++)
+		NCE_U32 u32ImageSize = frame.image_attr.u32Width * frame.image_attr.u32Height;
+		for (NCE_U32 h = 0; h < frame.image_attr.u32Width; h++)
 		{
-			for (NCE_U32 w = 0; w < frame.u32Height; w++)
+			for (NCE_U32 w = 0; w < frame.image_attr.u32Height; w++)
 			{
-				NCE_U8 u8tmpB = frame.image[0 * u32ImageSize + h*frame.u32Width + w];
-				frame.image[0 * u32ImageSize + h*frame.u32Width + w] = frame.image[2 * u32ImageSize + h*frame.u32Width + w];;
-				frame.image[2 * u32ImageSize + h*frame.u32Width + w] = u8tmpB;
+				NCE_U8 u8tmpB = frame.image[0 * u32ImageSize + h*frame.image_attr.u32Width + w];
+				frame.image[0 * u32ImageSize + h*frame.image_attr.u32Width + w] = frame.image[2 * u32ImageSize + h*frame.image_attr.u32Width + w];;
+				frame.image[2 * u32ImageSize + h*frame.image_attr.u32Width + w] = u8tmpB;
 			}
 		}
 

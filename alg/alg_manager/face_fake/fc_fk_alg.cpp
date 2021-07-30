@@ -55,7 +55,7 @@ namespace nce_alg
         return ret;
     }  
 
-    NCE_S32 fc_fk_alg::alg_inference(img_info & pc_img)
+    NCE_S32 fc_fk_alg::alg_inference(img_t & pc_img)
     {
         NCE_S32 ret = NCE_FAILED;
 		printf("Begin alg_inference\n");

@@ -3,12 +3,12 @@
 
 using namespace nce_alg;
 
-static NCE_S32 nce_alg_init_self(NCE_PTR pPriv, engine_param_info * st_engine_param_info)
+static NCE_S32 nce_alg_init_self(NCE_PTR pPriv, param_info * st_param_info,img_info * st_img_info)
 {
 
     NCE_S32 ret = NCE_FAILED;
     nce_alg_machine *self = (nce_alg_machine *)pPriv;
-    ret = self->nce_alg_init(*st_engine_param_info);
+    ret = self->nce_alg_init(*st_param_info,*st_img_info);
     return ret;
 
 }
@@ -23,7 +23,7 @@ static NCE_S32 nce_alg_cfg_set_self(NCE_PTR pPriv,task_config_info * st_task_con
 
 }
 
-static NCE_S32 nce_alg_inference_self(NCE_PTR pPriv,img_info * pc_img)
+static NCE_S32 nce_alg_inference_self(NCE_PTR pPriv,img_t * pc_img)
 {
 
     NCE_S32 ret = NCE_FAILED;
@@ -61,7 +61,7 @@ NCE_S32 nce_alg_c_machine_int(nce_alg_c_machine *machine)
     machine->inference_func = nce_alg_inference_self;
     machine->getResult_func = nce_alg_get_result_self;
     machine->destroy_func = nce_alg_destroy_self; 
-    machine->pPriv = (NCE_PTR)new nce_alg_machine(machine->clstype);
+    machine->pPriv = (NCE_PTR)new nce_alg_machine(machine->clstype,machine->platformtype);
     return NCE_SUCCESS;
 
 }

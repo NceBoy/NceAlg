@@ -16,8 +16,8 @@ using namespace std;
 namespace nce_alg
 {
 	NCE_S32 nms(vector<alg_result> input, vector<alg_result> &output, float threshold);
-	NCE_S32 RB_REPLACE_PACKAGE(img_info & frame);
-	NCE_S32 RB_REPLACE_PLANNER(img_info & frame);
+	NCE_S32 RB_REPLACE_PACKAGE(img_t & frame);
+	NCE_S32 RB_REPLACE_PLANNER(img_t & frame);
 	NCE_S32 softmax(NCE_U32 dim, NCE_F32* score);
 }
 

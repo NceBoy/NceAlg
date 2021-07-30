@@ -93,7 +93,7 @@ namespace nce_alg
     }
 
 
-    NCE_S32 openvino_engine::engine_inference(img_info & pc_img)
+    NCE_S32 openvino_engine::engine_inference(img_t & pc_img)
     {
       InferenceEngine::Blob::Ptr input = pPriv->requestCurr.GetBlob(pPriv->network.getInputsInfo().begin()->first);
       auto buffer = input->buffer().as<InferenceEngine::PrecisionTrait<InferenceEngine::Precision::U8>::value_type *>();

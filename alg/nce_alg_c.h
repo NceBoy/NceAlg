@@ -14,11 +14,11 @@ extern "C"{
     NCE_PTR  pPriv;
 } */
 
-typedef NCE_S32 (*nce_alg_c_init)(NCE_PTR pPriv,engine_param_info * st_engine_param_info);
+typedef NCE_S32 (*nce_alg_c_init)(NCE_PTR pPriv,param_info * st_param_info,img_info * st_img_info);
 
 typedef NCE_S32 (*nnce_alg_c_cfg_set)(NCE_PTR pPriv,task_config_info * st_task_config_info);
 
-typedef NCE_S32 (*nce_alg_c_inference)(NCE_PTR pPriv,img_info * pc_img);
+typedef NCE_S32 (*nce_alg_c_inference)(NCE_PTR pPriv,img_t * pc_img);
 
 typedef NCE_S32 (*nce_alg_c_get_result)(NCE_PTR pPriv,alg_result_info * results);
 
@@ -28,6 +28,7 @@ typedef struct nce_alg_c_machine
 {
     NCE_PTR  pPriv;
     taskcls  clstype;
+    platform platformtype;
     nce_alg_c_init init_func;
     nnce_alg_c_cfg_set cfg_set_func;
     nce_alg_c_inference inference_func;

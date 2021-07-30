@@ -15,27 +15,28 @@ include(${PROJECT_SOURCE_DIR}/platform/${PLATFORM}/${PLATFORM}.cmake)
 
 INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/alg/)
 INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/alg/alg_manager/)
-INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/alg/alg_manager/face_fake)
-INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/alg/alg_manager/face_fake/sil/)
+#INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/alg/alg_manager/face_fake)
+#INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/alg/alg_manager/face_fake/sil/)
 INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/alg/alg_manager/hd_alg/)
-INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/alg/alg_manager/hd_alg/ttf/)
+#INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/alg/alg_manager/hd_alg/ttf/)
 INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/alg/alg_manager/util/)
 
 INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/alg/engine_manager/)
 INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/alg/engine_manager/engine_interface/hisi_3516dv300/)
-INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/alg/engine_manager/engine_interface/hisi_3559av100/)
-INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/alg/engine_manager/engine_interface/openvino_backend/)
-INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/alg/engine_manager/engine_interface/host/)
+INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/alg/engine_manager/engine_interface/rv_1126/)
+#INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/alg/engine_manager/engine_interface/hisi_3559av100/)
+#INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/alg/engine_manager/engine_interface/openvino_backend/)
+#INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/alg/engine_manager/engine_interface/host/)
 INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR})
 
-INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/opencv)
+
 
 AUX_SOURCE_DIRECTORY(${PROJECT_SOURCE_DIR}/alg/ ALG_SRC)
 AUX_SOURCE_DIRECTORY(${PROJECT_SOURCE_DIR}/alg/engine_manager/ ENGINE_MANAGER_SRC)
 AUX_SOURCE_DIRECTORY(${PROJECT_SOURCE_DIR}/alg/alg_manager/hd_alg/ HD_SRC)
-AUX_SOURCE_DIRECTORY(${PROJECT_SOURCE_DIR}/alg/alg_manager/hd_alg/ttf TTF_SRC)
-AUX_SOURCE_DIRECTORY(${PROJECT_SOURCE_DIR}/alg/alg_manager/face_fake/ FK_SRC)
-AUX_SOURCE_DIRECTORY(${PROJECT_SOURCE_DIR}/alg/alg_manager/face_fake/sil SIL_SRC)
+#AUX_SOURCE_DIRECTORY(${PROJECT_SOURCE_DIR}/alg/alg_manager/hd_alg/ttf TTF_SRC)
+#AUX_SOURCE_DIRECTORY(${PROJECT_SOURCE_DIR}/alg/alg_manager/face_fake/ FK_SRC)
+#AUX_SOURCE_DIRECTORY(${PROJECT_SOURCE_DIR}/alg/alg_manager/face_fake/sil SIL_SRC)
 AUX_SOURCE_DIRECTORY(${PROJECT_SOURCE_DIR}/alg/alg_manager/util UTIL_SRC)
 
 if(EXE_TEST MATCHES "OFF")
@@ -44,9 +45,6 @@ ADD_LIBRARY(${PROJECT_NAME} SHARED
 ${ALG_SRC}
 ${ENGINE_MANAGER_SRC}
 ${HD_SRC}
-${TTF_SRC}
-${FK_SRC}
-${SIL_SRC}
 ${UTIL_SRC}
 ${PLATFORM_SRC})
 #静态库不能写为同名，否则会被动态库覆盖
@@ -54,9 +52,6 @@ ADD_LIBRARY(${PROJECT_NAME}-static STATIC
 ${ALG_SRC}
 ${ENGINE_MANAGER_SRC}
 ${HD_SRC}
-${TTF_SRC}
-${FK_SRC}
-${SIL_SRC}
 ${UTIL_SRC}
 ${PLATFORM_SRC})
 
@@ -97,7 +92,7 @@ ${FK_SRC}
 ${SIL_SRC}
 ${UTIL_SRC}
 ${PLATFORM_SRC}
-${PROJECT_SOURCE_DIR}/demo/${PLATFORM}/nce_alg_fake_test.cpp)
+${PROJECT_SOURCE_DIR}/demo/${PLATFORM}/nce_alg_test.cpp)
 
 target_link_libraries(${PROJECT_NAME}
 -Wl,--start-group

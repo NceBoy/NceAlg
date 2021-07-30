@@ -13,7 +13,7 @@ file(GLOB  PLATFORM_SRC ${PROJECT_SOURCE_DIR}/platform/hisi_3559av100/drv/hisi_s
 message("${PLATFORM_SRC}")
 
 
-
+SET(HISI_4096 4096.f)
 if(OPENCVOPTION MATCHES "ON")
 SET(OPENCV_LIB
 "${PROJECT_SOURCE_DIR}/platform/hisi_3559av100/lib/opencv/libopencv_core.so"

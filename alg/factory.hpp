@@ -20,7 +20,7 @@ namespace nce_alg
         {FACE_DETECT,"nce_alg::fd_alg"},
         {FACE_PRNET,"nce_alg::fp_alg"},
         {FACE_RECOGNIZE,"nce_alg::fr_alg"},
-        {FACE_FAKE,"nce_alg::fk_alg"},
+        {FACE_FAKE,"nce_alg::fc_fk_alg"},
     };
     static std::map<int,std::string> _enumstr_engine_map =
     {

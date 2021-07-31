@@ -58,11 +58,11 @@ namespace nce_alg
     };
 
 
-    NCE_S32 openvino_engine::engine_init(const engine_param_info & st_engine_param_info, img_info & st_img_info)
+    NCE_S32 openvino_engine::engine_init(const param_info & st_param_info, img_info & st_img_info, map<int, tmp_map_result> & st_result_map)
     {
-
-		char* pc_device = st_engine_param_info.st_engine_info.st_openvino_param.pc_device_name;
-        char* pc_model_path = st_engine_param_info.pc_model_path;
+        std::map<int, tmp_map_result>::iterator iter;
+		char* pc_device = st_param_info.st_engine_info.st_openvino_param.pc_device_name;
+        char* pc_model_path = st_param_info.pc_model_path;
 
 		pPriv = shared_ptr<openvino_engine::engine_priv>(new openvino_engine::engine_priv());
         pPriv->network = pPriv->ie.ReadNetwork(pc_model_path);	
@@ -88,6 +88,24 @@ namespace nce_alg
 		st_img_info.u32channel = pPriv->u32Dims;
 		st_img_info.u32Width = pPriv->u32Width;
 		st_img_info.u32Height = pPriv->u32Height;
+
+        st_img_info.format = PLANNER;
+        //NCE强制要求RGB，给你脸了？
+        st_img_info.order = RGB;
+        int count = 0;
+        for (iter=st_result_map.begin(); iter!=st_result_map.end(); iter++,count++)
+        {
+            InferenceEngine::Blob::Ptr  feat     = pPriv->requestCurr.GetBlob(iter->second.tensor.name);
+			InferenceEngine::SizeVector featdims = feat->getTensorDesc().getDims();
+            st_result_map[count].tensor.u32ch = featdims[1];
+            st_result_map[count].tensor.u32FeatWidth  = featdims[3];
+			st_result_map[count].tensor.u32FeatHeight = featdims[2];
+			st_result_map[count].tensor.u32Stride   = featdims[3];
+            st_result_map[count].tensor.zp = 0;
+            st_result_map[count].tensor.fl = 0;
+            st_result_map[count].tensor.scale = 1;
+            st_result_map[count].tensor.outfmt = PLANNER;
+        }
         return NCE_SUCCESS;
 
     }
@@ -98,13 +116,13 @@ namespace nce_alg
       InferenceEngine::Blob::Ptr input = pPriv->requestCurr.GetBlob(pPriv->network.getInputsInfo().begin()->first);
       auto buffer = input->buffer().as<InferenceEngine::PrecisionTrait<InferenceEngine::Precision::U8>::value_type *>();
 	  NCE_U8 *tmpImage;
-      if (PACKAGE == pc_img.format)
+      if (PACKAGE == pc_img.image_attr.format)
       {
       	  pPriv->package2planner(pc_img.image);
 		  tmpImage = pPriv->pu8InputImage;
       }
 
-      else if (PLANNER == pc_img.format)
+      else if (PLANNER == pc_img.image_attr.format)
       {
 		  tmpImage = pc_img.image;
       }
@@ -115,20 +133,12 @@ namespace nce_alg
 	  return NCE_SUCCESS;
     }
 
-    NCE_S32 openvino_engine::engine_get_result(map<string, engine_result> & st_engine_result)
+    NCE_S32 openvino_engine::engine_get_result(map<int, tmp_map_result> & st_engine_result)
     {
-		std::map<string, engine_result>::iterator iter;
-        NCE_S32 count = 0;
+		std::map<int, tmp_map_result>::iterator iter;
         for (iter=st_engine_result.begin(); iter!=st_engine_result.end(); iter++)
         {
-			InferenceEngine::Blob::Ptr  feat     = pPriv->requestCurr.GetBlob(iter->first);
-			InferenceEngine::SizeVector featdims = feat->getTensorDesc().getDims();
-            iter->second.pu32Feat       = (NCE_S32*)pPriv->requestCurr.GetBlob(iter->first)->buffer();
-			iter->second.u32FeatHeight = featdims[2];
-			iter->second.u32FeatWidth  = featdims[3];
-			iter->second.u32Stride     = featdims[3];
-			iter->second.u32ch         = featdims[1];
-            count++;
+            iter->second.pu32Feat       = (NCE_S32*)pPriv->requestCurr.GetBlob(iter->second.tensor.name)->buffer();
         }
 
 		return NCE_SUCCESS;

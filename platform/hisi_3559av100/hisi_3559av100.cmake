@@ -2,6 +2,7 @@ INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/platform/hisi_3559av100/drv/hisi_sdk_i
 					${PROJECT_SOURCE_DIR}/platform/hisi_3559av100/drv/hisi_sdk_src/common/
 					${PROJECT_SOURCE_DIR}/platform/hisi_3559av100/drv/hisi_sdk_src/nnie/sample/
 					${PROJECT_SOURCE_DIR}/platform/hisi_3559av100/drv/hisi_sdk_src/nnie/sample_nnie_software/
+					(${PROJECT_SOURCE_DIR}/platform/hisi_3559av100/opencv/)
 					)
 
 file(GLOB  PLATFORM_SRC ${PROJECT_SOURCE_DIR}/platform/hisi_3559av100/drv/hisi_sdk_src/common/*.c

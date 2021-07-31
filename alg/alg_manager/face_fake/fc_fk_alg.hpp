@@ -7,6 +7,8 @@
 #include "IEngine.hpp"
 #include<vector>
 #include <memory>
+#include "self_type.hpp"
+#include "factory.hpp"
 #ifdef __cplusplus
 #if __cplusplus
 
@@ -35,10 +37,8 @@ namespace nce_alg
 	{
 	public:
 		task_config_info    		 alg_cfg;
-		shared_ptr<IEngine> 	 	 engine_ptr;
-		map<string, engine_result>   st_engine_result;
-		alg_result              	 tmp_result;
-		person_head             	 head_info;
+		vector<alg_result>     	 	 tmp_result;
+		vector<person_head>     	 head_info;
 		img_info* 			    	 input_info;
 		NCE_F32*                	 score;
 		img_info					 model_image_info;
@@ -52,15 +52,17 @@ namespace nce_alg
 
 	};
 
-    class fc_fk_alg : public IAlg
+    class fc_fk_alg : public IAlg,public NceAlgCreator<fc_fk_alg>
     {
     public:
 
-        NCE_S32 alg_engine_init(const engine_param_info &st_engine_param_info);
+        NCE_S32 alg_init(const param_info &st_param_info, map<int, tmp_map_result> & st_result_map);
 
         NCE_S32 alg_cfg_set(const task_config_info & st_task_config_info);
 
         NCE_S32 alg_inference(img_t & pc_img);
+
+		NCE_S32 alg_get_result(alg_result_info & results ,map<int, tmp_map_result> & st_result_map);
 
         NCE_S32 alg_destroy();
 	

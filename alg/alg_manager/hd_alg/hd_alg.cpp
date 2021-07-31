@@ -39,8 +39,8 @@ namespace nce_alg
         //st_result_map.insert({1,pPriv->tag[1]});
         st_result_map[0] = tmp_map_result{0};
         st_result_map[1] = tmp_map_result{0};
-        //memcpy(st_result_map[0].tensor.name,"hm",3);
-        //memcpy(st_result_map[1].tensor.name,"wh",3);
+        memcpy(st_result_map[0].tensor.name,"hm",3);
+        memcpy(st_result_map[1].tensor.name,"wh",3);
         if(NULL != pPriv)
         {
             ret = NCE_SUCCESS; 
@@ -55,6 +55,7 @@ namespace nce_alg
         pPriv->alg_cfg.threshold				   = st_task_config_info.threshold;
 		pPriv->alg_cfg.st_cfg.hd_config.nms_thresh = st_task_config_info.st_cfg.hd_config.nms_thresh;
         pPriv->alg_cfg.isLog					   = st_task_config_info.isLog;
+        ret = NCE_SUCCESS;
         return ret;
     }  
 
@@ -97,8 +98,7 @@ namespace nce_alg
         NCE_U32 feature_stride = stride * height;
         //TODO 异常后处理模块 nchw nhwc处理
         NCE_F32 xi = /*(st_result_map[0].tensor.zp - st_result_map[0].tensor.fl)**/st_result_map[0].tensor.scale;
-        printf("%f,output %d zp %d fl %d, sacle %f \n",xi,st_result_map[0].tensor.outfmt,st_result_map[0].tensor.zp
-        ,st_result_map[0].tensor.fl,st_result_map[0].tensor.scale);
+        //printf("%f,output %d zp %d fl %d, sacle %f \n",xi,st_result_map[0].tensor.outfmt,st_result_map[0].tensor.zp,st_result_map[0].tensor.fl,st_result_map[0].tensor.scale);
         if(st_result_map[0].tensor.outfmt == PLANNER)
         {
             if(xi == 1.0f)

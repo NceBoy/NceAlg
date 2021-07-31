@@ -20,7 +20,7 @@ namespace nce_alg
     class host_engine: public IEngine
     {
     public:
-        NCE_S32 engine_init(const engine_param_info & st_engine_param_info)
+        NCE_S32 engine_init(const param_info & st_param_info, img_info & st_img_info,map<int, tmp_map_result> & st_result_map)
         {
             return NCE_SUCCESS;
         };
@@ -30,7 +30,7 @@ namespace nce_alg
             return NCE_SUCCESS;
         };
 
-        NCE_S32 engine_get_result(map<string, NCE_S32*> & engine_result)
+        NCE_S32 engine_get_result(map<int, tmp_map_result> & st_engine_result)
         {
             return NCE_SUCCESS;
         };

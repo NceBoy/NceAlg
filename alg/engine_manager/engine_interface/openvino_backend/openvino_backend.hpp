@@ -5,6 +5,7 @@
 #include<IEngine.hpp>
 #include<map>
 #include<memory>
+#include"factory.hpp"
 
 #ifdef __cplusplus
 #if __cplusplus
@@ -17,14 +18,14 @@ extern "C"{
 
 namespace nce_alg
 {
-    class openvino_engine: public IEngine
+    class openvino_engine:  public IEngine,public NceEngineCreator<openvino_engine>
     {
     public:
-        NCE_S32 engine_init(const engine_param_info & st_engine_param_info, img_info & st_img_info);
+        NCE_S32 engine_init(const param_info & st_param_info, img_info & st_img_info,map<int, tmp_map_result> & st_result_map);
 
         NCE_S32 engine_inference(img_t & pc_img);
 
-        NCE_S32 engine_get_result(map<string, engine_result> & st_engine_result);
+        NCE_S32 engine_get_result(map<int, tmp_map_result> & st_engine_result);
 
         NCE_S32 engine_destroy();
     private:

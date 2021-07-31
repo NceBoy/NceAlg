@@ -25,7 +25,9 @@ namespace nce_alg
             std::map<int, tmp_map_result> tmp_map;
             img_info ImageInfo;
         dynamic_factory()
-        {}
+        {
+            memset(&ImageInfo,0,sizeof(img_info));
+        }
         ~dynamic_factory()
         {}
     };
@@ -69,7 +71,7 @@ namespace nce_alg
             pc_img.image_attr.u32Width,pc_img.image_attr.u32channel,pc_img.image_attr.order,pc_img.image_attr.format);
             printf("should param: h %d w %d c %d order %d format %d\n",pPriv->ImageInfo.u32Height,pPriv->ImageInfo.u32Width,
             pPriv->ImageInfo.u32channel,pPriv->ImageInfo.order,pPriv->ImageInfo.format);
-            ret = pPriv->pAlg->alg_inference(pc_img);//后续可以将这个函数改为预处理函数
+            //ret = pPriv->pAlg->alg_inference(pc_img);//后续可以将这个函数改为预处理函数
             //return ret;
         }
         ret = pPriv->pEngine->engine_inference(pc_img);

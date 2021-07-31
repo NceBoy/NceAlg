@@ -41,7 +41,6 @@ namespace nce_alg
 	        printf("no match alg!\n");
             return NULL;
         }
-        printf("alg str is %s\n",_enumstr_alg_map[alg_type]);
         return it->second();
     }
 
@@ -56,10 +55,9 @@ namespace nce_alg
         std::map<std::string, CreateEngineFunction>::iterator it = _create_engine_function_map.find(_enumstr_engine_map[platform_type]);
         if (it == _create_engine_function_map.end())
         {
-        printf("no match engine!\n");
+            printf("no match engine!\n");
             return NULL;
         }
-        printf("engine str is %s\n",_enumstr_engine_map[platform_type]);
         return it->second();
     }
 }

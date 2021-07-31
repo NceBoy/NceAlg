@@ -34,7 +34,7 @@ jobs:
     - name: Configure CMake
       working-directory: ${{github.workspace}}/build
       shell: bash
-      run: cmake $GITHUB_WORKSPACE -DCMAKE_TOOLCHAIN_FILE=$GITHUB_WORKSPACE/platform/host/host_toolchain.cmake -DPLATFORM=host -DOPENCVOPTION=OFF -DEXE_TEST=ON -DCMAKE_BUILD_TYPE=Debug
+      run: cmake $GITHUB_WORKSPACE -DCMAKE_TOOLCHAIN_FILE=$GITHUB_WORKSPACE/platform/host/host_toolchain.cmake -DPLATFORM=host -DOPENCVOPTION=OFF -DEXE_TEST=OFF -DCMAKE_BUILD_TYPE=Debug
 
 
     - name: Build with cov-build

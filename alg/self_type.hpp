@@ -3,7 +3,12 @@
 #include "alg_type.h"
 namespace nce_alg
 {
-
+    typedef enum Tagfeattype
+    {
+        FEAT_S32,
+        FEAT_F32,
+        FEAT_MAX,
+    }feattype;
 
     typedef struct output_tensor
     {
@@ -20,6 +25,7 @@ namespace nce_alg
 
     typedef struct tmp_map_result
     {
+        NCE_S32  feat_type;  
         NCE_S32* pu32Feat;
         output_tensor tensor;
     }tmp_map_result;

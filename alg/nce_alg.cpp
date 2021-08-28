@@ -16,13 +16,21 @@
 using namespace std;
 namespace nce_alg
 {    
+    typedef nce_base_process* (*base_process_create)(ImageProcessParam param);
 
     class nce_alg_machine::dynamic_factory
     {
         public:
             shared_ptr<IEngine> pEngine;
             shared_ptr<IAlg> pAlg;
-            std::map<int, tmp_map_result> tmp_map;
+            std::map<int, tmp_map_result>      tmp_map;
+            std::map<int, base_process_create> img_process_map = 
+            {
+                {PROC_PACKAGE2PLANNER, nce_package2planner::create_instance},
+                {PROC_PLANNER2PACKAGE, nce_planner2package::create_instance},
+                {PROC_NORMALIZATION,   nce_normalization::create_instance},
+            };
+            std::vector<nce_base_process*> img_pre_processes;
             img_info ImageInfo;
         dynamic_factory()
         {
@@ -36,9 +44,9 @@ namespace nce_alg
     nce_alg_machine::nce_alg_machine(taskcls alg_type,const platform engine_type)
     {
 
-        pPriv = shared_ptr<dynamic_factory>(new nce_alg_machine::dynamic_factory());
-        pPriv->pAlg = NceFactory::Instance().CreateAlg(alg_type);
-	pPriv->pEngine = NceFactory::Instance().CreateEngine(engine_type);
+        pPriv          = shared_ptr<dynamic_factory>(new nce_alg_machine::dynamic_factory());
+        pPriv->pAlg    = NceFactory::Instance().CreateAlg(alg_type);
+	    pPriv->pEngine = NceFactory::Instance().CreateEngine(engine_type);
 
     }
 
@@ -50,6 +58,7 @@ namespace nce_alg
         memcpy(&st_img_info,&pPriv->ImageInfo,sizeof(img_info));
         return ret;
     }
+
     NCE_S32 nce_alg_machine::nce_alg_cfg_set(const task_config_info &st_task_config_info)
     {
         NCE_S32 ret = NCE_FAILED;
@@ -57,9 +66,25 @@ namespace nce_alg
         return ret;   
     }
 
+    NCE_S32 nce_alg_machine::nce_alg_process_set(std::vector<ImageProcessParam> & pre_proc_cfg)
+    {
+        pPriv->img_pre_processes.clear();
+        NCE_S32 ret = NCE_FAILED;
+        for (auto iter:pre_proc_cfg)
+        {
+            pPriv->img_pre_processes.push_back(pPriv->img_process_map[iter.type](iter));
+        }
+        return ret;   
+    }
+
     NCE_S32 nce_alg_machine::nce_alg_inference(img_t & pc_img)
     {
-       NCE_S32 ret = NCE_FAILED;  
+       NCE_S32 ret = NCE_FAILED;
+       for (auto iter : pPriv->img_pre_processes)
+       {
+           iter->forward(&pc_img);
+       }
+
        if(pc_img.image_attr.format != pPriv->ImageInfo.format||
             pc_img.image_attr.u32channel != pPriv->ImageInfo.u32channel||
             pc_img.image_attr.u32Height != pPriv->ImageInfo.u32Height||

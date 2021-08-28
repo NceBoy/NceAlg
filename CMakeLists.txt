@@ -25,6 +25,9 @@ INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/alg/engine_manager/engine_interface/rv
 INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/alg/engine_manager/engine_interface/hisi_3559av100/)
 INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/alg/engine_manager/engine_interface/openvino_backend/)
 INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/alg/engine_manager/engine_interface/host/)
+
+INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/common/)
+
 INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR})
 
 
@@ -34,6 +37,7 @@ AUX_SOURCE_DIRECTORY(${PROJECT_SOURCE_DIR}/alg/engine_manager/ ENGINE_MANAGER_SR
 AUX_SOURCE_DIRECTORY(${PROJECT_SOURCE_DIR}/alg/alg_manager/hd_alg/ HD_SRC)
 AUX_SOURCE_DIRECTORY(${PROJECT_SOURCE_DIR}/alg/alg_manager/face_fake/ FK_SRC)
 AUX_SOURCE_DIRECTORY(${PROJECT_SOURCE_DIR}/alg/alg_manager/util UTIL_SRC)
+AUX_SOURCE_DIRECTORY(${PROJECT_SOURCE_DIR}/common/ COMMON_SRC)
 
 if(EXE_TEST MATCHES "OFF")
 #生成动态库  静态库则 STATIC
@@ -43,7 +47,8 @@ ${ENGINE_MANAGER_SRC}
 ${HD_SRC}
 ${FK_SRC}
 ${UTIL_SRC}
-${PLATFORM_SRC})
+${PLATFORM_SRC}
+${COMMON_SRC})
 #静态库不能写为同名，否则会被动态库覆盖
 ADD_LIBRARY(${PROJECT_NAME}-static STATIC
 ${ALG_SRC}
@@ -51,7 +56,8 @@ ${ENGINE_MANAGER_SRC}
 ${HD_SRC}
 ${FK_SRC}
 ${UTIL_SRC}
-${PLATFORM_SRC})
+${PLATFORM_SRC}
+${COMMON_SRC})
 
 
 target_link_libraries(${PROJECT_NAME}
@@ -88,7 +94,8 @@ ${HD_SRC}
 ${FK_SRC}
 ${UTIL_SRC}
 ${PLATFORM_SRC}
-${PROJECT_SOURCE_DIR}/demo/${PLATFORM}/nce_alg_test.cpp)
+${COMMON_SRC}
+${PROJECT_SOURCE_DIR}/demo/${PLATFORM}/nce_alg_test_process.cpp)
 
 target_link_libraries(${PROJECT_NAME}
 -Wl,--start-group

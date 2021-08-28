@@ -91,14 +91,18 @@ namespace nce_alg
         NCE_U32  width   = st_result_map[0].tensor.u32FeatWidth;
         NCE_U32  height  = st_result_map[0].tensor.u32FeatHeight;
         NCE_U32  stride  = st_result_map[0].tensor.u32Stride;
-        
+
         NCE_F32 * cls = (NCE_F32 *)st_result_map[0].pu32Feat;
         NCE_F32 * reg = (NCE_F32 *)st_result_map[1].pu32Feat;
+
+
         NCE_U32 feature_size   = width  * height;
         NCE_U32 feature_stride = stride * height;
+
+
         //TODO 异常后处理模块 nchw nhwc处理
         NCE_F32 xi = /*(st_result_map[0].tensor.zp - st_result_map[0].tensor.fl)**/st_result_map[0].tensor.scale;
-        //printf("%f,output %d zp %d fl %d, sacle %f \n",xi,st_result_map[0].tensor.outfmt,st_result_map[0].tensor.zp,st_result_map[0].tensor.fl,st_result_map[0].tensor.scale);
+        printf("%f,output %d zp %d fl %d, sacle %f \n",xi,st_result_map[0].tensor.outfmt,st_result_map[0].tensor.zp,st_result_map[0].tensor.fl,st_result_map[0].tensor.scale);
         if(st_result_map[0].tensor.outfmt == PLANNER)
         {
             if(xi == 1.0f)
@@ -134,15 +138,15 @@ namespace nce_alg
                 {
                     NCE_U32 cur_h = i / width;
                     NCE_U32 cur_w = i % width;
-                    
+
                     NCE_F32 score      = (NCE_F32) (cls[cur_h * stride + cur_w])/xi;
                     NCE_U32   left     = (NCE_F32) (reg[cur_h * stride + cur_w + feature_stride*0])/xi ;
                     NCE_U32   top      = (NCE_F32) (reg[cur_h * stride + cur_w + feature_stride*1])/xi ;
                     NCE_U32   right    = (NCE_F32) (reg[cur_h * stride + cur_w + feature_stride*2])/xi ;
                     NCE_U32   down     = (NCE_F32) (reg[cur_h * stride + cur_w + feature_stride*3])/xi ;
-
+                 
                     if (score < pPriv->alg_cfg.threshold) continue;
-                    //printf("count:%d score:%f\n", i, score);
+
                     NCE_U32 x1    = cur_w * ratio - left;
                     NCE_U32 y1    = cur_h * ratio - top;
                     NCE_U32 x2    = cur_w * ratio + right;

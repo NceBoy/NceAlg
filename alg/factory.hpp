@@ -10,8 +10,8 @@
 	#include <cxxabi.h>
 	#define NCE_CLASS_NAME(sour)  abi::__cxa_demangle(typeid(sour).name(), nullptr, nullptr, nullptr)
 #endif
-
 using namespace std;
+
 namespace nce_alg
 {
     static std::map<int,std::string> _enumstr_alg_map = 

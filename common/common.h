@@ -86,23 +86,20 @@ class nce_base_process
 {
 public:
     nce_base_process() {}
-    static nce_base_process* create_instance(ImageProcessParam param){ return nullptr;}
-    NCE_S32 forward(img_t* input_img) { return NCE_FAILED; }
+    //nce_base_process* create_instance(ImageProcessParam param){ return nullptr;}
+    NCE_S32 forward(img_t& input_img) { return NCE_FAILED; }
 };
+
 
 template<class P>
-class ImageProcessFactory
+nce_base_process* create_instance(ImageProcessParam param)
 {
-    static nce_base_process* create_instance(ImageProcessParam param)
-    {
-        P* parent_ptr;
-        parent_ptr = new P(param);
-        return (nce_base_process*)parent_ptr;
-    }
-};
+    P* parent_ptr;
+    parent_ptr = new P(param);
+    return (nce_base_process*)parent_ptr;
+}
 
-
-class nce_planner2package :public nce_base_process, ImageProcessFactory<nce_planner2package>
+class nce_planner2package :public nce_base_process
 {
 public:
     nce_planner2package(ImageProcessParam param);
@@ -112,7 +109,7 @@ private:
     NCE_U8* tmp_buffer;
 };
 
-class nce_package2planner: public nce_base_process, ImageProcessFactory<nce_package2planner>
+class nce_package2planner: public nce_base_process
 {
 public:
     nce_package2planner(ImageProcessParam param);
@@ -122,14 +119,14 @@ private:
     NCE_U8* tmp_buffer;
 };
 
-class nce_gray2bgr: public nce_base_process, ImageProcessFactory<nce_gray2bgr>
+class nce_gray2bgr: public nce_base_process
 {
 public:
     nce_gray2bgr(ImageProcessParam param);
     NCE_S32 forward(img_t& input_img);
 
 };
-class nce_normalization: public nce_base_process, ImageProcessFactory<nce_normalization>
+class nce_normalization: public nce_base_process
 {
 public:
     nce_normalization(ImageProcessParam param);
@@ -139,7 +136,7 @@ private:
     NCE_F32 var[3];
 };
 
-class hhhh : public nce_base_process, ImageProcessFactory<hhhh>
+class hhhh : public nce_base_process
 {
 public:
     hhhh(ImageProcessParam param);
@@ -149,7 +146,7 @@ private:
     img_t output_img;
 };
 
-class nce_resize: public nce_base_process, ImageProcessFactory<nce_resize>
+class nce_resize: public nce_base_process
 {
 public:
     nce_resize(ImageProcessParam param);

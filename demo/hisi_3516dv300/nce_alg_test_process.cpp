@@ -39,7 +39,7 @@ int main(int argc, char *argv[])
     
 //opencv读进来 是hwc 也就是 pakcage
 		img_t frame;
-        nce_read_img(pcSrcFile, &frame);
+        nce_read_img(pcSrcFile, frame);
 		//cvtColor(image, image, COLOR_BGR2RGB);
 
 
@@ -96,7 +96,7 @@ int main(int argc, char *argv[])
         NCE_S32  color[3] = {0, 0, 255};
         Bbox box;
         nce_package2planner doo(package2planner);
-        doo.forward(&frame);
+        doo.forward(frame);
 
 		for (int i = 0; i < results.num; i++)
 		{
@@ -107,16 +107,16 @@ int main(int argc, char *argv[])
 			box.x2 = result->x2;
 			box.y2 = result->y2;
             printf(" %d %d %d %d\n",box.x1,box.x2,box.y1,box.y2);
-			nce_draw_bbox(&frame,box,2,color);
+			nce_draw_bbox(frame,box,2,color);
 
 		}
 		hd_model.nce_alg_destroy();
 
         nce_planner2package doo2(planner2package);
-        doo2.forward(&frame);
+        doo2.forward(frame);
 
-		nce_write_img("result.jpg", &frame);
-        nce_free_img(&frame);
+		nce_write_img("result.jpg", frame);
+        nce_free_img(frame);
         SAMPLE_COMM_SVP_CheckSysExit();
 	}
     //HI_MPI_SYS_Munmap((void *)&u64VirAddr, 640*640*12);

@@ -26,9 +26,9 @@ namespace nce_alg
             std::map<int, tmp_map_result>      tmp_map;
             std::map<int, base_process_create> img_process_map = 
             {
-                {PROC_PACKAGE2PLANNER, nce_package2planner::create_instance},
-                {PROC_PLANNER2PACKAGE, nce_planner2package::create_instance},
-                {PROC_NORMALIZATION,   nce_normalization::create_instance},
+                {PROC_PACKAGE2PLANNER, create_instance<nce_package2planner>},
+                {PROC_PLANNER2PACKAGE, create_instance<nce_planner2package>},
+                {PROC_NORMALIZATION,  create_instance<nce_normalization>},
             };
             std::vector<nce_base_process*> img_pre_processes;
             img_info ImageInfo;
@@ -82,7 +82,7 @@ namespace nce_alg
        NCE_S32 ret = NCE_FAILED;
        for (auto iter : pPriv->img_pre_processes)
        {
-           iter->forward(&pc_img);
+           iter->forward(pc_img);
        }
 
        if(pc_img.image_attr.format != pPriv->ImageInfo.format||

@@ -90,6 +90,7 @@ ${UTIL_SRC}
 ${PLATFORM_SRC}
 ${PROJECT_SOURCE_DIR}/demo/${PLATFORM}/nce_alg_test.cpp)
 
+message(====================${OPENCV_LIB}===============================)
 target_link_libraries(${PROJECT_NAME}
 -Wl,--start-group
 ${OPENCV_LIB}

@@ -24,6 +24,7 @@ typedef enum
     RV_1126,
     RV_1109,
     OPENVINO,
+    MNNPLATFORM,
     HOST,
     MAX_PLATFORM,
 }platform;
@@ -35,7 +36,9 @@ typedef enum
     FACE_PRNET,
     FACE_RECOGNIZE,
     FACE_FAKE,
+    CENTERNET,
     MAX_CLS,
+
 }taskcls;
 
 typedef enum
@@ -94,6 +97,12 @@ typedef struct param_info
             char* pc_device_name;
 
         }st_openvino_param;
+
+        struct MNN_param
+        {
+            char* pc_device_name;
+
+        }MNN_param;
         /* data */
     }st_engine_info;
 	char*       pc_model_path;

@@ -39,8 +39,8 @@ namespace nce_alg
         //st_result_map.insert({1,pPriv->tag[1]});
         st_result_map[0] = tmp_map_result{0};
         st_result_map[1] = tmp_map_result{0};
-        memcpy(st_result_map[0].tensor.name,"hm",3);
-        memcpy(st_result_map[1].tensor.name,"wh",3);
+        st_result_map[0].tensor.name = "hm";
+        st_result_map[1].tensor.name = "wh";
         if(NULL != pPriv)
         {
             ret = NCE_SUCCESS; 
@@ -148,7 +148,7 @@ namespace nce_alg
                     NCE_U32 x2    = cur_w * ratio + right;
                     NCE_U32 y2    = cur_h * ratio + down;
                     NCE_F32 fake = 0.f;
-                    NCE_S32  angle[3] = {0, 0, 0};
+                    NCE_S32 angle[3] = {0, 0, 0};
                     pPriv->head_info.push_back(person_head{fake, angle[0], angle[1], angle[2]});
                     //cun shu xing
                     pPriv->tmp_result.push_back(alg_result{x1, y1, x2, y2, score, PERSON_HEAD, &pPriv->head_info[pPriv->head_info.size()-1]});

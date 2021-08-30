@@ -52,7 +52,7 @@ namespace nce_alg
 
 	};
 
-    class fc_fk_alg : public IAlg,public NceAlgCreator<fc_fk_alg>
+    class fc_fk_alg : public IAlg, public NceAlgCreator<fc_fk_alg>
     {
     public:
 

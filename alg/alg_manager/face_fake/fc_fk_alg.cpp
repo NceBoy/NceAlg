@@ -32,7 +32,7 @@ namespace nce_alg
         NCE_S32 ret = NCE_FAILED;
 		pPriv = shared_ptr<fc_fk_alg_priv>(new fc_fk_alg_priv());
 		st_result_map[0] = tmp_map_result{0};
-		memcpy(st_result_map[0].tensor.name,"Conv_97",8);
+		st_result_map[0].tensor.name = "Conv_97";
         return ret;
     }
 
@@ -66,13 +66,13 @@ namespace nce_alg
 			return NCE_FAILED;
 		}
 
-    
-		NCE_F32* cls = (NCE_F32*)st_result_map[0].pu32Feat;
+		NCE_F32* cls     = (NCE_F32*)st_result_map[0].pu32Feat;
         NCE_U32  width   = st_result_map[0].tensor.u32FeatWidth;
         NCE_U32  height  = st_result_map[0].tensor.u32FeatHeight;
         NCE_U32  stride  = st_result_map[0].tensor.u32Stride;
 
-		NCE_F32 xi = /*(st_result_map[0].tensor.zp - st_result_map[0].tensor.fl)**/st_result_map[0].tensor.scale;
+		NCE_F32  xi      = st_result_map[0].tensor.scale;
+        /*(st_result_map[0].tensor.zp - st_result_map[0].tensor.fl)**/
         //printf("%f,output %d zp %d fl %d, sacle %f \n",xi,st_result_map[0].tensor.outfmt,st_result_map[0].tensor.zp,st_result_map[0].tensor.fl,st_result_map[0].tensor.scale);
         if(st_result_map[0].tensor.outfmt == PLANNER)
         {
@@ -84,9 +84,9 @@ namespace nce_alg
             }
             else
             {
-				pPriv->score[0] = cls[0*stride]/xi;
-				pPriv->score[1] = cls[1*stride]/xi;
-				pPriv->score[2] = cls[2*stride]/xi;
+				pPriv->score[0] = cls[0*stride] / xi;
+				pPriv->score[1] = cls[1*stride] / xi;
+				pPriv->score[2] = cls[2*stride] / xi;
             }
 
         }

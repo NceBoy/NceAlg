@@ -4,6 +4,7 @@
 #include "IAlg.hpp"
 #include "IEngine.hpp"
 #include <memory>
+
 #ifndef __GNUC__
 	#define NCE_CLASS_NAME(sour)   typeid(sour).name() 
 #else
@@ -16,21 +17,23 @@ namespace nce_alg
 {
     static std::map<int,std::string> _enumstr_alg_map = 
     {
-        {PERSON_HEAD,"nce_alg::hd_alg"},
-        {FACE_DETECT,"nce_alg::fd_alg"},
-        {FACE_PRNET,"nce_alg::fp_alg"},
-        {FACE_RECOGNIZE,"nce_alg::fr_alg"},
-        {FACE_FAKE,"nce_alg::fc_fk_alg"},
+        {CENTERNET,      "nce_alg::centernet"},
+        {PERSON_HEAD,    "nce_alg::hd_alg"},
+        {FACE_DETECT,    "nce_alg::fd_alg"},
+        {FACE_PRNET,     "nce_alg::fp_alg"},
+        {FACE_RECOGNIZE, "nce_alg::fr_alg"},
+        {FACE_FAKE,      "nce_alg::fc_fk_alg"},
     };
     static std::map<int,std::string> _enumstr_engine_map =
     {
-        {HISI_3516DV300,"nce_alg::hisi_3516dv300_engine"},
-        {HISI_3559AV100,"nce_alg::hisi_3559av100_engine"},
-        {RK_1808,"nce_alg::rk_1808_engine"},
-        {RV_1126,"nce_alg::rv1126_engine"},
-        {RV_1109,"nce_alg::rv_1109_engine"},
-        {OPENVINO,"nce_alg::openvino_engine"},
-        {HOST,"nce_alg::host_engine"},
+        {HISI_3516DV300, "nce_alg::hisi_3516dv300_engine"},
+        {HISI_3559AV100, "nce_alg::hisi_3559av100_engine"},
+        {RK_1808,        "nce_alg::rk_1808_engine"},
+        {RV_1126,        "nce_alg::rv1126_engine"},
+        {RV_1109,        "nce_alg::rv_1109_engine"},
+        {OPENVINO,       "nce_alg::openvino_engine"},
+        {MNNPLATFORM,    "nce_alg::MNN_engine"},
+        {HOST,           "nce_alg::host_engine"},
     };
 // 动态对象创建工厂
     class NceFactory

@@ -1,3 +1,11 @@
+/*
+ * @Descripttion: 
+ * @version: 
+ * @Author: Haochen Ye
+ * @Date: 2021-08-20 10:32:17
+ * @LastEditors: Haochen Ye
+ * @LastEditTime: 2021-08-31 14:43:00
+ */
 #include "factory.hpp"
 #include "stdio.h"
 
@@ -34,7 +42,6 @@ namespace nce_alg
             return NULL;
         }
 
-        //std::map<std::string, CreateAlgFunction>::iterator it = _create_alg_function_map.find(alg_name);
         std::map<std::string, CreateAlgFunction>::iterator it = _create_alg_function_map.find(_enumstr_alg_map[alg_type]);
         if (it == _create_alg_function_map.end())
         {

@@ -19,8 +19,10 @@ add_compile_options(-Wno-unused-function)
 
 set(CMAKE_CXX_FLAGS "-mfloat-abi=softfp -mfpu=neon-vfpv4 -mno-unaligned-access -fno-aggressive-loop-optimizations -ffunction-sections -fdata-sections ${CMAKE_CXX_FLAGS}")
 set(CMAKE_CXX_FLAGS "-g -fPIC -O3  -std=c++11 -mcpu=cortex-a17.cortex-a7 -ldl -lrt   -lpthread ${CMAKE_CXX_FLAGS}")
+
+# add_compile_options(-g -fPIC -O3 -std=c++11 -mcpu=cortex-a17.cortex-a7)
 # add_compile_options(-mfloat-abi=softfp -mfpu=neon-vfpv4 -mno-unaligned-access -fno-aggressive-loop-optimizations -ffunction-sections -fdata-sections)
-# add_compile_options(-g -fPIC -O3  -std=c++11 -mcpu=cortex-a17.cortex-a7)
+
 # set(CMAKE_FIND_ROOT_PATH_MODE_PROGRAM NEVER)
 # set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY ONLY)
 # set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)

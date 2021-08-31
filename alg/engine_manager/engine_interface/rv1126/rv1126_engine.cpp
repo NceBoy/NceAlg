@@ -213,6 +213,7 @@ namespace nce_alg
             st_result_map[i].tensor.zp = 0;//tensor_output[i].zp;
             st_result_map[i].tensor.fl = 0;//tensor_output[i].fl;
             st_result_map[i].tensor.scale = 1;    
+            st_result_map[i].feat_type = FEAT_F32;
             //printf("%d \n",i);  
             pPriv->printRKNNTensor(&tensor_output[i]);     
         }

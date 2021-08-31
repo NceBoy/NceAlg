@@ -84,7 +84,6 @@ namespace nce_alg
 				{
 					pu8ImgTmp_stack = Frame->image;
 				}
-
 					
                 pu8PicAddr  = (HI_U8*)(size_t)(pstNnieParam->astSegData[0].astSrc[0].u64VirAddr);
                 //pu8PicAddr = SAMPLE_SVP_NNIE_CONVERT_64BIT_ADDR(HI_U8,pstNnieParam->astSegData[u32SegIdx].astSrc[u32NodeIdx].u64VirAddr);
@@ -354,6 +353,7 @@ namespace nce_alg
             st_result_map[i].tensor.fl = 0;
             st_result_map[i].tensor.scale = 4096;
             st_result_map[i].tensor.outfmt = PLANNER;
+            st_result_map[i].feat_type = FEAT_S32;
         }
 
         return NCE_SUCCESS;
@@ -418,13 +418,27 @@ namespace nce_alg
     {
         std::map<int, tmp_map_result>::iterator iter;
         NCE_S32 count = 0;
+        HI_S32 *tmp_feat = NULL;
+        NCE_F32 *tmp_feat_f32 = NULL;
+        int ret = 0;
+        
         for (iter=st_engine_result.begin(); iter!=st_engine_result.end(); iter++)
         {
-            iter->second.pu32Feat 	   = (HI_S32*)((size_t)pPriv->stENnieParam.astSegData[0].astDst[count].u64VirAddr);
+             tmp_feat = (HI_S32*)((size_t)pPriv->stENnieParam.astSegData[0].astDst[count].u64VirAddr);
+             tmp_feat_f32 = (NCE_F32 *)tmp_feat;
+
+             for(int i = 0;i<iter->second.tensor.u32Stride*iter->second.tensor.u32FeatHeight*iter->second.tensor.u32ch; i++)
+             {
+                 //NCE_F32 ret = (NCE_F32)(*(tmp_feat+i));
+                 *(tmp_feat_f32+i )= (NCE_F32)(*(tmp_feat+i));
+                 //memcpy(tmp_feat+i,&a,4);
+             }
+
+             iter->second.pu32Feat = (NCE_S32*)tmp_feat;
             count++;
         }
 		
-        return NCE_SUCCESS;
+        return ret;
     }
 
 

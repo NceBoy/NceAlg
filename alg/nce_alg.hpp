@@ -1,7 +1,9 @@
 #ifndef __NCE_ALG_HPP__
 #define __NCE_ALG_HPP__
 #include "alg_type.h"
+#include "common.h"
 #include <memory>
+#include <vector>
 #ifdef __cplusplus
 #if __cplusplus
 
@@ -25,6 +27,8 @@ namespace nce_alg
             NCE_S32 nce_alg_inference(img_t & pc_img);
 
             NCE_S32 nce_alg_get_result(alg_result_info & results);
+
+            NCE_S32 nce_alg_process_set(std::vector<ImageProcessParam> & pre_proc_cfg);
 
             NCE_S32 nce_alg_destroy();
 

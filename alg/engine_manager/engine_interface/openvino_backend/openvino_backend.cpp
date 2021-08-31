@@ -105,6 +105,7 @@ namespace nce_alg
             st_result_map[count].tensor.fl = 0;
             st_result_map[count].tensor.scale = 1;
             st_result_map[count].tensor.outfmt = PLANNER;
+            st_result_map[count].feat_type = FEAT_F32;
         }
         return NCE_SUCCESS;
 

@@ -95,7 +95,7 @@ ${FK_SRC}
 ${UTIL_SRC}
 ${PLATFORM_SRC}
 ${COMMON_SRC}
-${PROJECT_SOURCE_DIR}/demo/${PLATFORM}/nce_alg_test_process.cpp)
+${PROJECT_SOURCE_DIR}/demo/${PLATFORM}/nce_alg_test_common.cpp)
 
 message(====================${OPENCV_LIB}===============================)
 target_link_libraries(${PROJECT_NAME}

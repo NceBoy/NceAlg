@@ -95,14 +95,17 @@ NCE_S32 nce_draw_bbox(img_t & input_img, Bbox box, NCE_S32 line_width, NCE_S32 c
     /*color: rgb order*/
     NCE_S32 i;
 
-    NCE_S32 x1 = box.x1;
-    NCE_S32 y1 = box.y1;
-    NCE_S32 x2 = box.x2;
-    NCE_S32 y2 = box.y2;
+    NCE_S32 x1 = box.x1 - line_width / 2;
+    NCE_S32 y1 = box.y1 - line_width / 2;
+    NCE_S32 x2 = box.x2 + line_width / 2;
+    NCE_S32 y2 = box.y2 + line_width / 2;
 
     for (i = 0; i < line_width; ++i)
     {
-        int i;
+        x1 += i;
+        y1 += i;
+        x2 -= i;
+        y2 -= i;
         if (x1 < 0)
             x1 = 0;
         if (x1 >= input_img.image_attr.u32Width)
@@ -123,25 +126,25 @@ NCE_S32 nce_draw_bbox(img_t & input_img, Bbox box, NCE_S32 line_width, NCE_S32 c
 
         for (i = x1; i <= x2; ++i)
         {
-            input_img.image[i + y1 * input_img.image_attr.u32Width + 0 * input_img.image_attr.u32Width * input_img.image_attr.u32Height] = color[0];
-            input_img.image[i + y2 * input_img.image_attr.u32Width + 0 * input_img.image_attr.u32Width * input_img.image_attr.u32Height] = color[0];
+            input_img.image[(i + y1 * input_img.image_attr.u32Width) * input_img.image_attr.u32channel + 0] = color[0];
+            input_img.image[(i + y2 * input_img.image_attr.u32Width) * input_img.image_attr.u32channel + 0] = color[0];
 
-            input_img.image[i + y1 * input_img.image_attr.u32Width + 1 * input_img.image_attr.u32Width * input_img.image_attr.u32Height] = color[1];
-            input_img.image[i + y2 * input_img.image_attr.u32Width + 1 * input_img.image_attr.u32Width * input_img.image_attr.u32Height] = color[1];
+            input_img.image[(i + y1 * input_img.image_attr.u32Width) * input_img.image_attr.u32channel + 1] = color[1];
+            input_img.image[(i + y2 * input_img.image_attr.u32Width) * input_img.image_attr.u32channel + 1] = color[1];
 
-            input_img.image[i + y1 * input_img.image_attr.u32Width + 2 * input_img.image_attr.u32Width * input_img.image_attr.u32Height] = color[2];
-            input_img.image[i + y2 * input_img.image_attr.u32Width + 2 * input_img.image_attr.u32Width * input_img.image_attr.u32Height] = color[2];
+            input_img.image[(i + y1 * input_img.image_attr.u32Width) * input_img.image_attr.u32channel + 2] = color[2];
+            input_img.image[(i + y2 * input_img.image_attr.u32Width) * input_img.image_attr.u32channel + 2] = color[2];
         }
         for (i = y1; i <= y2; ++i)
         {
-            input_img.image[x1 + i * input_img.image_attr.u32Width + 0 * input_img.image_attr.u32Width * input_img.image_attr.u32Height] = color[0];
-            input_img.image[x2 + i * input_img.image_attr.u32Width + 0 * input_img.image_attr.u32Width * input_img.image_attr.u32Height] = color[0];
+            input_img.image[(i * input_img.image_attr.u32Width + x1) * input_img.image_attr.u32channel + 0] = color[0];
+            input_img.image[(i * input_img.image_attr.u32Width + x2) * input_img.image_attr.u32channel + 0] = color[0];
 
-            input_img.image[x1 + i * input_img.image_attr.u32Width + 1 * input_img.image_attr.u32Width * input_img.image_attr.u32Height] = color[1];
-            input_img.image[x2 + i * input_img.image_attr.u32Width + 1 * input_img.image_attr.u32Width * input_img.image_attr.u32Height] = color[1];
+            input_img.image[(i * input_img.image_attr.u32Width + x1) * input_img.image_attr.u32channel + 1] = color[1];
+            input_img.image[(i * input_img.image_attr.u32Width + x2) * input_img.image_attr.u32channel + 1] = color[1];
 
-            input_img.image[x1 + i * input_img.image_attr.u32Width + 2 * input_img.image_attr.u32Width * input_img.image_attr.u32Height] = color[2];
-            input_img.image[x2 + i * input_img.image_attr.u32Width + 2 * input_img.image_attr.u32Width * input_img.image_attr.u32Height] = color[2];
+            input_img.image[(i * input_img.image_attr.u32Width + x1) * input_img.image_attr.u32channel + 2] = color[2];
+            input_img.image[(i * input_img.image_attr.u32Width + x2) * input_img.image_attr.u32channel + 2] = color[2];
         }
     }
 

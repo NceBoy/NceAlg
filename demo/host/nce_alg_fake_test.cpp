@@ -14,9 +14,9 @@ using namespace nce_alg;
 using namespace cv;
 
 /******************************************************************************
-* function : show usage
-******************************************************************************/
-void Show_Usage(char* pchPrgName)
+ * function : show usage
+ ******************************************************************************/
+void Show_Usage(char *pchPrgName)
 {
     printf("Usage : %s <index> \n", pchPrgName);
     printf("index:\n");
@@ -25,77 +25,73 @@ void Show_Usage(char* pchPrgName)
 
 int main(int argc, char *argv[])
 {
-	if (argc < 3 || argc > 3)
+    if (argc < 3 || argc > 3)
     {
         Show_Usage(argv[0]);
     }
 
-	
-	try
-	{
-		char  * pcModelName = argv[1];
-		char  * pcSrcFile = argv[2];
-		
-		//SAMPLE_COMM_SVP_CheckSysInit();
-    
-		//Mat image = imread(pcSrcFile);
-		//resize(image, image, Size(80, 80));
+    try
+    {
+        char *pcModelName = argv[1];
+        char *pcSrcFile   = argv[2];
 
-		//cvtColor(image, image, COLOR_BGR2RGB);
+        // SAMPLE_COMM_SVP_CheckSysInit();
 
-		int ret;
+        // Mat image = imread(pcSrcFile);
+        // resize(image, image, Size(80, 80));
 
-		img_info frame;
-		frame.image = NULL;
-		frame.u32channel = 3;
-		frame.u32Height = 80;
-		frame.u32Width = 80;
-		frame.format = PACKAGE;
-		//nce_alg::RB_REPLACE_PACKAGE(frame);
+        // cvtColor(image, image, COLOR_BGR2RGB);
 
-		engine_param_info openvino_param;
-		openvino_param.pc_model_path = pcModelName;
+        int ret;
 
+        img_info frame;
+        frame.image      = NULL;
+        frame.u32channel = 3;
+        frame.u32Height  = 80;
+        frame.u32Width   = 80;
+        frame.format     = PACKAGE;
+        // nce_alg::RB_REPLACE_PACKAGE(frame);
 
+        engine_param_info openvino_param;
+        openvino_param.pc_model_path = pcModelName;
 
-		task_config_info task_config;
-		task_config.threshold = 0.3;
-		task_config.isLog = 0;
-		alg_result_info results;
+        task_config_info task_config;
+        task_config.threshold = 0.3;
+        task_config.isLog     = 0;
+        alg_result_info results;
 
+        nce_alg_machine hd_model(FACE_FAKE);
+        hd_model.nce_alg_init(openvino_param);
+        hd_model.nce_alg_cfg_set(task_config);
+        hd_model.nce_alg_inference(frame);
+        hd_model.nce_alg_get_result(results);
 
-		nce_alg_machine hd_model(FACE_FAKE);
-		hd_model.nce_alg_init(openvino_param);
- 		hd_model.nce_alg_cfg_set(task_config);
-		hd_model.nce_alg_inference(frame);
-		hd_model.nce_alg_get_result(results);
+        alg_result *result = NULL;
 
-		alg_result * result = NULL;
+        for (int i = 0; i < results.num; i++)
+        {
+            char        str[30];
+            alg_result *result = (alg_result *)results.st_alg_results;
+            NCE_F32     score  = ((person_head *)result->obj)->fake;
+            sprintf(str, "score:%f", score);
+            // putText(image, str, Point(5, 5), 0, 0.2, Scalar(0, 0, 255), 0.3);
+        }
+        hd_model.nce_alg_destroy();
+        // imwrite("test.jpg", image);
 
-		for (int i = 0; i < results.num; i++)
-		{
-			char str[30];
-			alg_result* result = (alg_result*)results.st_alg_results;
-			NCE_F32 score = ((person_head*)result->obj)->fake;
-			sprintf(str,"score:%f", score);
-			//putText(image, str, Point(5, 5), 0, 0.2, Scalar(0, 0, 255), 0.3);
+        // SAMPLE_COMM_SVP_CheckSysExit();
+        return 0;
 
-		}
-		hd_model.nce_alg_destroy();
-		//imwrite("test.jpg", image);
+    }
+    // HI_MPI_SYS_Munmap((void *)&u64VirAddr, 640*640*12);
 
-		//SAMPLE_COMM_SVP_CheckSysExit();
-		return 0;
-		    
-	}
-    //HI_MPI_SYS_Munmap((void *)&u64VirAddr, 640*640*12);
-
-	catch (const std::exception& error) {
-		std::cerr << "[ ERROR ] " << error.what() << std::endl;
-		return EXIT_FAILURE;
-	}
-	catch (...) {
-		std::cerr << "[ ERROR ] Unknown/internal exception happened." << std::endl;
-		return EXIT_FAILURE;
-	}
+    catch (const std::exception &error)
+    {
+        std::cerr << "[ ERROR ] " << error.what() << std::endl;
+        return EXIT_FAILURE;
+    } catch (...)
+    {
+        std::cerr << "[ ERROR ] Unknown/internal exception happened." << std::endl;
+        return EXIT_FAILURE;
+    }
 }

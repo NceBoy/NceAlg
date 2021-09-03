@@ -1,9 +1,7 @@
-#include "opencv2/core/core.hpp"
-#include "opencv2/highgui/highgui.hpp"
-#include "opencv2/imgproc/imgproc.hpp"
 #include <iostream>
 #include <stdio.h>
 #include "alg_type.h"
+#include "common.h"
 #include "nce_alg.hpp"
 #include "hi_comm_svp.h"
 #include "sample_comm_svp.h"
@@ -11,7 +9,6 @@
 
 using namespace std;
 using namespace nce_alg;
-using namespace cv;
 
 /******************************************************************************
  * function : show usage
@@ -37,22 +34,31 @@ int main(int argc, char *argv[])
         char *pcSrcFile   = argv[2];
 
         // opencv读进来 是hwc 也就是 pakcage
-        Mat image = imread(pcSrcFile);
+        img_t frame;
+        nce_read_img(pcSrcFile, frame);
         // cvtColor(image, image, COLOR_BGR2RGB);
 
         unsigned char *    pu8PicAddr = NULL;
         unsigned long long u64VirAddr = 0;
         unsigned long long u64PhyAddr = 0;
 
-        int ret;
+        int                            ret;
+        std::vector<ImageProcessParam> preprocesses;
+        ImageProcessParam              package2planner;
+        package2planner.type                              = PROC_PACKAGE2PLANNER;
+        package2planner.Info.package2planner_info.channel = 3;
+        package2planner.Info.package2planner_info.width   = 640;
+        package2planner.Info.package2planner_info.height  = 640;
 
-        img_t frame;
-        frame.image                 = image.data;
-        frame.image_attr.u32channel = 3;
-        frame.image_attr.u32Height  = 640;
-        frame.image_attr.u32Width   = 640;
-        frame.image_attr.order      = BGR;
-        frame.image_attr.format     = PACKAGE;
+        ImageProcessParam planner2package;
+        planner2package.type                              = PROC_PLANNER2PACKAGE;
+        planner2package.Info.planner2package_info.channel = 3;
+        planner2package.Info.planner2package_info.width   = 640;
+        planner2package.Info.planner2package_info.height  = 640;
+
+        preprocesses.push_back(package2planner);
+        preprocesses.push_back(planner2package);
+
         // nce_alg::RB_REPLACE_PACKAGE(frame);
 
         param_info openvino_param;
@@ -66,26 +72,43 @@ int main(int argc, char *argv[])
 
         img_info        imgInfo;
         nce_alg_machine hd_model(PERSON_HEAD, HISI_3516DV300);
+
         hd_model.nce_alg_init(openvino_param, imgInfo);
         hd_model.nce_alg_cfg_set(task_config);
-        hd_model.nce_alg_inference(frame);
-        hd_model.nce_alg_get_result(results);
+        hd_model.nce_alg_process_set(preprocesses);
 
-        alg_result *result = NULL;
+        hd_model.nce_alg_inference(frame);
+        long            spend;
+        struct timespec start, next, end;
+        clock_gettime(0, &start);
+        hd_model.nce_alg_get_result(results);
+        clock_gettime(0, &end);
+        spend = (end.tv_sec - start.tv_sec) * 1000 + (end.tv_nsec - start.tv_nsec) / 1000000;
+        printf("\n[for hisi]===== TIME SPEND: %ld ms =====\n", spend);
+        alg_result *        result   = NULL;
+        NCE_S32             color[3] = { 0, 0, 255 };
+        Bbox                box;
+        nce_package2planner doo(package2planner);
+        doo.forward(frame);
 
         for (int i = 0; i < results.num; i++)
         {
-            result = ((alg_result *)results.st_alg_results) + i;
-            int x1 = result->x1;
-            int y1 = result->y1;
-            int x2 = result->x2;
-            int y2 = result->y2;
 
-            rectangle(image, Point(x1, y1), Point(x2, y2), Scalar(0, 0, 255));
+            result = ((alg_result *)results.st_alg_results) + i;
+            box.x1 = result->x1;
+            box.y1 = result->y1;
+            box.x2 = result->x2;
+            box.y2 = result->y2;
+            printf(" %d %d %d %d\n", box.x1, box.x2, box.y1, box.y2);
+            nce_draw_bbox(frame, box, 2, color);
         }
         hd_model.nce_alg_destroy();
 
-        imwrite("test.jpg", image);
+        nce_planner2package doo2(planner2package);
+        doo2.forward(frame);
+
+        nce_write_img("result.jpg", frame);
+        nce_free_img(frame);
         SAMPLE_COMM_SVP_CheckSysExit();
     }
     // HI_MPI_SYS_Munmap((void *)&u64VirAddr, 640*640*12);

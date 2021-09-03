@@ -3,23 +3,21 @@
 
 #include <iostream>
 #include "alg_type.h"
-#include<vector>
+#include <vector>
 #ifdef __cplusplus
 #if __cplusplus
 
-extern "C"
-{
+extern "C" {
 #endif
 #endif /* __cplusplus */
 
 using namespace std;
-namespace nce_alg
-{
-	NCE_S32 nms(vector<alg_result> input, vector<alg_result> &output, float threshold);
-	NCE_S32 RB_REPLACE_PACKAGE(img_t & frame);
-	NCE_S32 RB_REPLACE_PLANNER(img_t & frame);
-	NCE_S32 softmax(NCE_U32 dim, NCE_F32* score);
-}
+namespace nce_alg {
+NCE_S32 nms(vector<alg_result> input, vector<alg_result> &output, float threshold);
+NCE_S32 RB_REPLACE_PACKAGE(img_t &frame);
+NCE_S32 RB_REPLACE_PLANNER(img_t &frame);
+NCE_S32 softmax(NCE_U32 dim, NCE_F32 *score);
+} // namespace nce_alg
 
 #ifdef __cplusplus
 #if __cplusplus

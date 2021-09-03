@@ -64,13 +64,13 @@ static NCE_S32 nce_alg_destroy_self(NCE_PTR pPriv)
 NCE_S32 nce_alg_c_machine_int(nce_alg_c_machine *machine)
 {
 
-    machine->init_func      = nce_alg_init_self;
-    machine->cfg_set_func   = nce_alg_cfg_set_self;
-    machine->inference_func = nce_alg_inference_self;
-    machine->getResult_func = nce_alg_get_result_self;
+    machine->init_func        = nce_alg_init_self;
+    machine->cfg_set_func     = nce_alg_cfg_set_self;
+    machine->inference_func   = nce_alg_inference_self;
+    machine->getResult_func   = nce_alg_get_result_self;
     machine->process_set_func = nce_alg_process_set_self;
-    machine->destroy_func   = nce_alg_destroy_self;
-    machine->pPriv          = (NCE_PTR) new nce_alg_machine(machine->clstype, machine->platformtype);
+    machine->destroy_func     = nce_alg_destroy_self;
+    machine->pPriv            = (NCE_PTR) new nce_alg_machine(machine->clstype, machine->platformtype);
     return NCE_SUCCESS;
 }
 NCE_S32 nce_alg_c_machine_destroy(nce_alg_c_machine *machine)

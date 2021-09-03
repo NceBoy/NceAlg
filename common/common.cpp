@@ -2,8 +2,7 @@
 #include "stb_image.h"
 #include "stb_image_write.h"
 
-
-NCE_S32 nce_read_img(const char* img_path, img_t & input_img)
+NCE_S32 nce_read_img(const char *img_path, img_t &input_img)
 {
 
     int width, height, channels;
@@ -24,8 +23,7 @@ NCE_S32 nce_read_img(const char* img_path, img_t & input_img)
     return NCE_SUCCESS;
 }
 
-
-NCE_S32 nce_write_img(const char* img_path, img_t & input_img)
+NCE_S32 nce_write_img(const char *img_path, img_t &input_img)
 {
     char buff[256];
 
@@ -47,50 +45,49 @@ NCE_S32 nce_write_img(const char* img_path, img_t & input_img)
 
     switch (f)
     {
-    case 0:
-        sprintf(buff, "%s.jpg", img_path);
-        success = stbi_write_jpg(buff, width, height, channel, input_img.image, 80);
-        break;
-    case 1:
-        sprintf(buff, "%s.png", img_path);
-        success = stbi_write_png(buff, width, height, channel, input_img.image, width * channel);
-        break;
-    case 2:
-        sprintf(buff, "%s.tga", img_path);
-        success = stbi_write_tga(buff, width, height, channel, input_img.image);
-        break;
-    case 3:
-        sprintf(buff, "%s.bmp", img_path);
-        success = stbi_write_bmp(buff, width, height, channel, input_img.image);
-        break;
-    default:
-        return NCE_FAILED;
+        case 0:
+            sprintf(buff, "%s.jpg", img_path);
+            success = stbi_write_jpg(buff, width, height, channel, input_img.image, 80);
+            break;
+        case 1:
+            sprintf(buff, "%s.png", img_path);
+            success = stbi_write_png(buff, width, height, channel, input_img.image, width * channel);
+            break;
+        case 2:
+            sprintf(buff, "%s.tga", img_path);
+            success = stbi_write_tga(buff, width, height, channel, input_img.image);
+            break;
+        case 3:
+            sprintf(buff, "%s.bmp", img_path);
+            success = stbi_write_bmp(buff, width, height, channel, input_img.image);
+            break;
+        default:
+            return NCE_FAILED;
     }
 
     if (!success)
     {
         fprintf(stderr, "Failed to write image %s\n", buff);
         return NCE_FAILED;
-    }   
-        
+    }
+
     return NCE_SUCCESS;
 }
 
-NCE_S32 nce_free_img(img_t & input_img)
+NCE_S32 nce_free_img(img_t &input_img)
 {
 
     if (nullptr != input_img.image)
     {
         free(input_img.image);
         input_img.image = nullptr;
-        return NCE_SUCCESS; 
+        return NCE_SUCCESS;
     }
     printf("cannot be delete twice");
     return NCE_FAILED;
-
 }
 
-NCE_S32 nce_draw_bbox(img_t & input_img, Bbox box, NCE_S32 line_width, NCE_S32 color[3])
+NCE_S32 nce_draw_bbox(img_t &input_img, Bbox box, NCE_S32 line_width, NCE_S32 color[3])
 {
     /*color: rgb order*/
     NCE_S32 i;
@@ -151,8 +148,7 @@ NCE_S32 nce_draw_bbox(img_t & input_img, Bbox box, NCE_S32 line_width, NCE_S32 c
     return NCE_SUCCESS;
 }
 
-
-NCE_S32 nce_trans(img_t & input_img, ImageProcessParam param)
+NCE_S32 nce_trans(img_t &input_img, ImageProcessParam param)
 {
     return NCE_SUCCESS;
 }
@@ -162,7 +158,7 @@ nce_planner2package::nce_planner2package(ImageProcessParam param)
     NCE_S32 width   = param.Info.planner2package_info.width;
     NCE_S32 height  = param.Info.planner2package_info.height;
     NCE_S32 channel = param.Info.planner2package_info.channel;
-    tmp_buffer      = new NCE_U8[width*height*channel];
+    tmp_buffer      = new NCE_U8[width * height * channel];
 }
 
 nce_planner2package::~nce_planner2package()
@@ -176,25 +172,25 @@ nce_planner2package::~nce_planner2package()
         printf("tmp_buffer cannot be delete twice!\n");
 }
 
-NCE_S32 nce_planner2package::forward(img_t & input_img)
+NCE_S32 nce_planner2package::forward(img_t &input_img)
 {
-    NCE_S32 width     = input_img.image_attr.u32Width;
-    NCE_S32 height    = input_img.image_attr.u32Height;
-    NCE_S32 channel   = input_img.image_attr.u32channel;
-    NCE_U32 img_size  = width * height;
-    NCE_U8* image     = input_img.image;
-    for (NCE_U32 c=0; c<channel; c++)
+    NCE_S32 width    = input_img.image_attr.u32Width;
+    NCE_S32 height   = input_img.image_attr.u32Height;
+    NCE_S32 channel  = input_img.image_attr.u32channel;
+    NCE_U32 img_size = width * height;
+    NCE_U8 *image    = input_img.image;
+    for (NCE_U32 c = 0; c < channel; c++)
     {
-        for (NCE_U32 h=0; h<height; h++)
+        for (NCE_U32 h = 0; h < height; h++)
         {
-            for (NCE_U32 w=0; w<width; w++)
+            for (NCE_U32 w = 0; w < width; w++)
             {
-                tmp_buffer[(h*width+w)*channel+c] = image[c*img_size+h*width+w];
+                tmp_buffer[(h * width + w) * channel + c] = image[c * img_size + h * width + w];
             }
         }
     }
-    memcpy(image, tmp_buffer, img_size*channel); 
-    input_img.image_attr.format     = PACKAGE;
+    memcpy(image, tmp_buffer, img_size * channel);
+    input_img.image_attr.format = PACKAGE;
     return NCE_SUCCESS;
 }
 
@@ -203,7 +199,7 @@ nce_package2planner::nce_package2planner(ImageProcessParam param)
     NCE_S32 width   = param.Info.planner2package_info.width;
     NCE_S32 height  = param.Info.planner2package_info.height;
     NCE_S32 channel = param.Info.planner2package_info.channel;
-    tmp_buffer      = new NCE_U8[width*height*channel];
+    tmp_buffer      = new NCE_U8[width * height * channel];
 }
 
 nce_package2planner::~nce_package2planner()
@@ -217,58 +213,54 @@ nce_package2planner::~nce_package2planner()
         printf("tmp_buffer cannot be delete twice!\n");
 }
 
-NCE_S32 nce_package2planner::forward(img_t & input_img)
+NCE_S32 nce_package2planner::forward(img_t &input_img)
 {
-    NCE_S32 width     = input_img.image_attr.u32Width;
-    NCE_S32 height    = input_img.image_attr.u32Height;
-    NCE_S32 channel   = input_img.image_attr.u32channel;
-    NCE_U32 img_size  = width * height;
-    NCE_U8* image     = input_img.image;
+    NCE_S32 width    = input_img.image_attr.u32Width;
+    NCE_S32 height   = input_img.image_attr.u32Height;
+    NCE_S32 channel  = input_img.image_attr.u32channel;
+    NCE_U32 img_size = width * height;
+    NCE_U8 *image    = input_img.image;
 
-    for (NCE_U32 c=0; c<channel; c++)
+    for (NCE_U32 c = 0; c < channel; c++)
     {
-        for (NCE_U32 h=0; h<height; h++)
+        for (NCE_U32 h = 0; h < height; h++)
         {
-            for (NCE_U32 w=0; w<width; w++)
+            for (NCE_U32 w = 0; w < width; w++)
             {
-                tmp_buffer[c*img_size+h*width+w] = image[(h*width+w)*channel+c];
+                tmp_buffer[c * img_size + h * width + w] = image[(h * width + w) * channel + c];
             }
         }
     }
-    memcpy(image, tmp_buffer, img_size*channel); 
-    input_img.image_attr.format     = PLANNER;
+    memcpy(image, tmp_buffer, img_size * channel);
+    input_img.image_attr.format = PLANNER;
     return NCE_SUCCESS;
 }
-
-
-
-
 
 nce_normalization::nce_normalization(ImageProcessParam param)
 {
     memcpy(mean, param.Info.normal_info.mean, sizeof(mean));
-    memcpy(var,  param.Info.normal_info.var,  sizeof(var));
+    memcpy(var, param.Info.normal_info.var, sizeof(var));
 }
 
-NCE_S32 nce_normalization::forward(img_t & input_img)
+NCE_S32 nce_normalization::forward(img_t &input_img)
 {
-    NCE_U8* image     = input_img.image;
-    NCE_S32 width     = input_img.image_attr.u32Width;
-    NCE_S32 height    = input_img.image_attr.u32Height;
-    NCE_S32 channel   = input_img.image_attr.u32channel;
+    NCE_U8 *image   = input_img.image;
+    NCE_S32 width   = input_img.image_attr.u32Width;
+    NCE_S32 height  = input_img.image_attr.u32Height;
+    NCE_S32 channel = input_img.image_attr.u32channel;
 
-    for (NCE_U32 c=0; c<channel; c++)
+    for (NCE_U32 c = 0; c < channel; c++)
     {
-        for (NCE_U32 h=0; h<height; h++)
+        for (NCE_U32 h = 0; h < height; h++)
         {
-            for (NCE_U32 w=0; w<width; w++)
+            for (NCE_U32 w = 0; w < width; w++)
             {
-                image[h*channel*width + width * channel + c] = (image[h*channel*width + width * channel + c] - mean[c]) / var[c];
+                image[h * channel * width + width * channel + c] =
+                    (image[h * channel * width + width * channel + c] - mean[c]) / var[c];
             }
         }
     }
     return NCE_SUCCESS;
-
 }
 
 nce_resize::nce_resize(ImageProcessParam param)
@@ -289,7 +281,7 @@ nce_resize::~nce_resize()
     nce_free_img(output_img);
 }
 
-NCE_S32 nce_resize::forward(img_t& input_img)
+NCE_S32 nce_resize::forward(img_t &input_img)
 {
     NCE_F32 src_width   = (NCE_F32)input_img.image_attr.u32Width;
     NCE_F32 src_height  = (NCE_F32)input_img.image_attr.u32Height;
@@ -301,15 +293,15 @@ NCE_S32 nce_resize::forward(img_t& input_img)
 
     assert(src_channel == dst_channel);
 
-    NCE_F32 factor_x = src_width  / dst_width;
+    NCE_F32 factor_x = src_width / dst_width;
     NCE_F32 factor_y = src_height / dst_height;
 
     for (NCE_U32 h = 0; h < dst_height; h++)
     {
         for (NCE_U32 w = 0; w < dst_width; w++)
         {
-            NCE_F32 src_x    = w * factor_x;
-            NCE_F32 src_y    = h * factor_y;
+            NCE_F32 src_x = w * factor_x;
+            NCE_F32 src_y = h * factor_y;
 
             NCE_U32 src_x_lt = (NCE_U32)src_x;
             NCE_U32 src_y_lt = (NCE_U32)src_y;
@@ -323,8 +315,8 @@ NCE_S32 nce_resize::forward(img_t& input_img)
             NCE_U32 src_x_rt = src_x_lt + 1;
             NCE_U32 src_y_rt = src_y_lt;
 
-            NCE_F32 dx       = src_x - src_x_lt;
-            NCE_F32 dy       = src_y - src_y_lt;
+            NCE_F32 dx = src_x - src_x_lt;
+            NCE_F32 dy = src_y - src_y_lt;
 
             NCE_F32 factor_lt = (1 - dx) * (1 - dy);
             NCE_F32 factor_lb = (1 - dx) * dy;
@@ -333,17 +325,16 @@ NCE_S32 nce_resize::forward(img_t& input_img)
 
             for (NCE_U32 c = 0; c < dst_channel; c++)
             {
-                NCE_U32 dst_index    = (h * dst_width + w) * dst_channel + c;
+                NCE_U32 dst_index = (h * dst_width + w) * dst_channel + c;
 
                 NCE_U32 src_index_lt = (src_y_lt * src_width + src_x_lt) * src_channel + c;
                 NCE_U32 src_index_lb = (src_y_lb * src_width + src_x_lb) * src_channel + c;
                 NCE_U32 src_index_rt = (src_y_rt * src_width + src_x_rt) * src_channel + c;
                 NCE_U32 src_index_rb = (src_y_rb * src_width + src_x_rb) * src_channel + c;
 
-                output_img.image[dst_index] = input_img.image[src_index_lt] * factor_lt +
-                                              input_img.image[src_index_lb] * factor_lb +
-                                              input_img.image[src_index_rt] * factor_rt +
-                                              input_img.image[src_index_rb] * factor_rb;
+                output_img.image[dst_index] =
+                    input_img.image[src_index_lt] * factor_lt + input_img.image[src_index_lb] * factor_lb
+                    + input_img.image[src_index_rt] * factor_rt + input_img.image[src_index_rb] * factor_rb;
             }
         }
     }
@@ -351,7 +342,7 @@ NCE_S32 nce_resize::forward(img_t& input_img)
     input_img.image_attr.u32Height = dst_height;
     input_img.image_attr.u32Width  = dst_width;
     nce_free_img(input_img);
-    input_img.image                = output_img.image;
+    input_img.image = output_img.image;
 
     return NCE_SUCCESS;
 }

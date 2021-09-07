@@ -230,7 +230,7 @@ hisi_3559av100_engine::hisi_3559av100_engine()
 };
 
 NCE_S32 hisi_3559av100_engine::engine_init(const param_info &        st_param_info,
-                                           img_info &                st_img_info,
+                                           vector<img_info> &        st_img_infos,
                                            map<int, tmp_map_result> &st_result_map)
 {
     HI_S32 s32Ret = HI_SUCCESS;

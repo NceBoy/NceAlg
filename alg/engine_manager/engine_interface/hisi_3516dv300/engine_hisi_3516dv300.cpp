@@ -37,10 +37,11 @@ public:
     SAMPLE_SVP_NNIE_PARAM_S stENnieParam;
     SAMPLE_SVP_NNIE_CFG_S   stNnieCfg;
 
-    NCE_U32 u32Stride;
-    NCE_U32 u32Ch;
-    NCE_U32 u32Height;
-    NCE_U32 u32Width;
+    NCE_U32 input_num;
+    // NCE_U32 u32Stride;
+    // NCE_U32 u32Ch;
+    // NCE_U32 u32Height;
+    // NCE_U32 u32Width;
 
     engine_priv()
     {
@@ -50,7 +51,7 @@ public:
         printf("successful create engine_priv");
     }
 
-    NCE_S32 package2planner(NCE_U8 *InputImage, NCE_U8 *OutputImage)
+    NCE_S32 package2planner(NCE_U8 *InputImage, NCE_U8 *OutputImage, NCE_S32 u32Width, NCE_S32 u32Height, NCE_S32 u32Ch)
     //"Only used for rgb_package image"
     {
         NCE_U32 ImageSize = u32Width * u32Height;
@@ -67,43 +68,58 @@ public:
         return NCE_SUCCESS;
     }
 
-    HI_S32 SAMPLE_SVP_NNIE_FillSrcData(SAMPLE_SVP_NNIE_PARAM_S *pstNnieParam, img_t *Frame)
+    HI_S32 SAMPLE_SVP_NNIE_FillSrcData(SAMPLE_SVP_NNIE_PARAM_S *pstNnieParam, vector<img_t> &frames)
     {
-        HI_U8 *pu8ImgTmp_stack = NULL;
 
-        if (Frame->image_attr.format == PACKAGE)
+        HI_U8 *pu8ImgTmp_stack[input_num];
+        for (NCE_U32 i = 0; i < input_num; i++)
         {
-            package2planner(Frame->image, pu8ImageTmp);
-            pu8ImgTmp_stack = pu8ImageTmp;
-        }
-        else
-        {
-            pu8ImgTmp_stack = Frame->image;
-        }
+            NCE_S32 width   = pstNnieParam->astSegData[i].astSrc->unShape.stWhc.u32Width;
+            NCE_S32 height  = pstNnieParam->astSegData[i].astSrc->unShape.stWhc.u32Height;
+            NCE_S32 channel = pstNnieParam->astSegData[i].astSrc->unShape.stWhc.u32Chn;
 
-        pu8PicAddr = (HI_U8 *)(size_t)(pstNnieParam->astSegData[0].astSrc[0].u64VirAddr);
-        // pu8PicAddr =
-        // SAMPLE_SVP_NNIE_CONVERT_64BIT_ADDR(HI_U8,pstNnieParam->astSegData[u32SegIdx].astSrc[u32NodeIdx].u64VirAddr);
-        // pstNnieParam->astSegData[0].astSrc[0].u64PhyAddr = Frame->PhyAddr[0];
-        for (NCE_U32 n = 0; n < pstNnieParam->astSegData[0].astSrc[0].u32Num; n++)
-        {
-            for (int i = 0; i < u32Ch; i++)
+            if (frames[i].image_attr.format == PACKAGE)
             {
-                for (int j = 0; j < u32Height; j++)
-                {
-                    // s32Ret = fread(pu8PicAddr,u32Width*u32VarSize,1,fp);
-                    //  SAMPLE_SVP_CHECK_EXPR_GOTO(1 != s32Ret,FAIL,SAMPLE_SVP_ERR_LEVEL_ERROR,"Error,Read image file
-                    //  failed!\n");
-                    memcpy(pu8PicAddr, pu8ImgTmp_stack, u32Width * u32VarSize);
-                    pu8PicAddr += u32Stride;
-                    pu8ImgTmp_stack += u32Width * u32VarSize;
-                }
+
+                package2planner(frames[i].image, pu8ImageTmp[i], width, height, channel);
+                pu8ImgTmp_stack[i] = pu8ImageTmp[i];
+            }
+            else
+            {
+                pu8ImgTmp_stack[i] = frames[i].image;
             }
         }
 
-        SAMPLE_COMM_SVP_FlushCache(pstNnieParam->astSegData[0].astSrc[0].u64PhyAddr,
-                                   (HI_U8 *)(size_t)(pstNnieParam->astSegData[0].astSrc[0].u64VirAddr),
-                                   u32Ch * u32Height * u32Stride);
+        // pu8PicAddr =
+        // SAMPLE_SVP_NNIE_CONVERT_64BIT_ADDR(HI_U8,pstNnieParam->astSegData[u32SegIdx].astSrc[u32NodeIdx].u64VirAddr);
+        // pstNnieParam->astSegData[0].astSrc[0].u64PhyAddr = Frame->PhyAddr[0];
+        for (NCE_U32 i = 0; i < input_num; i++)
+        {
+            pu8PicAddr      = (HI_U8 *)(size_t)(pstNnieParam->astSegData[i].astSrc[i].u64VirAddr);
+            NCE_S32 width   = pstNnieParam->astSegData[i].astSrc->unShape.stWhc.u32Width;
+            NCE_S32 height  = pstNnieParam->astSegData[i].astSrc->unShape.stWhc.u32Height;
+            NCE_S32 channel = pstNnieParam->astSegData[i].astSrc->unShape.stWhc.u32Chn;
+            NCE_S32 stride  = pstNnieParam->astSegData[i].astSrc->u32Stride;
+
+            for (NCE_U32 n = 0; n < pstNnieParam->astSegData[0].astSrc[0].u32Num; n++)
+            {
+                for (int i = 0; i < channel; i++)
+                {
+                    for (int j = 0; j < height; j++)
+                    {
+                        // s32Ret = fread(pu8PicAddr,u32Width*u32VarSize,1,fp);
+                        //  SAMPLE_SVP_CHECK_EXPR_GOTO(1 != s32Ret,FAIL,SAMPLE_SVP_ERR_LEVEL_ERROR,"Error,Read image
+                        //  file failed!\n");
+                        memcpy(pu8PicAddr, pu8ImgTmp_stack[i], width * u32VarSize);
+                        pu8PicAddr += stride;
+                        pu8ImgTmp_stack[i] += width * u32VarSize;
+                    }
+                }
+            }
+            SAMPLE_COMM_SVP_FlushCache(pstNnieParam->astSegData[0].astSrc[0].u64PhyAddr,
+                                       (HI_U8 *)(size_t)(pstNnieParam->astSegData[0].astSrc[0].u64VirAddr),
+                                       channel * height * stride);
+        }
 
         return HI_SUCCESS;
     }
@@ -129,12 +145,15 @@ public:
             u32VarSize = sizeof(HI_U32);
         }
 
-        u32Stride = stENnieParam.astSegData[0].astSrc[0].u32Stride;
-        u32Ch     = stENnieParam.astSegData[0].astSrc[0].unShape.stWhc.u32Chn;
-        u32Height = stENnieParam.astSegData[0].astSrc[0].unShape.stWhc.u32Height;
-        u32Width  = stENnieParam.astSegData[0].astSrc[0].unShape.stWhc.u32Width;
-
-        pu8ImageTmp = new NCE_U8[u32Height * u32Width * u32Ch];
+        input_num = stENnieParam.pstModel->astSeg[0].u16SrcNum;
+        for (NCE_U32 i = 0; i < input_num; i++)
+        {
+            NCE_S32 stride  = stENnieParam.astSegData[0].astSrc[0].u32Stride;
+            NCE_S32 channel = stENnieParam.astSegData[0].astSrc[0].unShape.stWhc.u32Chn;
+            NCE_S32 height  = stENnieParam.astSegData[0].astSrc[0].unShape.stWhc.u32Height;
+            NCE_S32 width   = stENnieParam.astSegData[0].astSrc[0].unShape.stWhc.u32Width;
+            pu8ImageTmp[i]  = new NCE_U8[width * height * channel];
+        }
 
         return s32Ret;
     INIT_FAIL_0:
@@ -318,9 +337,9 @@ public:
     }
 
 private:
-    HI_U8 *pu8PicAddr  = NULL;
-    HI_U8 *pu8ImageTmp = NULL;
-    HI_U32 u32VarSize  = 0;
+    HI_U8 * pu8PicAddr  = NULL;
+    HI_U8 **pu8ImageTmp = NULL;
+    HI_U32  u32VarSize  = 0;
 };
 
 hisi_3516dv300_engine::hisi_3516dv300_engine()
@@ -329,7 +348,7 @@ hisi_3516dv300_engine::hisi_3516dv300_engine()
 };
 
 NCE_S32 hisi_3516dv300_engine::engine_init(const param_info &        st_param_info,
-                                           img_info &                st_img_info,
+                                           vector<img_info> &        st_img_infos,
                                            map<int, tmp_map_result> &st_result_map)
 {
     HI_S32 s32Ret = HI_SUCCESS;
@@ -343,7 +362,6 @@ NCE_S32 hisi_3516dv300_engine::engine_init(const param_info &        st_param_in
 
     /*Sys init*/
     // SAMPLE_COMM_SVP_CheckSysInit();
-
     /*CNN Load model*/
     SAMPLE_SVP_TRACE_INFO("Cnn Load model!\n");
     s32Ret = SAMPLE_COMM_SVP_NNIE_LoadModel(st_param_info.pc_model_path, &pPriv->stENnieModel);
@@ -365,12 +383,17 @@ NCE_S32 hisi_3516dv300_engine::engine_init(const param_info &        st_param_in
         HI_SUCCESS != s32Ret, CNN_FAIL_0, SAMPLE_SVP_ERR_LEVEL_ERROR, "Error,HI_MPI_SVP_NNIE_AddTskBuf failed!\n");
     SAMPLE_SVP_TRACE_INFO("NNIE AddTskBuf end!\n");
 
-    st_img_info.u32Height  = pPriv->u32Height;
-    st_img_info.u32Width   = pPriv->u32Width;
-    st_img_info.u32channel = pPriv->u32Ch;
-    st_img_info.format     = PLANNER;
+    for (NCE_U32 i = 0; i < pPriv->input_num; i++)
+    {
+        img_info tmp_info;
+        tmp_info.format     = PLANNER;
+        tmp_info.name       = to_string(i);
+        tmp_info.u32channel = pPriv->stENnieParam.astSegData[0].astSrc[i].unShape.stWhc.u32Chn;
+        tmp_info.u32Height  = pPriv->stENnieParam.astSegData[0].astSrc[i].unShape.stWhc.u32Height;
+        tmp_info.u32Width   = pPriv->stENnieParam.astSegData[0].astSrc[i].unShape.stWhc.u32Width;
+    }
     // NCE强制要求RGB，给你脸了？
-    st_img_info.order = RGB;
+
     //目前不分段
     for (i = 0; i < pPriv->stENnieModel.stModel.astSeg[0].u16DstNum; i++)
     {
@@ -399,7 +422,7 @@ CNN_FAIL_0:
     // SAMPLE_COMM_SVP_CheckSysExit();
 }
 
-NCE_S32 hisi_3516dv300_engine::engine_inference(img_t &pc_img)
+NCE_S32 hisi_3516dv300_engine::engine_inference(vector<img_t> &pc_imgs)
 {
     HI_S32                              s32Ret         = HI_SUCCESS;
     SAMPLE_SVP_NNIE_INPUT_DATA_INDEX_S  stInputDataIdx = { 0 };
@@ -409,7 +432,7 @@ NCE_S32 hisi_3516dv300_engine::engine_inference(img_t &pc_img)
     SAMPLE_SVP_TRACE_INFO("Cnn start!\n");
     stInputDataIdx.u32SegIdx  = 0;
     stInputDataIdx.u32NodeIdx = 0;
-    s32Ret                    = pPriv->SAMPLE_SVP_NNIE_FillSrcData(&pPriv->stENnieParam, &pc_img);
+    s32Ret                    = pPriv->SAMPLE_SVP_NNIE_FillSrcData(&pPriv->stENnieParam, pc_imgs);
     SAMPLE_SVP_CHECK_EXPR_GOTO(
         HI_SUCCESS != s32Ret, CNN_FAIL_1, SAMPLE_SVP_ERR_LEVEL_ERROR, "Error,SAMPLE_SVP_NNIE_FillSrcData failed!\n");
     SAMPLE_SVP_TRACE_INFO("Load Img!\n");

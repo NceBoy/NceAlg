@@ -1,10 +1,9 @@
 #ifndef __IENGINE_HPP__
 #define __IENGINE_HPP__
-#include <iostream>
 #include <map>
 #include "alg_type.h"
 #include "self_type.hpp"
-
+#include <vector>
 #ifdef __cplusplus
 #if __cplusplus
 extern "C" {
@@ -17,13 +16,14 @@ namespace nce_alg {
 class IEngine
 {
 public:
-    virtual NCE_S32
-    engine_init(const param_info &st_param_info, img_info &st_img_info, map<int, tmp_map_result> &st_result_map)
+    virtual NCE_S32 engine_init(const param_info &        st_param_info,
+                                vector<img_info> &        st_img_infos,
+                                map<int, tmp_map_result> &st_result_map)
     {
         return NCE_FAILED;
     }
 
-    virtual NCE_S32 engine_inference(img_t &pc_img)
+    virtual NCE_S32 engine_inference(vector<img_t> &pc_imgs)
     {
         return NCE_FAILED;
     }

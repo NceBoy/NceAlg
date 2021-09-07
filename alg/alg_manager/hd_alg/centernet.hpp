@@ -57,14 +57,14 @@ public:
     NCE_S32 alg_priv_engine_init();
 };
 
-class centernet : public IAlg, public NceAlgCreator<centernet>
+class centernet : public IAlg, public NceAlgCreator<centernet, CENTERNET>
 {
 public:
-    NCE_S32 alg_init(const param_info &st_param_info, map<int, tmp_map_result> &st_result_map);
+    NCE_S32 alg_init(vector<img_info> &st_img_info, map<int, tmp_map_result> &st_result_map);
 
     NCE_S32 alg_cfg_set(const task_config_info &st_task_config_info);
 
-    NCE_S32 alg_inference(img_t &pc_img);
+    NCE_S32 alg_inference(vector<img_t> &pc_img);
 
     NCE_S32 alg_get_result(alg_result_info &results, map<int, tmp_map_result> &st_result_map);
 

@@ -1,3 +1,11 @@
+/*
+ * @Descripttion:
+ * @version:
+ * @Author: Haochen Ye
+ * @Date: 2021-08-20 10:32:17
+ * @LastEditors: Haochen Ye
+ * @LastEditTime: 2021-09-06 18:35:37
+ */
 #ifndef __ENGINE_HISI_3516DV300_HPP__
 #define __ENGINE_HISI_3516DV300_HPP__
 
@@ -20,10 +28,11 @@ class hisi_3516dv300_engine : public IEngine, public NceEngineCreator<hisi_3516d
 public:
     hisi_3516dv300_engine();
 
-    NCE_S32
-    engine_init(const param_info &st_param_info, img_info &st_img_info, map<int, tmp_map_result> &st_result_map);
+    NCE_S32 engine_init(const param_info &        st_param_info,
+                        vector<img_info> &        st_img_infos,
+                        map<int, tmp_map_result> &st_result_map);
 
-    NCE_S32 engine_inference(img_t &pc_img);
+    NCE_S32 engine_inference(vector<img_t> &pc_img);
 
     NCE_S32 engine_get_result(map<int, tmp_map_result> &st_engine_result);
 

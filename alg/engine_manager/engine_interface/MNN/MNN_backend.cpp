@@ -4,7 +4,7 @@
  * @Author: Haochen Ye
  * @Date: 2021-08-20 11:15:00
  * @LastEditors: Haochen Ye
- * @LastEditTime: 2021-08-30 10:59:41
+ * @LastEditTime: 2021-09-06 15:47:40
  */
 
 #include "MNN_backend.hpp"
@@ -49,23 +49,20 @@ public:
     }
 
 private:
-    MNN::ScheduleConfig           schedue_config;
-    MNN::CV::ImageProcess::Config config;
-    MNN::Session *                psession;
-    MNNTensorUnion                all_tensor;
+    MNN::ScheduleConfig                   schedue_config;
+    vector<MNN::CV::ImageProcess::Config> configs;
+    MNN::Session *                        psession;
+    MNNTensorUnion                        all_tensor;
 
-    MNN::Interpreter *     pnet;
-    MNN::CV::ImageProcess *pprocessor;
+    MNN::Interpreter *              pnet;
+    vector<MNN::CV::ImageProcess *> pprocessors;
     // std::unique_ptr<MNN::Interpreter>        pnet;
     // std::unique_ptr<MNN::CV::ImageProcess>   pprocessor;
-
-    NCE_F32 mean[3]    = { 127.5f, 127.5f, 127.5f };
-    NCE_F32 normals[3] = { 0.0078125f, 0.0078125f, 0.0078125f };
 
     NCE_S32 model_channel;
 
 public:
-    NCE_S32 load_model(const char *model_path, map<int, tmp_map_result> &st_result_map, img_info &st_img_info)
+    NCE_S32 load_model(const char *model_path, map<int, tmp_map_result> &st_result_map, vector<img_info> &st_img_infos)
     {
         // pnet          = unique_ptr<MNN::Interpreter>(MNN::Interpreter::createFromFile(model_path));
         pnet     = MNN::Interpreter::createFromFile(model_path);
@@ -74,20 +71,30 @@ public:
         all_tensor.input_tensors_map  = pnet->getSessionInputAll(psession);
         all_tensor.output_tensors_map = pnet->getSessionOutputAll(psession);
         // TODO Ugly and useless code!!! must be removed
-
+        NCE_S32                       count = 0;
+        MNN::CV::ImageProcess::Config tmp_config;
         for (auto &kv : all_tensor.input_tensors_map)
         {
             std::string  name    = kv.first;
             MNN::Tensor *pTensor = kv.second;
             auto         shape   = pTensor->shape();
 
-            st_img_info.u32channel = shape[1];
-            st_img_info.u32Height  = shape[2];
-            st_img_info.u32Width   = shape[3];
+            printf("input[%d] name is: %s\n", count, name.c_str());
+            st_img_infos[count].u32channel = shape[1];
+            st_img_infos[count].u32Height  = shape[2];
+            st_img_infos[count].u32Width   = shape[3];
+            st_img_infos[count].format     = PACKAGE;
+            st_img_infos[count].name       = name;
+
+            tmp_config.sourceFormat = MNN::CV::RGB;
+            tmp_config.destFormat   = MNN::CV::RGB;
+            memcpy(tmp_config.mean, st_img_infos[count].mean, sizeof(NCE_F32) * 3);
+            memcpy(tmp_config.normal, st_img_infos[count].std, sizeof(NCE_F32) * 3);
+            pprocessors.push_back(MNN::CV::ImageProcess::create(tmp_config));
+            count++;
         }
 
-        NCE_S32 count = 0;
-
+        count = 0;
         for (auto &kv : all_tensor.output_tensors_map)
         {
             std::string  name                        = kv.first;
@@ -107,29 +114,29 @@ public:
             count++;
         }
 
-        config.sourceFormat = MNN::CV::BGR;
-        config.destFormat   = MNN::CV::RGB;
-        ::memcpy(config.mean, mean, sizeof(mean));
-        ::memcpy(config.normal, normals, sizeof(normals));
-
-        pprocessor = MNN::CV::ImageProcess::create(config);
         // pprocessor = unique_ptr<MNN::CV::ImageProcess>(MNN::CV::ImageProcess::create());
 
         return NCE_SUCCESS;
     }
 
-    NCE_S32 inference(img_t &image_data)
+    NCE_S32 inference(vector<img_t> &image_datas)
     {
         printf("start inference\n");
+        NCE_S32 count = 0;
         for (auto &kv : all_tensor.input_tensors_map)
         {
             printf("start convert, model_width: %d model_height: %d\n");
-            pprocessor->convert(
-                image_data.image, image_data.image_attr.u32Width, image_data.image_attr.u32Height, 0, kv.second);
+            pprocessors[count]->convert(image_datas[count].image,
+                                        image_datas[count].image_attr.u32Width,
+                                        image_datas[count].image_attr.u32Height,
+                                        0,
+                                        kv.second);
             printf("finish convert\n");
+            count++;
         }
         pnet->runSession(psession);
         printf("finish inference\n");
+        return NCE_SUCCESS;
     }
 
     NCE_S32 get_result(map<int, tmp_map_result> &st_engine_result)
@@ -144,7 +151,9 @@ public:
             tmp_output->copyToHostTensor(tmp_output_host);
             kv.second.pu32Feat = tmp_output_host->host<NCE_S32>();
         }
+        return NCE_SUCCESS;
     }
+
 };
 
 MNN_engine::MNN_engine()
@@ -153,25 +162,30 @@ MNN_engine::MNN_engine()
 }
 
 NCE_S32
-MNN_engine::engine_init(const param_info &st_param_info, img_info &st_img_info, map<int, tmp_map_result> &st_result_map)
+MNN_engine::engine_init(const param_info &        st_param_info,
+                        vector<img_info> &        st_img_infos,
+                        map<int, tmp_map_result> &st_result_map)
 {
     // TODO support multi-image input, assert input and model dimension
-    pPriv->load_model(st_param_info.pc_model_path, st_result_map, st_img_info);
+    pPriv->load_model(st_param_info.pc_model_path, st_result_map, st_img_infos);
     return NCE_SUCCESS;
 }
 
-NCE_S32 MNN_engine::engine_inference(img_t &pc_img)
+NCE_S32 MNN_engine::engine_inference(vector<img_t> &pc_img)
 {
     pPriv->inference(pc_img);
+    return NCE_SUCCESS;
 }
 
 NCE_S32 MNN_engine::engine_get_result(map<int, tmp_map_result> &st_engine_result)
 {
     pPriv->get_result(st_engine_result);
+    return NCE_SUCCESS;
 }
 
 NCE_S32 MNN_engine::engine_destroy()
 {
     printf("successful engine destroy");
+    return NCE_SUCCESS;
 }
 } // namespace nce_alg

@@ -40,7 +40,7 @@ centernet_priv::~centernet_priv()
     delete score;
 }
 
-NCE_S32 centernet::alg_init(const param_info &st_param_info, map<int, tmp_map_result> &st_result_map)
+NCE_S32 centernet::alg_init(vector<img_info> &st_img_info, map<int, tmp_map_result> &st_result_map)
 {
     NCE_S32 ret                  = NCE_FAILED;
     pPriv                        = shared_ptr<centernet_priv>(new centernet_priv());
@@ -55,6 +55,15 @@ NCE_S32 centernet::alg_init(const param_info &st_param_info, map<int, tmp_map_re
 
     st_result_map[3]             = tmp_map_result{ 0 };
     st_result_map[3].tensor.name = "wh";
+
+    img_info input0;
+    input0.format    = PACKAGE;
+    NCE_F32 mean0[3] = { 127.5f, 127.5f, 127.5f };
+    NCE_F32 std[3]   = { 0.0078125f, 0.0078125f, 0.0078125f };
+    memcpy(input0.mean, mean0, sizeof(NCE_F32) * 3);
+    memcpy(input0.std, std, sizeof(NCE_F32) * 3);
+    st_img_info.push_back(input0);
+
     return ret;
 }
 
@@ -69,7 +78,7 @@ NCE_S32 centernet::alg_cfg_set(const task_config_info &st_task_config_info)
     return ret;
 }
 
-NCE_S32 centernet::alg_inference(img_t &pc_img)
+NCE_S32 centernet::alg_inference(vector<img_t> &pc_img)
 {
     NCE_S32 ret = NCE_FAILED;
     ret         = NCE_SUCCESS;
@@ -126,7 +135,7 @@ NCE_S32 centernet::alg_get_result(alg_result_info &results, map<int, tmp_map_res
         NCE_U32   cur_h = index / width;
         NCE_U32   cur_w = index % width;
         // printf("topk score is : %f\n", score);
-        if (score < 0.4)
+        if (score < pPriv->alg_cfg.threshold)
             continue;
         NCE_U32 w  = wh[index + 0 * feature_size] * 4;
         NCE_U32 h  = wh[index + 1 * feature_size] * 4;

@@ -28,7 +28,7 @@ hd_alg::hd_alg()
  * 将输出层map定义好
  * ...
  */
-NCE_S32 hd_alg::alg_init(const param_info &st_param_info, map<int, tmp_map_result> &st_result_map)
+NCE_S32 hd_alg::alg_init(vector<img_info> &st_img_info, map<int, tmp_map_result> &st_result_map)
 {
     NCE_S32 ret = NCE_FAILED;
     pPriv       = shared_ptr<hd_alg_priv>(new hd_alg_priv());
@@ -56,7 +56,7 @@ NCE_S32 hd_alg::alg_cfg_set(const task_config_info &st_task_config_info)
     return ret;
 }
 
-NCE_S32 hd_alg::alg_inference(img_t &pc_img)
+NCE_S32 hd_alg::alg_inference(vector<img_t> &pc_img)
 {
     NCE_S32 ret = NCE_FAILED;
     ret         = NCE_SUCCESS;

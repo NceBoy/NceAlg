@@ -14,20 +14,6 @@
 using namespace std;
 
 namespace nce_alg {
-static std::map<int, std::string> _enumstr_alg_map = {
-    { CENTERNET, "nce_alg::centernet" }, { PERSON_HEAD, "nce_alg::hd_alg" },    { FACE_DETECT, "nce_alg::fd_alg" },
-    { FACE_PRNET, "nce_alg::fp_alg" },   { FACE_RECOGNIZE, "nce_alg::fr_alg" }, { FACE_FAKE, "nce_alg::fc_fk_alg" },
-};
-static std::map<int, std::string> _enumstr_engine_map = {
-    { HISI_3516DV300, "nce_alg::hisi_3516dv300_engine" },
-    { HISI_3559AV100, "nce_alg::hisi_3559av100_engine" },
-    { RK_1808, "nce_alg::rk_1808_engine" },
-    { RV_1126, "nce_alg::rv1126_engine" },
-    { RV_1109, "nce_alg::rv_1109_engine" },
-    { OPENVINO, "nce_alg::openvino_engine" },
-    { MNNPLATFORM, "nce_alg::MNN_engine" },
-    { HOST, "nce_alg::host_engine" },
-};
 // 动态对象创建工厂
 class NceFactory
 {
@@ -35,8 +21,8 @@ public:
     typedef shared_ptr<IAlg> (*CreateAlgFunction)();
     typedef shared_ptr<IEngine> (*CreateEngineFunction)();
 
-    std::map<std::string, CreateAlgFunction>    _create_alg_function_map;
-    std::map<std::string, CreateEngineFunction> _create_engine_function_map;
+    std::map<NCE_S32, CreateAlgFunction>    _create_alg_function_map;
+    std::map<NCE_S32, CreateEngineFunction> _create_engine_function_map;
 
     static NceFactory &Instance()
     {
@@ -44,9 +30,9 @@ public:
         return fac;
     }
 
-    bool RegistAlg(const char *name, CreateAlgFunction func);
+    bool RegistAlg(NCE_S32 alg_type, CreateAlgFunction func);
 
-    bool RegistEngine(const char *name, CreateEngineFunction func);
+    bool RegistEngine(NCE_S32 engine_type, CreateEngineFunction func);
 
     shared_ptr<IAlg> CreateAlg(int alg_type /*const std::string & alg_name*/);
 
@@ -54,7 +40,7 @@ public:
 };
 
 // 动态对象创建器
-template <typename T>
+template <typename T, NCE_S32 alg_type>
 class NceAlgCreator
 {
 public:
@@ -67,7 +53,7 @@ public:
     {
         Registor()
         {
-            if (!NceFactory::Instance().RegistAlg(NCE_CLASS_NAME(T), CreateAlgObject)) {}
+            if (!NceFactory::Instance().RegistAlg(alg_type, CreateAlgObject)) {}
         }
 
         inline void do_nothing() const
@@ -89,7 +75,7 @@ public:
 };
 
 // 动态对象创建器
-template <typename T>
+template <typename T, NCE_S32 engine_type>
 class NceEngineCreator
 {
 public:
@@ -102,7 +88,7 @@ public:
     {
         Registor()
         {
-            if (!NceFactory::Instance().RegistEngine(NCE_CLASS_NAME(T), CreateEngineObject)) {}
+            if (!NceFactory::Instance().RegistEngine(engine_type, CreateEngineObject)) {}
         }
 
         inline void do_nothing() const
@@ -123,10 +109,10 @@ public:
     }
 };
 //不理解这种写法
-template <typename T>
-typename NceAlgCreator<T>::Registor NceAlgCreator<T>::alg_registor;
+template <typename T, NCE_S32 alg_type>
+typename NceAlgCreator<T, alg_type>::Registor NceAlgCreator<T, alg_type>::alg_registor;
 
-template <typename T>
-typename NceEngineCreator<T>::Registor NceEngineCreator<T>::engine_registor;
+template <typename T, NCE_S32 engine_type>
+typename NceEngineCreator<T, engine_type>::Registor NceEngineCreator<T, engine_type>::engine_registor;
 } // namespace nce_alg
 #endif

@@ -12,33 +12,32 @@
 using namespace std;
 namespace nce_alg {
 
-bool NceFactory::RegistAlg(const char *name, CreateAlgFunction func)
+bool NceFactory::RegistAlg(NCE_S32 alg_type, CreateAlgFunction func)
 {
     if (!func)
     {
         return false;
     }
-    return _create_alg_function_map.insert(std::make_pair(name, func)).second;
+    return _create_alg_function_map.insert(std::make_pair(alg_type, func)).second;
 }
 
-bool NceFactory::RegistEngine(const char *name, CreateEngineFunction func)
+bool NceFactory::RegistEngine(NCE_S32 engine_type, CreateEngineFunction func)
 {
     if (!func)
     {
         return false;
     }
-    return _create_engine_function_map.insert(std::make_pair(name, func)).second;
+    return _create_engine_function_map.insert(std::make_pair(engine_type, func)).second;
 }
 
 shared_ptr<IAlg> NceFactory::CreateAlg(int alg_type)
 {
-    /*控制元素下标范围，防止越界*/
     if (alg_type < 0 || alg_type >= MAX_CLS)
     {
         return NULL;
     }
 
-    std::map<std::string, CreateAlgFunction>::iterator it = _create_alg_function_map.find(_enumstr_alg_map[alg_type]);
+    auto it = _create_alg_function_map.find(alg_type);
     if (it == _create_alg_function_map.end())
     {
         printf("no match alg!\n");
@@ -49,14 +48,12 @@ shared_ptr<IAlg> NceFactory::CreateAlg(int alg_type)
 
 shared_ptr<IEngine> NceFactory ::CreateEngine(int platform_type)
 {
-    /*控制元素下标范围，防止越界*/
     if (platform_type < 0 || platform_type >= MAX_PLATFORM)
     {
         return NULL;
     }
 
-    std::map<std::string, CreateEngineFunction>::iterator it =
-        _create_engine_function_map.find(_enumstr_engine_map[platform_type]);
+    auto it = _create_engine_function_map.find(platform_type);
     if (it == _create_engine_function_map.end())
     {
         printf("no match engine!\n");

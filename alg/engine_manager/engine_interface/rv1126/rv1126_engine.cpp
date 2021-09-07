@@ -26,7 +26,13 @@ public:
     vector<rknn_output>   outputs; // TODO 这里是因为result传出去的是指针，那内存不能直接销毁，其他平台的*feat 例如海思
                                  // 是海思自己申请 自己维护的。 我们这里也要自己维护
     vector<rknn_tensor_attr> input_attrs;
+    // typedef struct TagRknnTensor
+    // {
+    //     vector<rknn_input>  inputs;
+    //     vector<rknn_output> inputs;
+    //     vector<img_info>    input_infos;
 
+    // } RknnTensor;
     vector<NCE_U32> u32Strides;
     vector<NCE_U32> u32Chs;
     vector<NCE_U32> u32Heights;

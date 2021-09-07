@@ -16,7 +16,7 @@ extern "C" {
 #endif /* __cplusplus */
 
 namespace nce_alg {
-class rv1126_engine : public IEngine, public NceEngineCreator<rv1126_engine>
+class rv1126_engine : public IEngine, public NceEngineCreator<rv1126_engine, HISI_3516DV300>
 {
 public:
     rv1126_engine();

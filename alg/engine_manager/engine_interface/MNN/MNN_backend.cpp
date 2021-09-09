@@ -62,7 +62,10 @@ private:
     NCE_S32 model_channel;
 
 public:
-    NCE_S32 load_model(const char *model_path, map<int, tmp_map_result> &st_result_map, vector<img_info> &st_img_infos)
+    NCE_S32
+    load_model(const char *               model_path,
+               map<int, tmp_map_result> & st_result_map,
+               vector<input_tensor_info> &st_tensor_infos)
     {
         // pnet          = unique_ptr<MNN::Interpreter>(MNN::Interpreter::createFromFile(model_path));
         pnet     = MNN::Interpreter::createFromFile(model_path);
@@ -80,16 +83,16 @@ public:
             auto         shape   = pTensor->shape();
 
             printf("input[%d] name is: %s\n", count, name.c_str());
-            st_img_infos[count].u32channel = shape[1];
-            st_img_infos[count].u32Height  = shape[2];
-            st_img_infos[count].u32Width   = shape[3];
-            st_img_infos[count].format     = PACKAGE;
-            st_img_infos[count].name       = name;
+            st_tensor_infos[count].channel = shape[1];
+            st_tensor_infos[count].height  = shape[2];
+            st_tensor_infos[count].width   = shape[3];
+            st_tensor_infos[count].format  = PACKAGE;
+            st_tensor_infos[count].name    = name;
 
             tmp_config.sourceFormat = MNN::CV::RGB;
             tmp_config.destFormat   = MNN::CV::RGB;
-            memcpy(tmp_config.mean, st_img_infos[count].mean, sizeof(NCE_F32) * 3);
-            memcpy(tmp_config.normal, st_img_infos[count].std, sizeof(NCE_F32) * 3);
+            memcpy(tmp_config.mean, st_tensor_infos[count].mean, sizeof(NCE_F32) * 3);
+            memcpy(tmp_config.normal, st_tensor_infos[count].std, sizeof(NCE_F32) * 3);
             pprocessors.push_back(MNN::CV::ImageProcess::create(tmp_config));
             count++;
         }
@@ -153,7 +156,6 @@ public:
         }
         return NCE_SUCCESS;
     }
-
 };
 
 MNN_engine::MNN_engine()
@@ -162,12 +164,12 @@ MNN_engine::MNN_engine()
 }
 
 NCE_S32
-MNN_engine::engine_init(const param_info &        st_param_info,
-                        vector<img_info> &        st_img_infos,
-                        map<int, tmp_map_result> &st_result_map)
+MNN_engine::engine_init(const param_info &         st_param_info,
+                        vector<input_tensor_info> &st_tensor_infos,
+                        map<int, tmp_map_result> & st_result_map)
 {
     // TODO support multi-image input, assert input and model dimension
-    pPriv->load_model(st_param_info.pc_model_path, st_result_map, st_img_infos);
+    pPriv->load_model(st_param_info.pc_model_path, st_result_map, st_tensor_infos);
     return NCE_SUCCESS;
 }
 

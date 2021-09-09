@@ -26,7 +26,7 @@ namespace nce_alg {
 class IAlg
 {
 public:
-    virtual NCE_S32 alg_init(vector<img_info> &st_img_info, map<int, tmp_map_result> &st_result_map)
+    virtual NCE_S32 alg_init(vector<input_tensor_info> &st_tensor_infos, map<int, tmp_map_result> &st_result_map)
     {
         return NCE_FAILED;
     }

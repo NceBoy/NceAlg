@@ -23,14 +23,14 @@ extern "C" {
 #endif /* __cplusplus */
 
 namespace nce_alg {
-class hisi_3516dv300_engine : public IEngine, public NceEngineCreator<hisi_3516dv300_engine>
+class hisi_3516dv300_engine : public IEngine, public NceEngineCreator<hisi_3516dv300_engine, HISI_3516DV300>
 {
 public:
     hisi_3516dv300_engine();
 
-    NCE_S32 engine_init(const param_info &        st_param_info,
-                        vector<img_info> &        st_img_infos,
-                        map<int, tmp_map_result> &st_result_map);
+    NCE_S32 engine_init(const param_info &         st_param_info,
+                        vector<input_tensor_info> &st_tensor_infos,
+                        map<int, tmp_map_result> & st_result_map);
 
     NCE_S32 engine_inference(vector<img_t> &pc_img);
 

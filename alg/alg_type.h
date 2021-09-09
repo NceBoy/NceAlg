@@ -14,7 +14,7 @@ typedef void *             NCE_PTR;
 typedef unsigned long long NCE_U64;
 typedef unsigned int       NCE_U32;
 typedef int                NCE_BOOL;
-#include<string>
+#include <string>
 // TO DO: 删除
 typedef enum
 {
@@ -201,10 +201,6 @@ typedef struct img_info
     NCE_U32      u32channel; /* RW;The height of the image */
     image_format format;     /* RW;The type of the image */
     image_order  order;
-    std::string  name;
-    NCE_F32      mean[3];
-    NCE_F32      std[3];
-
 } img_info;
 
 typedef struct img_t

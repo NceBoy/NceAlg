@@ -60,7 +60,7 @@ public:
 class centernet : public IAlg, public NceAlgCreator<centernet, CENTERNET>
 {
 public:
-    NCE_S32 alg_init(vector<img_info> &st_img_info, map<int, tmp_map_result> &st_result_map);
+    NCE_S32 alg_init(vector<input_tensor_info> &st_tensor_infos, map<int, tmp_map_result> &st_result_map);
 
     NCE_S32 alg_cfg_set(const task_config_info &st_task_config_info);
 

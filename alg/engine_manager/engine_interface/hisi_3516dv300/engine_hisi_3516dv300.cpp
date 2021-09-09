@@ -347,9 +347,9 @@ hisi_3516dv300_engine::hisi_3516dv300_engine()
     pPriv = shared_ptr<engine_priv>(new hisi_3516dv300_engine::engine_priv());
 };
 
-NCE_S32 hisi_3516dv300_engine::engine_init(const param_info &        st_param_info,
-                                           vector<img_info> &        st_img_infos,
-                                           map<int, tmp_map_result> &st_result_map)
+NCE_S32 hisi_3516dv300_engine::engine_init(const param_info &         st_param_info,
+                                           vector<input_tensor_info> &st_tensor_infos,
+                                           map<int, tmp_map_result> & st_result_map)
 {
     HI_S32 s32Ret = HI_SUCCESS;
     /*Set configuration parameter*/
@@ -385,12 +385,13 @@ NCE_S32 hisi_3516dv300_engine::engine_init(const param_info &        st_param_in
 
     for (NCE_U32 i = 0; i < pPriv->input_num; i++)
     {
-        img_info tmp_info;
-        tmp_info.format     = PLANNER;
-        tmp_info.name       = to_string(i);
-        tmp_info.u32channel = pPriv->stENnieParam.astSegData[0].astSrc[i].unShape.stWhc.u32Chn;
-        tmp_info.u32Height  = pPriv->stENnieParam.astSegData[0].astSrc[i].unShape.stWhc.u32Height;
-        tmp_info.u32Width   = pPriv->stENnieParam.astSegData[0].astSrc[i].unShape.stWhc.u32Width;
+        input_tensor_info tmp_info;
+        tmp_info.format    = PLANNER;
+        tmp_info.name      = to_string(i);
+        tmp_info.channel   = pPriv->stENnieParam.astSegData[0].astSrc[i].unShape.stWhc.u32Chn;
+        tmp_info.height    = pPriv->stENnieParam.astSegData[0].astSrc[i].unShape.stWhc.u32Height;
+        tmp_info.width     = pPriv->stENnieParam.astSegData[0].astSrc[i].unShape.stWhc.u32Width;
+        st_tensor_infos[i] = tmp_info;
     }
     // NCE强制要求RGB，给你脸了？
 

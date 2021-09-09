@@ -28,7 +28,7 @@ hd_alg::hd_alg()
  * 将输出层map定义好
  * ...
  */
-NCE_S32 hd_alg::alg_init(vector<img_info> &st_img_info, map<int, tmp_map_result> &st_result_map)
+NCE_S32 hd_alg::alg_init(vector<input_tensor_info> &st_img_info, map<int, tmp_map_result> &st_result_map)
 {
     NCE_S32 ret = NCE_FAILED;
     pPriv       = shared_ptr<hd_alg_priv>(new hd_alg_priv());

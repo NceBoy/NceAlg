@@ -40,7 +40,7 @@ centernet_priv::~centernet_priv()
     delete score;
 }
 
-NCE_S32 centernet::alg_init(vector<img_info> &st_img_info, map<int, tmp_map_result> &st_result_map)
+NCE_S32 centernet::alg_init(vector<input_tensor_info> &st_tensor_infos, map<int, tmp_map_result> &st_result_map)
 {
     NCE_S32 ret                  = NCE_FAILED;
     pPriv                        = shared_ptr<centernet_priv>(new centernet_priv());
@@ -56,13 +56,13 @@ NCE_S32 centernet::alg_init(vector<img_info> &st_img_info, map<int, tmp_map_resu
     st_result_map[3]             = tmp_map_result{ 0 };
     st_result_map[3].tensor.name = "wh";
 
-    img_info input0;
-    input0.format    = PACKAGE;
+    input_tensor_info input0;
+    input0.order     = RGB;
     NCE_F32 mean0[3] = { 127.5f, 127.5f, 127.5f };
     NCE_F32 std[3]   = { 0.0078125f, 0.0078125f, 0.0078125f };
     memcpy(input0.mean, mean0, sizeof(NCE_F32) * 3);
     memcpy(input0.std, std, sizeof(NCE_F32) * 3);
-    st_img_info.push_back(input0);
+    st_tensor_infos.push_back(input0);
 
     return ret;
 }

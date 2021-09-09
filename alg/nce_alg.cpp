@@ -30,7 +30,7 @@ public:
     };
     std::vector<nce_base_process *> img_pre_processes;
 
-    vector<img_info> ImageInfo;
+    vector<input_tensor_info> ImageInfo;
     dynamic_factory()
     {
         memset(&ImageInfo, 0, sizeof(img_info));
@@ -42,20 +42,28 @@ public:
 nce_alg_machine::nce_alg_machine(taskcls alg_type, const platform engine_type)
 {
 
-    pPriv          = shared_ptr<dynamic_factory>(new nce_alg_machine::dynamic_factory());
-    auto map_alg = NceFactory::Instance()._create_alg_function_map;
+    pPriv           = shared_ptr<dynamic_factory>(new nce_alg_machine::dynamic_factory());
+    auto map_alg    = NceFactory::Instance()._create_alg_function_map;
     auto map_engine = NceFactory::Instance()._create_alg_function_map;
-    pPriv->pAlg    = NceFactory::Instance().CreateAlg(alg_type);
-    pPriv->pEngine = NceFactory::Instance().CreateEngine(engine_type);
+    pPriv->pAlg     = NceFactory::Instance().CreateAlg(alg_type);
+    pPriv->pEngine  = NceFactory::Instance().CreateEngine(engine_type);
 }
 
 NCE_S32 nce_alg_machine::nce_alg_init(const param_info &st_param_info, vector<img_info> &st_img_infos)
 {
     NCE_S32 ret = NCE_FAILED;
-    ret         = pPriv->pAlg->alg_init(st_img_infos, pPriv->tmp_map);
-    ret         = pPriv->pEngine->engine_init(st_param_info, st_img_infos, pPriv->tmp_map);
+    ret         = pPriv->pAlg->alg_init(pPriv->ImageInfo, pPriv->tmp_map);
+    ret         = pPriv->pEngine->engine_init(st_param_info, pPriv->ImageInfo, pPriv->tmp_map);
 
-    memcpy(&pPriv->ImageInfo, &st_img_infos, sizeof(img_info) * st_img_infos.size());
+    for (auto info : pPriv->ImageInfo)
+    {
+        img_info tmp;
+        tmp.u32Width   = info.width;
+        tmp.u32Height  = info.height;
+        tmp.u32channel = info.channel;
+        tmp.order      = info.order;
+        tmp.format     = info.format;
+    }
 
     return ret;
 }
@@ -97,12 +105,14 @@ NCE_S32 nce_alg_machine::nce_alg_inference(vector<img_t> &pc_imgs)
 
     for (NCE_U32 i = 0; i < pPriv->ImageInfo.size(); i++)
     {
-        if (pc_imgs[i].image_attr.u32Height != pPriv->ImageInfo[i].u32Height
-            || pc_imgs[i].image_attr.u32Width != pPriv->ImageInfo[i].u32Width
-            || pc_imgs[i].image_attr.u32channel != pPriv->ImageInfo[i].u32channel
-            || pc_imgs[i].image_attr.format != pPriv->ImageInfo[i].format)
+        if (pc_imgs[i].image_attr.u32Height != pPriv->ImageInfo[i].height
+            || pc_imgs[i].image_attr.u32Width != pPriv->ImageInfo[i].width
+            || pc_imgs[i].image_attr.u32channel != pPriv->ImageInfo[i].channel
+            || pc_imgs[i].image_attr.format != pPriv->ImageInfo[i].format
+            || pc_imgs[i].image_attr.order != pPriv->ImageInfo[i].order)
         {
             printf("[%d] input size doesn't fit the [%d] model input\n", i, i);
+            return NCE_FAILED;
         }
 
         printf("your param:   h %d w %d c %d order %d format %d\n",
@@ -112,9 +122,9 @@ NCE_S32 nce_alg_machine::nce_alg_inference(vector<img_t> &pc_imgs)
                pc_imgs[i].image_attr.order,
                pc_imgs[i].image_attr.format);
         printf("should param: h %d w %d c %d order %d format %d\n",
-               pPriv->ImageInfo[i].u32Height,
-               pPriv->ImageInfo[i].u32Width,
-               pPriv->ImageInfo[i].u32channel,
+               pPriv->ImageInfo[i].height,
+               pPriv->ImageInfo[i].width,
+               pPriv->ImageInfo[i].channel,
                pPriv->ImageInfo[i].order,
                pPriv->ImageInfo[i].format);
     }

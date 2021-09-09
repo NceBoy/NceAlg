@@ -47,7 +47,7 @@ class hd_alg : public IAlg, public NceAlgCreator<hd_alg, PERSON_HEAD>
 public:
     hd_alg();
 
-    NCE_S32 alg_init(vector<img_info> &st_img_info, map<int, tmp_map_result> &st_result_map);
+    NCE_S32 alg_init(vector<input_tensor_info> &st_tensor_infos, map<int, tmp_map_result> &st_result_map);
 
     NCE_S32 alg_cfg_set(const task_config_info &st_task_config_info);
 

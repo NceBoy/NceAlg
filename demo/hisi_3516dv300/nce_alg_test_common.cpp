@@ -5,7 +5,6 @@
 #include "nce_alg.hpp"
 #include "hi_comm_svp.h"
 #include "sample_comm_svp.h"
-#include "util/util.hpp"
 
 using namespace std;
 using namespace nce_alg;
@@ -70,14 +69,15 @@ int main(int argc, char *argv[])
         task_config.st_cfg.hd_config.nms_thresh = 0.6;
         alg_result_info results;
 
-        img_info        imgInfo;
+        vector<img_info>        imgInfos;
         nce_alg_machine hd_model(PERSON_HEAD, HISI_3516DV300);
 
-        hd_model.nce_alg_init(openvino_param, imgInfo);
+        hd_model.nce_alg_init(openvino_param, imgInfos);
         hd_model.nce_alg_cfg_set(task_config);
         hd_model.nce_alg_process_set(preprocesses);
-
-        hd_model.nce_alg_inference(frame);
+        vector<img_t> imgs;
+        imgs.push_back(frame);
+        hd_model.nce_alg_inference(imgs);
         long            spend;
         struct timespec start, next, end;
         clock_gettime(0, &start);

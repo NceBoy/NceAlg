@@ -6,17 +6,13 @@
 #include <sys/time.h>
 #include "alg_type.h"
 #include "nce_alg.hpp"
-#include "util/util.hpp"
 
-#include "opencv2/core/core.hpp"
-#include "opencv2/imgproc.hpp"
-#include "opencv2/imgcodecs.hpp"
+
 
 
 
 using namespace std;
 using namespace nce_alg;
-using namespace cv;
 
 /******************************************************************************
 * function : show usage

@@ -1,0 +1,85 @@
+project(nce_alg)
+
+cmake_minimum_required(VERSION 3.11)
+
+if(CMAKE_BUILD_TYPE MATCHES "Release")
+SET(CMAKE_BUILD_TYPE_POSTFIX "")
+endif()
+if(CMAKE_BUILD_TYPE MATCHES "Debug")
+SET(CMAKE_BUILD_TYPE_POSTFIX "d")
+endif()
+
+include(${PROJECT_SOURCE_DIR}/platform/${PLATFORM}/${PLATFORM}.cmake) 
+
+
+INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/alg/)
+INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/alg/alg_manager/)
+INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/alg/alg_manager/face_fake)
+INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/alg/alg_manager/hd_alg/)
+INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/alg/alg_manager/util/)
+
+INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/alg/engine_manager/)
+INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/alg/engine_manager/engine_interface/hisi_3516dv300/)
+INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/alg/engine_manager/engine_interface/rv_1126/)
+INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/alg/engine_manager/engine_interface/hisi_3559av100/)
+INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/alg/engine_manager/engine_interface/openvino_backend/)
+INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/alg/engine_manager/engine_interface/host/)
+
+INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/common/)
+
+INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR})
+
+
+
+AUX_SOURCE_DIRECTORY(${PROJECT_SOURCE_DIR}/alg/ ALG_SRC)
+AUX_SOURCE_DIRECTORY(${PROJECT_SOURCE_DIR}/alg/engine_manager/ ENGINE_MANAGER_SRC)
+AUX_SOURCE_DIRECTORY(${PROJECT_SOURCE_DIR}/alg/alg_manager/hd_alg/ HD_SRC)
+AUX_SOURCE_DIRECTORY(${PROJECT_SOURCE_DIR}/alg/alg_manager/face_fake/ FK_SRC)
+AUX_SOURCE_DIRECTORY(${PROJECT_SOURCE_DIR}/alg/alg_manager/util UTIL_SRC)
+AUX_SOURCE_DIRECTORY(${PROJECT_SOURCE_DIR}/common/ COMMON_SRC)
+
+#生成动态库  静态库则 STATIC
+ADD_LIBRARY(${PROJECT_NAME} SHARED 
+${ALG_SRC}
+${ENGINE_MANAGER_SRC}
+${HD_SRC}
+${FK_SRC}
+${UTIL_SRC}
+${PLATFORM_SRC}
+${COMMON_SRC})
+#静态库不能写为同名，否则会被动态库覆盖
+ADD_LIBRARY(${PROJECT_NAME}-static STATIC
+${ALG_SRC}
+${ENGINE_MANAGER_SRC}
+${HD_SRC}
+${FK_SRC}
+${UTIL_SRC}
+${PLATFORM_SRC}
+${COMMON_SRC})
+
+
+target_link_libraries(${PROJECT_NAME}
+-Wl,--start-group
+${OPENCV_LIB}
+${PLATFORM_LIB}
+-Wl,--end-group)
+
+target_link_libraries(${PROJECT_NAME}-static
+-Wl,--start-group
+${OPENCV_LIB}
+${PLATFORM_LIB}
+-Wl,--end-group)
+
+#给静态库重命名为hello，最后会生成libhello.a
+SET_TARGET_PROPERTIES(${PROJECT_NAME}-static PROPERTIES OUTPUT_NAME ${PROJECT_NAME})
+
+# VERSION指代动态库版本，SOVERSION指代API版本。
+SET_TARGET_PROPERTIES (${PROJECT_NAME} PROPERTIES VERSION 1.2 SOVERSION 1)
+
+install(TARGETS ${PROJECT_NAME} DESTINATION ${CMAKE_INSTALL_BINDIR})
+# 安装头文件
+INSTALL(FILES ${PROJECT_SOURCE_DIR}/alg/nce_alg_c.h
+${PROJECT_SOURCE_DIR}/alg/nce_alg.hpp
+${PROJECT_SOURCE_DIR}/alg/alg_type.h
+ DESTINATION ${CMAKE_INSTALL_PREFIX})
+

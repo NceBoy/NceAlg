@@ -179,6 +179,7 @@ NCE_S32 nce_planner2package::forward(img_t &input_img)
     NCE_S32 channel  = input_img.image_attr.u32channel;
     NCE_U32 img_size = width * height;
     NCE_U8 *image    = input_img.image;
+
     for (NCE_U32 c = 0; c < channel; c++)
     {
         for (NCE_U32 h = 0; h < height; h++)
@@ -290,7 +291,7 @@ NCE_S32 nce_resize::forward(img_t &input_img)
     NCE_F32 dst_width   = (NCE_F32)output_img.image_attr.u32Width;
     NCE_F32 dst_height  = (NCE_F32)output_img.image_attr.u32Height;
     NCE_F32 dst_channel = (NCE_F32)output_img.image_attr.u32channel;
-
+    printf("nce_resize\n");
     assert(src_channel == dst_channel);
 
     NCE_F32 factor_x = src_width / dst_width;

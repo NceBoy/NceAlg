@@ -122,7 +122,7 @@ rv1126_engine::rv1126_engine()
 };
 
 NCE_S32 rv1126_engine::engine_init(const param_info &        st_param_info,
-                                   img_info &                st_img_info,
+                                   vector<input_tensor_info> &st_tensor_infos,
                                    map<int, tmp_map_result> &st_result_map)
 {
     NCE_U32 ret = NCE_FAILED;
@@ -165,23 +165,21 @@ NCE_S32 rv1126_engine::engine_init(const param_info &        st_param_info,
             pPriv->u32Heights.push_back(tensor_input[i].dims[2]);
             pPriv->u32Widths.push_back(tensor_input[i].dims[1]);
             // TODO 这里我们现在默认输出层就一层，后续需要适配改成多输入。
-            st_img_info.format     = PACKAGE;
-            st_img_info.u32channel = tensor_input[i].dims[0];
-            st_img_info.u32Height  = tensor_input[i].dims[2];
-            st_img_info.u32Width   = tensor_input[i].dims[1];
+            st_tensor_infos[i].format     = PACKAGE;
+            st_tensor_infos[i].channel = tensor_input[i].dims[0];
+            st_tensor_infos[i].height  = tensor_input[i].dims[2];
+            st_tensor_infos[i].width   = tensor_input[i].dims[1];
             // TODO NCE强制规定模型是RGB模型，给你脸了？
-            st_img_info.order = RGB;
         }
         else
         {
             pPriv->u32Chs.push_back(tensor_input[i].dims[2]);
             pPriv->u32Heights.push_back(tensor_input[i].dims[1]);
             pPriv->u32Widths.push_back(tensor_input[i].dims[0]);
-            st_img_info.format     = PLANNER;
-            st_img_info.u32channel = tensor_input[i].dims[2];
-            st_img_info.u32Height  = tensor_input[i].dims[1];
-            st_img_info.u32Width   = tensor_input[i].dims[0];
-            st_img_info.order      = RGB;
+            st_tensor_infos[i].format     = PLANNER;
+            st_tensor_infos[i].channel = tensor_input[i].dims[2];
+            st_tensor_infos[i].height  = tensor_input[i].dims[1];
+            st_tensor_infos[i].width   = tensor_input[i].dims[0];
         }
 
         // input_attrs Init
@@ -246,7 +244,7 @@ NCE_S32 rv1126_engine::engine_init(const param_info &        st_param_info,
     return NCE_SUCCESS;
 }
 
-NCE_S32 rv1126_engine::engine_inference(img_t &pc_img)
+NCE_S32 rv1126_engine::engine_inference(vector<img_t> &pc_imgs)
 {
 
     NCE_U32 ret = NCE_FAILED;
@@ -254,14 +252,14 @@ NCE_S32 rv1126_engine::engine_inference(img_t &pc_img)
     for (int i = 0; i < pPriv->io_num.n_input; i++)
     {
         pPriv->inputs[i].index = i;
-        if (pc_img.image_attr.format == PACKAGE)
+        if (pc_imgs[i].image_attr.format == PACKAGE)
             pPriv->inputs[i].fmt = RKNN_TENSOR_NHWC;
         else
             pPriv->inputs[i].fmt = RKNN_TENSOR_NCHW;
         pPriv->inputs[i].type = pPriv->input_attrs[i].type;
-        pPriv->inputs[i].size = pc_img.image_attr.u32Width * pc_img.image_attr.u32Height * pc_img.image_attr.u32channel;
+        pPriv->inputs[i].size = pc_imgs[i].image_attr.u32Width * pc_imgs[i].image_attr.u32Height * pc_imgs[i].image_attr.u32channel;
 
-        pPriv->inputs[i].buf = pc_img.image;
+        pPriv->inputs[i].buf = pc_imgs[i].image;
     }
     ret = rknn_inputs_set(pPriv->ctx, pPriv->io_num.n_input, &pPriv->inputs[0]);
 

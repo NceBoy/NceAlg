@@ -17,9 +17,11 @@ foreach(mainfile IN LISTS demos)
     # Get file name without directory
     INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/${PLATFORM}/include/)
     INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/inc/)
+    link_directories(${PROJECT_SOURCE_DIR}/lib/)
+    file(GLOB_RECURSE libs ${PROJECT_SOURCE_DIR}/${PLATFORM}/lib/*)
     get_filename_component(mainname ${mainfile} NAME_WE)
     add_executable(${mainname} ${mainfile})
-    target_link_libraries(${mainname} -lnce_alg)
+    target_link_libraries(${mainname} -lnce_alg ${libs})
     install(TARGETS ${mainname} DESTINATION ${PROJECT_SOURCE_DIR})
 endforeach()
 

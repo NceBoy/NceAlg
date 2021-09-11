@@ -38,6 +38,8 @@ NCE_S32 hd_alg::alg_init(vector<input_tensor_info> &st_img_info, map<int, tmp_ma
     st_result_map[1]             = tmp_map_result{ 0 };
     st_result_map[0].tensor.name = "hm";
     st_result_map[1].tensor.name = "wh";
+    input_tensor_info img_info;
+    st_img_info.push_back(img_info);
     if (NULL != pPriv)
     {
         ret = NCE_SUCCESS;
@@ -78,7 +80,6 @@ NCE_S32 hd_alg::alg_get_result(alg_result_info &results, map<int, tmp_map_result
         printf("Failed to init pPriv of alg");
         return NCE_FAILED;
     }
-    printf("aa!\n");
     // TODO 此处为清除上一轮调用结果，所以使用者必须及时拷贝走数据结果，且该函数不可重入
     pPriv->tmp_result.clear();
     pPriv->head_info.clear();
@@ -100,7 +101,6 @@ NCE_S32 hd_alg::alg_get_result(alg_result_info &results, map<int, tmp_map_result
     {
         if (xi == 1.0f)
         {
-            printf("a\n");
             for (NCE_U32 i = 0; i < feature_size; i++)
             {
                 NCE_U32 cur_h = i / width;

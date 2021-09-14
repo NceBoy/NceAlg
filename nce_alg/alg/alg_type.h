@@ -5,6 +5,13 @@
 #define NCE_FAILED -1
 #define NCE_IN
 #define NCE_OUT
+
+#ifdef WIN32
+#define NCE_PUBLIC __declspec(dllexport)
+#else
+#define NCE_PUBLIC
+#endif
+
 typedef signed char        NCE_S8;
 typedef int                NCE_S32;
 typedef short              NCE_S16;
@@ -37,6 +44,7 @@ typedef enum
     FACE_RECOGNIZE,
     FACE_FAKE,
     CENTERNET,
+    VFNET,
     MAX_CLS,
 
 } taskcls;

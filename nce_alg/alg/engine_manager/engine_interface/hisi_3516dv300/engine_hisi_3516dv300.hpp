@@ -28,13 +28,13 @@ class hisi_3516dv300_engine : public IEngine, public NceEngineCreator<hisi_3516d
 public:
     hisi_3516dv300_engine();
 
-    NCE_S32 engine_init(const param_info &         st_param_info,
-                        vector<input_tensor_info> &st_tensor_infos,
-                        map<int, tmp_map_result> & st_result_map);
+    NCE_S32 engine_init(const param_info &                     st_param_info,
+                        vector<input_tensor_info> &            st_tensor_infos,
+                        unordered_map<string, tmp_map_result> &st_result_map);
 
     NCE_S32 engine_inference(vector<img_t> &pc_img);
 
-    NCE_S32 engine_get_result(map<int, tmp_map_result> &st_engine_result);
+    NCE_S32 engine_get_result(unordered_map<string, tmp_map_result> &st_engine_result);
 
     NCE_S32 engine_destroy();
 

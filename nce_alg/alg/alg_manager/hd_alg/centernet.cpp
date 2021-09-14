@@ -40,21 +40,15 @@ centernet_priv::~centernet_priv()
     delete score;
 }
 
-NCE_S32 centernet::alg_init(vector<input_tensor_info> &st_tensor_infos, map<int, tmp_map_result> &st_result_map)
+NCE_S32 centernet::alg_init(vector<input_tensor_info> &            st_tensor_infos,
+                            unordered_map<string, tmp_map_result> &st_result_map)
 {
-    NCE_S32 ret                  = NCE_FAILED;
-    pPriv                        = shared_ptr<centernet_priv>(new centernet_priv());
-    st_result_map[0]             = tmp_map_result{ 0 };
-    st_result_map[0].tensor.name = "hm";
-
-    st_result_map[1]             = tmp_map_result{ 0 };
-    st_result_map[1].tensor.name = "off";
-
-    st_result_map[2]             = tmp_map_result{ 0 };
-    st_result_map[2].tensor.name = "pool";
-
-    st_result_map[3]             = tmp_map_result{ 0 };
-    st_result_map[3].tensor.name = "wh";
+    NCE_S32 ret           = NCE_FAILED;
+    pPriv                 = shared_ptr<centernet_priv>(new centernet_priv());
+    st_result_map["hm"]   = tmp_map_result{ 0 };
+    st_result_map["pool"] = tmp_map_result{ 0 };
+    st_result_map["wh"]   = tmp_map_result{ 0 };
+    st_result_map["off"]  = tmp_map_result{ 0 };
 
     input_tensor_info input0;
     input0.order     = RGB;
@@ -86,7 +80,7 @@ NCE_S32 centernet::alg_inference(vector<img_t> &pc_img)
     return ret;
 }
 
-NCE_S32 centernet::alg_get_result(alg_result_info &results, map<int, tmp_map_result> &st_result_map)
+NCE_S32 centernet::alg_get_result(alg_result_info &results, unordered_map<string, tmp_map_result> &st_result_map)
 {
     results.num = 0;
     pPriv->head_info.clear();
@@ -99,14 +93,10 @@ NCE_S32 centernet::alg_get_result(alg_result_info &results, map<int, tmp_map_res
         return NCE_FAILED;
     }
 
-    NCE_F32 *hm = (NCE_F32 *)st_result_map[0].pu32Feat;
-    // printf("hm : %s\n", st_result_map[0].tensor.name.c_str());
-    NCE_F32 *maxpool = (NCE_F32 *)st_result_map[2].pu32Feat;
-    // printf("maxpool : %s\n", st_result_map[1].tensor.name.c_str());
-    NCE_F32 *wh = (NCE_F32 *)st_result_map[3].pu32Feat;
-    // printf("wh : %s\n", st_result_map[2].tensor.name.c_str());
-    NCE_F32 *offset = (NCE_F32 *)st_result_map[1].pu32Feat;
-    // printf("offset : %s\n", st_result_map[3].tensor.name.c_str());
+    NCE_F32 *hm      = (NCE_F32 *)st_result_map["hm"].pu32Feat;
+    NCE_F32 *maxpool = (NCE_F32 *)st_result_map["pool"].pu32Feat;
+    NCE_F32 *wh      = (NCE_F32 *)st_result_map["wh"].pu32Feat;
+    NCE_F32 *offset  = (NCE_F32 *)st_result_map["off"].pu32Feat;
 
     NCE_U32 width        = st_result_map[0].tensor.u32FeatWidth;
     NCE_U32 height       = st_result_map[0].tensor.u32FeatHeight;

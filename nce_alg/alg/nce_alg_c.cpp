@@ -65,6 +65,7 @@ static NCE_S32 nce_alg_process_set_self(NCE_PTR pPriv, nce_alg_c_img_process_par
         preprocesses.push_back(img_proc_params->params[i]);
     }
     ret = self->nce_alg_process_set(preprocesses);
+    return NCE_SUCCESS;
 }
 
 static NCE_S32 nce_alg_destroy_self(NCE_PTR pPriv)

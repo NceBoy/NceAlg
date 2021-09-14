@@ -11,6 +11,13 @@ endif()
 
 
 link_directories(${LIBRARY_OUTPUT_PATH})
+
+execute_process(
+    COMMAND cp ${NCE_BUILD_PATH}/nce_alg/common/common.h    ${PROJECT_SOURCE_DIR}/inc/
+    COMMAND cp ${NCE_BUILD_PATH}/nce_alg/alg/nce_alg_c.h    ${PROJECT_SOURCE_DIR}/inc/
+    COMMAND cp ${NCE_BUILD_PATH}/nce_alg/alg/nce_alg.hpp    ${PROJECT_SOURCE_DIR}/inc/
+    COMMAND cp ${NCE_BUILD_PATH}/nce_alg/alg/alg_type.h     ${PROJECT_SOURCE_DIR}/inc/
+)
 # Find all main*.cpp files and store in list mains
 file(GLOB_RECURSE demos ${PROJECT_SOURCE_DIR}/${PLATFORM}/*.cpp)
 foreach(mainfile IN LISTS demos)

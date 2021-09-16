@@ -12,7 +12,7 @@
 #include <iostream>
 #include <alg_type.h>
 #include "self_type.hpp"
-#include <map>
+#include <unordered_map>
 #include <vector>
 #ifdef __cplusplus
 #if __cplusplus
@@ -26,7 +26,8 @@ namespace nce_alg {
 class IAlg
 {
 public:
-    virtual NCE_S32 alg_init(vector<input_tensor_info> &st_tensor_infos, map<int, tmp_map_result> &st_result_map)
+    virtual NCE_S32 alg_init(vector<input_tensor_info> &            st_tensor_infos,
+                             unordered_map<string, tmp_map_result> &st_result_map)
     {
         return NCE_FAILED;
     }
@@ -41,7 +42,7 @@ public:
         return NCE_FAILED;
     }
 
-    virtual NCE_S32 alg_get_result(alg_result_info &results, map<int, tmp_map_result> &st_result_map)
+    virtual NCE_S32 alg_get_result(alg_result_info &results, unordered_map<string, tmp_map_result> &st_result_map)
     {
         return NCE_FAILED;
     }
@@ -49,6 +50,11 @@ public:
     virtual NCE_S32 alg_destroy()
     {
         return NCE_FAILED;
+    }
+
+    virtual ~IAlg()
+    {
+        
     }
 };
 } // namespace nce_alg

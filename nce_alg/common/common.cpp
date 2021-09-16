@@ -296,16 +296,14 @@ NCE_S32 nce_resize::forward(img_t &input_img)
 
     NCE_F32 factor_x = src_width / dst_width;
     NCE_F32 factor_y = src_height / dst_height;
-
     for (NCE_U32 h = 0; h < dst_height; h++)
     {
         for (NCE_U32 w = 0; w < dst_width; w++)
         {
-            NCE_F32 src_x = w * factor_x;
-            NCE_F32 src_y = h * factor_y;
-
-            NCE_U32 src_x_lt = (NCE_U32)src_x;
-            NCE_U32 src_y_lt = (NCE_U32)src_y;
+            NCE_F32 src_x    = (w + 1) * factor_x - 1;
+            NCE_F32 src_y    = (h + 1) * factor_y - 1;
+            NCE_U32 src_x_lt = (NCE_U32)std::min(src_x, src_width - 2);
+            NCE_U32 src_y_lt = (NCE_U32)std::min(src_y, src_height - 2);
 
             NCE_U32 src_x_rb = src_x_lt + 1;
             NCE_U32 src_y_rb = src_y_lt + 1;

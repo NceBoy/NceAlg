@@ -18,7 +18,7 @@ hd_alg_priv::hd_alg_priv()
     alg_cfg.st_cfg.hd_config.nms_thresh = 0.6;
     alg_cfg.isLog                       = false;
     u32Stride                           = 0;
-    memset(&model_image_info, 0, sizeof(img_info));
+    model_image_info                    = { 0 };
 }
 
 hd_alg::hd_alg()
@@ -28,16 +28,16 @@ hd_alg::hd_alg()
  * 将输出层map定义好
  * ...
  */
-NCE_S32 hd_alg::alg_init(vector<input_tensor_info> &st_img_info, map<int, tmp_map_result> &st_result_map)
+NCE_S32 hd_alg::alg_init(vector<input_tensor_info> &st_img_info, unordered_map<string, tmp_map_result> &st_result_map)
 {
     NCE_S32 ret = NCE_FAILED;
     pPriv       = shared_ptr<hd_alg_priv>(new hd_alg_priv());
     // st_result_map.insert({0,pPriv->tag[0]});
     // st_result_map.insert({1,pPriv->tag[1]});
-    st_result_map[0]             = tmp_map_result{ 0 };
-    st_result_map[1]             = tmp_map_result{ 0 };
-    st_result_map[0].tensor.name = "hm";
-    st_result_map[1].tensor.name = "wh";
+    st_result_map["hm"]             = tmp_map_result{ 0 };
+    st_result_map["wh"]             = tmp_map_result{ 0 };
+    st_result_map["hm"].tensor.name = "hm";
+    st_result_map["wh"].tensor.name = "wh";
     input_tensor_info img_info;
     st_img_info.push_back(img_info);
     if (NULL != pPriv)
@@ -72,7 +72,7 @@ NCE_S32 hd_alg::alg_destroy()
     return ret;
 }
 
-NCE_S32 hd_alg::alg_get_result(alg_result_info &results, map<int, tmp_map_result> &st_result_map)
+NCE_S32 hd_alg::alg_get_result(alg_result_info &results, unordered_map<string, tmp_map_result> &st_result_map)
 {
     NCE_S32 ret = NCE_FAILED;
     if (NULL == pPriv)
@@ -85,12 +85,12 @@ NCE_S32 hd_alg::alg_get_result(alg_result_info &results, map<int, tmp_map_result
     pPriv->head_info.clear();
 
     NCE_F32 ratio  = 4;
-    NCE_U32 width  = st_result_map[0].tensor.u32FeatWidth;
-    NCE_U32 height = st_result_map[0].tensor.u32FeatHeight;
-    NCE_U32 stride = st_result_map[0].tensor.u32Stride;
+    NCE_U32 width  = st_result_map["hm"].tensor.u32FeatWidth;
+    NCE_U32 height = st_result_map["hm"].tensor.u32FeatHeight;
+    NCE_U32 stride = st_result_map["hm"].tensor.u32Stride;
 
-    NCE_F32 *cls = (NCE_F32 *)st_result_map[0].pu32Feat;
-    NCE_F32 *reg = (NCE_F32 *)st_result_map[1].pu32Feat;
+    NCE_F32 *cls = (NCE_F32 *)st_result_map["hm"].pu32Feat;
+    NCE_F32 *reg = (NCE_F32 *)st_result_map["wh"].pu32Feat;
 
     NCE_U32 feature_size   = width * height;
     NCE_U32 feature_stride = stride * height;
@@ -160,8 +160,10 @@ NCE_S32 hd_alg::alg_get_result(alg_result_info &results, map<int, tmp_map_result
     {
     }
     nms(pPriv->tmp_result, pPriv->tmp_result, pPriv->alg_cfg.st_cfg.hd_config.nms_thresh);
-    results.num            = pPriv->tmp_result.size();
-    results.st_alg_results = &pPriv->tmp_result[0];
+    NCE_U32 num = pPriv->tmp_result.size();
+    results.num = num;
+    if (num > 0)
+        results.st_alg_results = &pPriv->tmp_result[0];
 
     return ret;
 }

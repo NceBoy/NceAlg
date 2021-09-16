@@ -53,9 +53,9 @@ private:
     vector<MNN::CV::ImageProcess::Config> configs;
     MNN::Session *                        psession;
     MNNTensorUnion                        all_tensor;
-
-    MNN::Interpreter *              pnet;
-    vector<MNN::CV::ImageProcess *> pprocessors;
+    MNN::BackendConfig                    backendconfig;
+    MNN::Interpreter *                    pnet;
+    vector<MNN::CV::ImageProcess *>       pprocessors;
     // std::unique_ptr<MNN::Interpreter>        pnet;
     // std::unique_ptr<MNN::CV::ImageProcess>   pprocessor;
 
@@ -63,11 +63,15 @@ private:
 
 public:
     NCE_S32
-    load_model(const char *               model_path,
-               map<int, tmp_map_result> & st_result_map,
-               vector<input_tensor_info> &st_tensor_infos)
+    load_model(const char *                           model_path,
+               unordered_map<string, tmp_map_result> &st_result_map,
+               vector<input_tensor_info> &            st_tensor_infos)
     {
-        // pnet          = unique_ptr<MNN::Interpreter>(MNN::Interpreter::createFromFile(model_path));
+        // backendconfig.memory         = MNN::BackendConfig::Memory_High;
+        // backendconfig.power          = MNN::BackendConfig::Power_High;
+        // backendconfig.precision      = MNN::BackendConfig::Precision_High;
+        schedue_config.backendConfig = &backendconfig;
+
         pnet     = MNN::Interpreter::createFromFile(model_path);
         psession = pnet->createSession(schedue_config);
 
@@ -105,14 +109,19 @@ public:
             auto         shape                       = pTensor->shape();
             all_tensor.output_tensors_map_host[name] = new MNN::Tensor(pTensor, pTensor->getDimensionType());
             printf("st_result_map[%d] name is: %s\n", count, name.c_str());
-            st_result_map[count].tensor.name          = name;
-            st_result_map[count].tensor.outfmt        = PLANNER;
-            st_result_map[count].tensor.scale         = 1;
-            st_result_map[count].tensor.u32ch         = shape[1];
-            st_result_map[count].tensor.u32FeatHeight = shape[2];
-            st_result_map[count].tensor.u32FeatWidth  = shape[3];
-            st_result_map[count].tensor.u32Stride     = shape[3];
-            st_result_map[count].tensor.zp            = 0;
+            if (name != kv.first)
+            {
+                printf("Error! alg results sequences are not consistent with engine results\n");
+                return NCE_FAILED;
+            }
+            st_result_map[name].tensor.name          = name;
+            st_result_map[name].tensor.outfmt        = PLANNER;
+            st_result_map[name].tensor.scale         = 1;
+            st_result_map[name].tensor.u32ch         = shape[1];
+            st_result_map[name].tensor.u32FeatHeight = shape[2];
+            st_result_map[name].tensor.u32FeatWidth  = shape[3];
+            st_result_map[name].tensor.u32Stride     = shape[3];
+            st_result_map[name].tensor.zp            = 0;
 
             count++;
         }
@@ -142,7 +151,7 @@ public:
         return NCE_SUCCESS;
     }
 
-    NCE_S32 get_result(map<int, tmp_map_result> &st_engine_result)
+    NCE_S32 get_result(unordered_map<string, tmp_map_result> &st_engine_result)
     {
         printf("start get result\n");
         for (auto &kv : st_engine_result)
@@ -164,9 +173,9 @@ MNN_engine::MNN_engine()
 }
 
 NCE_S32
-MNN_engine::engine_init(const param_info &         st_param_info,
-                        vector<input_tensor_info> &st_tensor_infos,
-                        map<int, tmp_map_result> & st_result_map)
+MNN_engine::engine_init(const param_info &                     st_param_info,
+                        vector<input_tensor_info> &            st_tensor_infos,
+                        unordered_map<string, tmp_map_result> &st_result_map)
 {
     // TODO support multi-image input, assert input and model dimension
     pPriv->load_model(st_param_info.pc_model_path, st_result_map, st_tensor_infos);
@@ -179,7 +188,7 @@ NCE_S32 MNN_engine::engine_inference(vector<img_t> &pc_img)
     return NCE_SUCCESS;
 }
 
-NCE_S32 MNN_engine::engine_get_result(map<int, tmp_map_result> &st_engine_result)
+NCE_S32 MNN_engine::engine_get_result(unordered_map<string, tmp_map_result> &st_engine_result)
 {
     pPriv->get_result(st_engine_result);
     return NCE_SUCCESS;

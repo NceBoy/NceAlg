@@ -16,19 +16,19 @@ namespace nce_alg {
 class nce_alg_machine
 {
 public:
-    nce_alg_machine(taskcls alg_type, const platform engine_type);
+    NCE_PUBLIC nce_alg_machine(taskcls alg_type, const platform engine_type);
 
-    NCE_S32 nce_alg_init(const param_info &st_param_info, vector<img_info> &st_img_infos);
+    NCE_S32 NCE_PUBLIC nce_alg_init(const param_info &st_param_info, vector<img_info> &st_img_infos);
 
-    NCE_S32 nce_alg_cfg_set(const task_config_info &st_task_config_info);
+    NCE_S32 NCE_PUBLIC nce_alg_cfg_set(const task_config_info &st_task_config_info);
 
-    NCE_S32 nce_alg_inference(vector<img_t> &pc_imgs);
+    NCE_S32 NCE_PUBLIC nce_alg_inference(vector<img_t> &pc_imgs);
 
-    NCE_S32 nce_alg_get_result(alg_result_info &results);
+    NCE_S32 NCE_PUBLIC nce_alg_get_result(alg_result_info &results);
 
-    NCE_S32 nce_alg_process_set(std::vector<ImageProcessParam> &pre_proc_cfg);
+    NCE_S32 NCE_PUBLIC nce_alg_process_set(std::vector<ImageProcessParam> &pre_proc_cfg);
 
-    NCE_S32 nce_alg_destroy();
+    NCE_S32 NCE_PUBLIC nce_alg_destroy();
 
 private:
     class dynamic_factory;

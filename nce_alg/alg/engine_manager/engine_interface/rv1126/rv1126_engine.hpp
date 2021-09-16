@@ -4,7 +4,7 @@
 #include <alg_type.h>
 #include <IEngine.hpp>
 #include "factory.hpp"
-#include <map>
+#include <unordered_map>
 #include <memory>
 
 #ifdef __cplusplus
@@ -22,11 +22,13 @@ public:
     rv1126_engine();
 
     NCE_S32
-    engine_init(const param_info &st_param_info,vector<input_tensor_info> &st_tensor_infos, map<int, tmp_map_result> &st_result_map);
+    engine_init(const param_info &                  st_param_info,
+                vector<input_tensor_info> &         st_tensor_infos,
+                unordered_map<string, tmp_map_result> &st_result_map);
 
     NCE_S32 engine_inference(vector<img_t> &pc_imgs);
 
-    NCE_S32 engine_get_result(map<int, tmp_map_result> &st_engine_result);
+    NCE_S32 engine_get_result(unordered_map<string, tmp_map_result> &st_engine_result);
 
     NCE_S32 engine_destroy();
 

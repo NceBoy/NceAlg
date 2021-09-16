@@ -13,34 +13,15 @@
 #include "nce_alg.hpp"
 #include "common.h"
 #include <time.h>
-
-#if (defined WIN32)
-#include <time.h>
 #define OSA_DEBUG_DEFINE_TIME \
     clock_t start;            \
     clock_t end;
-#else
-#include <sys/time.h>
-#define OSA_DEBUG_DEFINE_TIME \
-    struct timespec start;    \
-    struct timespec end;
-#endif
 
-#if (defined WIN32)
 #define OSA_DEBUG_START_TIME start = clock();
-#else
-#define OSA_DEBUG_START_TIME clock_gettime(CLOCK_REALTIME, &start);
-#endif
 
-#if (defined WIN32)
 #define OSA_DEBUG_END_TIME(S) \
     end = clock();            \
     printf("%s %ld ms\n", #S, end - start);
-#else
-#define OSA_DEBUG_END_TIME(S)            \
-    clock_gettime(CLOCK_REALTIME, &end); \
-    printf("%s %ld ms\n", #S, 1000 * (end.tv_sec - start.tv_sec) + (end.tv_nsec - start.tv_nsec) / 1000000);
-#endif
 
 using namespace std;
 using namespace nce_alg;
@@ -74,37 +55,25 @@ int main(int argc, char *argv[])
         printf("before imread\n");
         img_t input_img;
         printf("after imread\n");
-        NCE_S32 res = nce_read_img(pcSrcFile, input_img);
-        if (res == NCE_SUCCESS)
-        {
-            printf("successful load img! h: %d w: %d c: %d\n",
-                   input_img.image_attr.u32Height,
-                   input_img.image_attr.u32Width,
-                   input_img.image_attr.u32channel);
-        }
-        else
-        {
-            printf("load img failed!\n");
-            return NCE_FAILED;
-        }
+        nce_read_img(pcSrcFile, input_img);
 
         ImageProcessParam resize_info;
         resize_info.type                         = PROC_RESIZE;
         resize_info.Info.resize_info.dst_channel = 3;
-        resize_info.Info.resize_info.dst_height  = 256;
+        resize_info.Info.resize_info.dst_height  = 288;
         resize_info.Info.resize_info.dst_width   = 512;
 
         nce_resize func_resize(resize_info);
-        printf("before func_resize\n");
+        printf("before func_resize");
         func_resize.forward(input_img);
-        printf("after func_resize\n");
+        printf("after func_resize");
         // cvtColor(image, image, COLOR_BGR2RGB);
         vector<img_t> frames;
 
         img_t frame;
         frame.image                 = input_img.image;
         frame.image_attr.u32channel = 3;
-        frame.image_attr.u32Height  = 256;
+        frame.image_attr.u32Height  = 288;
         frame.image_attr.u32Width   = 512;
         frame.image_attr.order      = RGB;
         frame.image_attr.format     = PACKAGE;
@@ -116,21 +85,18 @@ int main(int argc, char *argv[])
         task_config_info task_config;
         task_config.threshold                   = 0.3;
         task_config.isLog                       = 0;
-        task_config.st_cfg.hd_config.nms_thresh = 0.5;
+        task_config.st_cfg.hd_config.nms_thresh = 0.3;
         alg_result_info results;
 
         vector<img_info> imgInfo;
-        nce_alg_machine  hd_model(VFNET, MNNPLATFORM);
+        nce_alg_machine  hd_model(CENTERNET, MNNPLATFORM);
         hd_model.nce_alg_init(mnn_param, imgInfo);
         hd_model.nce_alg_cfg_set(task_config);
         OSA_DEBUG_DEFINE_TIME
-        for (int i = 0; i < 20; i++)
-        {
-            OSA_DEBUG_START_TIME
-            hd_model.nce_alg_inference(frames);
-            hd_model.nce_alg_get_result(results);
-            OSA_DEBUG_END_TIME(head detect cost:)
-        }
+        OSA_DEBUG_START_TIME
+        hd_model.nce_alg_inference(frames);
+        hd_model.nce_alg_get_result(results);
+        OSA_DEBUG_END_TIME(head detect cost:)
         alg_result *result = NULL;
         printf("model detect %d results\n", results.num);
         NCE_S32 color[3] = { 0, 0, 255 };

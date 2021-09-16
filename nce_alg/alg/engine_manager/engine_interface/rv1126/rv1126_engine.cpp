@@ -121,9 +121,9 @@ rv1126_engine::rv1126_engine()
     pPriv = shared_ptr<engine_priv>(new rv1126_engine::engine_priv());
 };
 
-NCE_S32 rv1126_engine::engine_init(const param_info &        st_param_info,
-                                   vector<input_tensor_info> &st_tensor_infos,
-                                   map<int, tmp_map_result> &st_result_map)
+NCE_S32 rv1126_engine::engine_init(const param_info &                     st_param_info,
+                                   vector<input_tensor_info> &            st_tensor_infos,
+                                   unordered_map<string, tmp_map_result> &st_result_map)
 {
     NCE_U32 ret = NCE_FAILED;
     /*RKNN Load model*/
@@ -165,7 +165,7 @@ NCE_S32 rv1126_engine::engine_init(const param_info &        st_param_info,
             pPriv->u32Heights.push_back(tensor_input[i].dims[2]);
             pPriv->u32Widths.push_back(tensor_input[i].dims[1]);
             // TODO 这里我们现在默认输出层就一层，后续需要适配改成多输入。
-            st_tensor_infos[i].format     = PACKAGE;
+            st_tensor_infos[i].format  = PACKAGE;
             st_tensor_infos[i].channel = tensor_input[i].dims[0];
             st_tensor_infos[i].height  = tensor_input[i].dims[2];
             st_tensor_infos[i].width   = tensor_input[i].dims[1];
@@ -176,7 +176,7 @@ NCE_S32 rv1126_engine::engine_init(const param_info &        st_param_info,
             pPriv->u32Chs.push_back(tensor_input[i].dims[2]);
             pPriv->u32Heights.push_back(tensor_input[i].dims[1]);
             pPriv->u32Widths.push_back(tensor_input[i].dims[0]);
-            st_tensor_infos[i].format     = PLANNER;
+            st_tensor_infos[i].format  = PLANNER;
             st_tensor_infos[i].channel = tensor_input[i].dims[2];
             st_tensor_infos[i].height  = tensor_input[i].dims[1];
             st_tensor_infos[i].width   = tensor_input[i].dims[0];
@@ -218,7 +218,7 @@ NCE_S32 rv1126_engine::engine_init(const param_info &        st_param_info,
             pPriv->u32OutHeights.push_back(tensor_output[i].dims[2]);
             pPriv->u32OutWidths.push_back(tensor_output[i].dims[1]);
 
-            st_result_map[i].tensor.outfmt = PACKAGE;
+            st_result_map[to_string(i)].tensor.outfmt = PACKAGE;
         }
         else
         {
@@ -226,17 +226,17 @@ NCE_S32 rv1126_engine::engine_init(const param_info &        st_param_info,
             pPriv->u32OutHeights.push_back(tensor_output[i].dims[1]);
             pPriv->u32OutWidths.push_back(tensor_output[i].dims[0]);
 
-            st_result_map[i].tensor.outfmt = PLANNER;
+            st_result_map[to_string(i)].tensor.outfmt = PLANNER;
         }
         // out_tensor get
-        st_result_map[i].tensor.u32ch         = pPriv->u32OutChs[i];
-        st_result_map[i].tensor.u32FeatWidth  = pPriv->u32OutWidths[i];
-        st_result_map[i].tensor.u32FeatHeight = pPriv->u32OutHeights[i];
-        st_result_map[i].tensor.u32Stride     = pPriv->u32OutWidths[i];
-        st_result_map[i].tensor.zp            = 0; // tensor_output[i].zp;
-        st_result_map[i].tensor.fl            = 0; // tensor_output[i].fl;
-        st_result_map[i].tensor.scale         = 1;
-        st_result_map[i].feat_type            = FEAT_F32;
+        st_result_map[to_string(i)].tensor.u32ch         = pPriv->u32OutChs[i];
+        st_result_map[to_string(i)].tensor.u32FeatWidth  = pPriv->u32OutWidths[i];
+        st_result_map[to_string(i)].tensor.u32FeatHeight = pPriv->u32OutHeights[i];
+        st_result_map[to_string(i)].tensor.u32Stride     = pPriv->u32OutWidths[i];
+        st_result_map[to_string(i)].tensor.zp            = 0; // tensor_output[i].zp;
+        st_result_map[to_string(i)].tensor.fl            = 0; // tensor_output[i].fl;
+        st_result_map[to_string(i)].tensor.scale         = 1;
+        st_result_map[to_string(i)].feat_type            = FEAT_F32;
         // printf("%d \n",i);
         pPriv->printRKNNTensor(&tensor_output[i]);
     }
@@ -257,7 +257,8 @@ NCE_S32 rv1126_engine::engine_inference(vector<img_t> &pc_imgs)
         else
             pPriv->inputs[i].fmt = RKNN_TENSOR_NCHW;
         pPriv->inputs[i].type = pPriv->input_attrs[i].type;
-        pPriv->inputs[i].size = pc_imgs[i].image_attr.u32Width * pc_imgs[i].image_attr.u32Height * pc_imgs[i].image_attr.u32channel;
+        pPriv->inputs[i].size =
+            pc_imgs[i].image_attr.u32Width * pc_imgs[i].image_attr.u32Height * pc_imgs[i].image_attr.u32channel;
 
         pPriv->inputs[i].buf = pc_imgs[i].image;
     }
@@ -278,20 +279,16 @@ NCE_S32 rv1126_engine::engine_inference(vector<img_t> &pc_imgs)
     return NCE_SUCCESS;
 }
 
-NCE_S32 rv1126_engine::engine_get_result(map<int, tmp_map_result> &st_engine_result)
+NCE_S32 rv1126_engine::engine_get_result(unordered_map<string, tmp_map_result> &st_engine_result)
 {
-    NCE_S32                                 count = 0;
-    NCE_U32                                 ret   = NCE_FAILED;
-    std::map<int, tmp_map_result>::iterator iter;
+    NCE_S32 count = 0;
+    NCE_U32 ret   = NCE_FAILED;
 
-    // printf("1 map size %d pPriv->io_num.n_output %d \n",st_engine_result.size(),pPriv->io_num.n_output);
     ret = rknn_outputs_get(pPriv->ctx, pPriv->io_num.n_output, &pPriv->outputs[0], NULL);
 
-    for (iter = st_engine_result.begin(); iter != st_engine_result.end(); iter++)
+    for (auto &kv : st_engine_result)
     {
-        iter->second.pu32Feat = (NCE_S32 *)(pPriv->outputs[count].buf);
-        // printf("fuck! %s size %d key %d count
-        // %d\n",iter->second.tensor.name,st_engine_result.size(),iter->first,count);
+        kv.second.pu32Feat = (NCE_S32 *)(pPriv->outputs[count].buf);
         count++;
     }
 

@@ -4,6 +4,7 @@
 #include "IAlg.hpp"
 #include "IEngine.hpp"
 #include <memory>
+#include <unordered_map>
 
 #ifndef __GNUC__
 #define NCE_CLASS_NAME(sour) typeid(sour).name()
@@ -21,8 +22,8 @@ public:
     typedef shared_ptr<IAlg> (*CreateAlgFunction)();
     typedef shared_ptr<IEngine> (*CreateEngineFunction)();
 
-    std::map<NCE_S32, CreateAlgFunction>    _create_alg_function_map;
-    std::map<NCE_S32, CreateEngineFunction> _create_engine_function_map;
+    unordered_map<NCE_S32, CreateAlgFunction> _create_alg_function_map;
+    unordered_map<NCE_S32, CreateEngineFunction> _create_engine_function_map;
 
     static NceFactory &Instance()
     {

@@ -4,7 +4,6 @@
 #include "IEngine.hpp"
 #include "factory.hpp"
 #include "self_type.hpp"
-#include "hd_alg.hpp"
 #include <map>
 #include <cstring>
 
@@ -20,14 +19,14 @@ typedef nce_base_process *(*base_process_create)(ImageProcessParam param);
 class nce_alg_machine::dynamic_factory
 {
 public:
-    shared_ptr<IEngine>                pEngine;
-    shared_ptr<IAlg>                   pAlg;
-    std::map<int, tmp_map_result>      tmp_map;
-    std::map<int, base_process_create> img_process_map = {
+    shared_ptr<IEngine>                        pEngine;
+    shared_ptr<IAlg>                           pAlg;
+    std::unordered_map<string, tmp_map_result> tmp_map;
+    std::map<int, base_process_create>         img_process_map = {
         { PROC_PACKAGE2PLANNER, nce_package2planner::create_instance },
-        { PROC_PLANNER2PACKAGE, nce_planner2package::create_instance},
+        { PROC_PLANNER2PACKAGE, nce_planner2package::create_instance },
         { PROC_NORMALIZATION, nce_normalization::create_instance },
-        { PROC_RESIZE, nce_resize::create_instance},
+        { PROC_RESIZE, nce_resize::create_instance },
     };
     std::vector<nce_base_process *> img_pre_processes;
 
@@ -41,9 +40,9 @@ public:
 nce_alg_machine::nce_alg_machine(taskcls alg_type, const platform engine_type)
 {
 
-    pPriv           = shared_ptr<dynamic_factory>(new nce_alg_machine::dynamic_factory());
-    pPriv->pAlg     = NceFactory::Instance().CreateAlg(alg_type);
-    pPriv->pEngine  = NceFactory::Instance().CreateEngine(engine_type);
+    pPriv          = shared_ptr<dynamic_factory>(new nce_alg_machine::dynamic_factory());
+    pPriv->pAlg    = NceFactory::Instance().CreateAlg(alg_type);
+    pPriv->pEngine = NceFactory::Instance().CreateEngine(engine_type);
 }
 
 NCE_S32 nce_alg_machine::nce_alg_init(const param_info &st_param_info, vector<img_info> &st_img_infos)
@@ -101,7 +100,7 @@ NCE_S32 nce_alg_machine::nce_alg_inference(vector<img_t> &pc_imgs)
     // }
     for (int k = 0; k < pPriv->img_pre_processes.size(); k++)
     {
-        for (int i = 0; i< pc_imgs.size(); i++)
+        for (int i = 0; i < pc_imgs.size(); i++)
         {
             pPriv->img_pre_processes[k]->forward(pc_imgs[i]);
         }
@@ -117,20 +116,19 @@ NCE_S32 nce_alg_machine::nce_alg_inference(vector<img_t> &pc_imgs)
         {
             printf("[%d] input size doesn't fit the [%d] model input\n", i, i);
             printf("your param:   h %d w %d c %d order %d format %d\n",
-               pc_imgs[i].image_attr.u32Height,
-               pc_imgs[i].image_attr.u32Width,
-               pc_imgs[i].image_attr.u32channel,
-               pc_imgs[i].image_attr.order,
-               pc_imgs[i].image_attr.format);
+                   pc_imgs[i].image_attr.u32Height,
+                   pc_imgs[i].image_attr.u32Width,
+                   pc_imgs[i].image_attr.u32channel,
+                   pc_imgs[i].image_attr.order,
+                   pc_imgs[i].image_attr.format);
             printf("should param: h %d w %d c %d order %d format %d\n",
-               pPriv->ImageInfo[i].height,
-               pPriv->ImageInfo[i].width,
-               pPriv->ImageInfo[i].channel,
-               pPriv->ImageInfo[i].order,
-               pPriv->ImageInfo[i].format);
+                   pPriv->ImageInfo[i].height,
+                   pPriv->ImageInfo[i].width,
+                   pPriv->ImageInfo[i].channel,
+                   pPriv->ImageInfo[i].order,
+                   pPriv->ImageInfo[i].format);
             return NCE_FAILED;
         }
-
     }
 
     ret = pPriv->pEngine->engine_inference(pc_imgs);

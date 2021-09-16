@@ -19,9 +19,9 @@ INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/alg/alg_manager/hd_alg/)
 INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/alg/alg_manager/util/)
 
 INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/alg/engine_manager/)
-INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/alg/engine_manager/engine_interface/hisi_3516dv300/)
-INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/alg/engine_manager/engine_interface/rv_1126/)
-INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/alg/engine_manager/engine_interface/hisi_3559av100/)
+INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/alg/engine_manager/engine_interface/hisi3516dv300/)
+INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/alg/engine_manager/engine_interface/rv1126/)
+INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/alg/engine_manager/engine_interface/hisi3559av100/)
 INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/alg/engine_manager/engine_interface/openvino_backend/)
 INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/alg/engine_manager/engine_interface/host/)
 

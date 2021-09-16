@@ -15,7 +15,7 @@
 |                     | Windows CPU | Windows GPU | Linux CPU | Linux GPU | 加速单元(NNIE/IPUDSP) |
 | :-----------------: | :---------: | :---------: | :-------: | :-------: | :-------------------: |
 | **hisi_3516_dv300** |    **/**    |    **/**    |   **/**   |   **/**   |         **✔️**         |
-| **hisi_3559av100**  |    **/**    |    **/**    |   **/**   |   **/**   |         **✔️**         |
+| **hisi3559av100**  |    **/**    |    **/**    |   **/**   |   **/**   |         **✔️**         |
 |     **RV1126**      |    **/**    |    **/**    |   **/**   |   **/**   |         **✔️**         |
 |    **openvino**     |    **✔️**    |    **?**    |   **/**   |   **/**   |         **/**         |
 |       **MNN**       |    **/**    |    **/**    |   **/**   |   **/**   |         **/**         |
@@ -30,8 +30,8 @@
 │   │   └── util                                    工具接口
 │   └── engine_manager                     跨平台引擎管理层 
 │       └── engine_interface
-│           ├── hisi_3516dv300                       hisi3516dv300 
-│           ├── hisi_3559av100                       hisi3559av100
+│           ├── hisi3516dv300                       hisi3516dv300 
+│           ├── hisi3559av100                       hisi3559av100
 │           ├── host                                 host
 │           ├── openvino_backend                     openvino
 │           └── rv1126                               rv1126
@@ -42,19 +42,19 @@
 │       ├── hisi3516_dv300
 │       │   └── hisimodel
 │       ├── openvino
-│       └── rv_1126
+│       └── rv1126
 ├── demo                                   示例
-│   ├── hisi_3516dv300
-│   ├── hisi_3559av100
+│   ├── hisi3516dv300
+│   ├── hisi3559av100
 │   ├── host
 │   ├── openvino
-│   └── rv_1126
+│   └── rv1126
 └── platform                               平台相关sdk/库/头文件
-    ├── hisi_3516dv300
-    ├── hisi_3559av100
+    ├── hisi3516dv300
+    ├── hisi3559av100
     ├── host
     ├── openvino
-    └── rv_1126
+    └── rv1126
 ```
 # 编译运行步骤:
 
@@ -78,7 +78,7 @@
 
 ```bash
 cd NceAlg
-cmake -Bbuild -DCMAKE_TOOLCHAIN_FILE=./platform/rv_1126/rv1126.cmake -DPLATFORM=rv_1126 -DOPENCVOPTION=ON -DEXE_TEST=ON -DCMAKE_BUILD_TYPE=Debug
+cmake -Bbuild -DCMAKE_TOOLCHAIN_FILE=./platform/rv1126/rv1126.cmake -DPLATFORM=rv1126 -DOPENCVOPTION=ON -DEXE_TEST=ON -DCMAKE_BUILD_TYPE=Debug
 make install
 ```
 
@@ -89,7 +89,7 @@ make install
 
 ```bash
 cd NceAlg
-cmake -Bbuild -DCMAKE_TOOLCHAIN_FILE=./platform/hisi_3516dv300/hi3516d.cmake -DPLATFORM=hisi_3516dv300 -DOPENCVOPTION=ON -DEXE_TEST=ON -DCMAKE_BUILD_TYPE=Debug
+cmake -Bbuild -DCMAKE_TOOLCHAIN_FILE=./platform/hisi3516dv300/hi3516d.cmake -DPLATFORM=hisi3516dv300 -DOPENCVOPTION=ON -DEXE_TEST=ON -DCMAKE_BUILD_TYPE=Debug
 make install
 ```
 ### 运行
@@ -103,7 +103,7 @@ make install
 cd NceAlg
 mkdir build
 cmake .. 
-cmake -DCMAKE_TOOLCHAIN_FILE=./platform/hisi_3559av100/hi3559.cmake -DPLATFORM=hisi_3559av100 -DOPENCVOPTION=ON -DEXE_TEST=OFF -DCMAKE_BUILD_TYPE=Debug
+cmake -DCMAKE_TOOLCHAIN_FILE=./platform/hisi3559av100/hi3559.cmake -DPLATFORM=hisi3559av100 -DOPENCVOPTION=ON -DEXE_TEST=OFF -DCMAKE_BUILD_TYPE=Debug
 make install
 ```
 

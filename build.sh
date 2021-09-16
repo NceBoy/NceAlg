@@ -1,0 +1,90 @@
+#!/bin/bash
+###
+ # @Author: your name
+ # @Date: 2021-09-16 10:31:35
+ # @LastEditTime: 2021-09-16 18:00:36
+ # @LastEditors: Please set LastEditors
+ # @Description: In User Settings Edit
+ # @FilePath: \NceAlg\build.sh
+### 
+# 1.该行是如果出现错误，就退出脚本执行
+set -e
+ 
+# ---设置基本环境变量start---------------------
+export LC_ALL=en_US.UTF-8
+# 1. BASH_SOURCE[0]等价于BASH_SOURCE,取得当前脚本文件所在的路径及文件名, eg: my/src/file/build.sh
+# 2. %/*代表取从头到最后一个slash之前的所有内容, eg:my/src/file
+# 3. #*/代表去取从第一个slash之后的所有内容, eg: src/file/build.sh
+export HOME_PATH=`cd ${BASH_SOURCE[0]%/*}; pwd`
+
+#-----设置基本环境变量end---------------------
+ 
+function process_param()
+{
+    export HELP="no"
+    export PLATFORM="no"
+# 1. 命令行解析
+    TEMP=`getopt -o b:i:t::a::h:: --long platform::,target::,action::,help:: -n 'build.sh' -- "$@"`
+# 1.这里没有执行其他脚本，所以默认都是等于0的。
+# 2.文件描述符：0代表标准输入，1点标准输出，2代表标准错误
+# 3.重定向符号：>, <
+    if [ $? != 0 ] ; then echo "Terminating..." >&2 ; exit 1 ; fi
+ 
+    eval set -- "$TEMP"
+# 1.对每个传入的参数进行处理
+    while :; do
+        case "$1" in
+            -i|--platform) export PLATFORM=$2; shift 2;;
+            -t|--target) export TARGET=$2; shift 2;;
+            -a|--action) export ACTION=$2; shift 2;;
+            -b) export DEBUG=$2; shift 2;;
+            -h|--help) export HELP="yes"; shift 2;;
+            --) shift; break;;
+            *) echo "Internal error!" ; exit 1 ;;
+        esac
+    done
+# 1.{var:-string}:如果var为空，则用string替换; 如果var不为空，就用var替换
+# 2.{var:=string}:如果var为空，则用string替换并且赋值给var; 如果var不为空，就用var替换
+}
+ 
+function prepare_env()
+{
+    # 1.设置工程环境变量
+    export MY_CODE=`pwd`
+    export MY_INTERFACE=$MY_CODE/itf
+    export MY_PATH=$MY_CODE
+# -z：代表如果后面$SETENV_PATH的长度为0，则为真
+    if [ -z $SETENV_PATH ];then
+        echo "please set setenv via --setenv-path/-s "
+        exit 1
+    fi
+}
+ 
+function build_project()
+{
+    if [ "$HELP" == "yes" ];then
+        echo "=====we support platform with =========="
+        echo "build.sh -i rv1126 -b Debug"
+        echo "build.sh -i hisi3516dv300 -b Debug"
+        echo "build.sh -i hisi3559av100 -b Debug"
+        echo "build.sh -i hisi3519av100 -b Debug"
+        echo "build.sh -i openvino -b Debug"
+        echo "build.sh -i host -b Debug"
+        echo "build.sh -i host_mnn -b Debug"
+        echo "build.sh -i host_mnn_windows -b Debug"
+    fi
+
+    if [ "$PLATFORM" == "no" ];then
+        echo "you should put -i for platform or -h for help"
+    else
+        rm -rf build
+        echo "PLATFORM=$PLATFORM BUILDTYPE=$DEBUG"
+        cmake -Bbuild -DCMAKE_TOOLCHAIN_FILE=./cmake/$PLATFORM/${PLATFORM}_toolchain.cmake -DPLATFORM=$PLATFORM  -DCMAKE_BUILD_TYPE=$DEBUG
+        cd build
+        make
+    fi
+}
+ 
+process_param $*
+#prepare_env
+build_project

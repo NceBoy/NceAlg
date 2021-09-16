@@ -91,13 +91,7 @@ NCE_S32 nce_alg_machine::nce_alg_inference(vector<img_t> &pc_imgs)
         return NCE_FAILED;
     }
     NCE_S32 ret = NCE_FAILED;
-    // for (auto iter : pPriv->img_pre_processes)
-    // {
-    //     for (auto &img : pc_imgs)
-    //     {
-    //         iter->forward(img);
-    //     }
-    // }
+
     for (int k = 0; k < pPriv->img_pre_processes.size(); k++)
     {
         for (int i = 0; i < pc_imgs.size(); i++)

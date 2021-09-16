@@ -90,6 +90,7 @@ vfnet_priv::vfnet_priv()
     alg_cfg.threshold = 0.3;
     alg_cfg.isLog     = false;
     score             = new NCE_F32[3];
+
     topk              = 100;
     model_image_info  = { 0 };
 }
@@ -102,9 +103,11 @@ vfnet_priv::~vfnet_priv()
 NCE_S32 vfnet::alg_init(vector<input_tensor_info> &            st_tensor_infos,
                         unordered_map<string, tmp_map_result> &st_result_map)
 {
+
     NCE_S32 ret                = NCE_FAILED;
     pPriv                      = shared_ptr<vfnet_priv>(new vfnet_priv());
     pPriv->input_tensor_infos  = nullptr;
+
     st_result_map["P3_logits"] = tmp_map_result{ 0 };
     st_result_map["P4_logits"] = tmp_map_result{ 0 };
     st_result_map["P5_logits"] = tmp_map_result{ 0 };
@@ -116,6 +119,7 @@ NCE_S32 vfnet::alg_init(vector<input_tensor_info> &            st_tensor_infos,
     st_result_map["P5_bbox_reg"] = tmp_map_result{ 0 };
     st_result_map["P6_bbox_reg"] = tmp_map_result{ 0 };
     st_result_map["P7_bbox_reg"] = tmp_map_result{ 0 };
+
 
     input_tensor_info input0{ 0 };
     input0.order     = RGB;
@@ -221,6 +225,7 @@ NCE_S32 vfnet::alg_get_result(alg_result_info &results, unordered_map<string, tm
     results.num = num;
     if (num > 0)
         results.st_alg_results = &pPriv->tmp_result[0];
+
 
     return ret;
 }

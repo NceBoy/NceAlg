@@ -98,15 +98,11 @@ NCE_S32 centernet::alg_get_result(alg_result_info &results, unordered_map<string
     NCE_F32 *wh      = (NCE_F32 *)st_result_map["wh"].pu32Feat;
     NCE_F32 *offset  = (NCE_F32 *)st_result_map["off"].pu32Feat;
 
-<<<<<<< HEAD
+
     NCE_U32 width        = st_result_map["hm"].tensor.u32FeatWidth;
     NCE_U32 height       = st_result_map["hm"].tensor.u32FeatHeight;
     NCE_U32 stride       = st_result_map["hm"].tensor.u32Stride;
-=======
-    NCE_U32 width        = st_result_map[0].tensor.u32FeatWidth;
-    NCE_U32 height       = st_result_map[0].tensor.u32FeatHeight;
-    NCE_U32 stride       = st_result_map[0].tensor.u32Stride;
->>>>>>> d6dfa5a83cf40ae58828570425bb6c961239249c
+
     NCE_U32 feature_size = width * height;
 
     NCE_F32 xi = st_result_map["hm"].tensor.scale;

@@ -16,45 +16,107 @@
 | :-----------------: | :---------: | :---------: | :-------: | :-------: | :-------------------: |
 | **hisi_3516_dv300** |    **/**    |    **/**    |   **/**   |   **/**   |         **✔️**         |
 | **hisi3559av100**  |    **/**    |    **/**    |   **/**   |   **/**   |         **✔️**         |
+| **hisi3199av100**  |    **/**    |    **/**    |   **/**   |   **/**   |         **✔️**         |
 |     **RV1126**      |    **/**    |    **/**    |   **/**   |   **/**   |         **✔️**         |
 |    **openvino**     |    **✔️**    |    **?**    |   **/**   |   **/**   |         **/**         |
-|       **MNN**       |    **/**    |    **/**    |   **/**   |   **/**   |         **/**         |
+|       **MNN**       |    **✔️**    |    **/**    |   **✔️**   |   **/**   |         **/**         |
 
 # 目录结构说明:
 ```
 .
-├── alg                                    多任务实现部分
-│   ├── alg_manager                             算法任务管理层
-│   │   ├── face_fake                               真伪检测
-│   │   ├── hd_alg                                  人头检测
-│   │   └── util                                    工具接口
-│   └── engine_manager                     跨平台引擎管理层 
-│       └── engine_interface
-│           ├── hisi3516dv300                       hisi3516dv300 
-│           ├── hisi3559av100                       hisi3559av100
-│           ├── host                                 host
-│           ├── openvino_backend                     openvino
-│           └── rv1126                               rv1126
-├── data                                   模型/图片层
-│   ├── image
-│   │   └── head_detect
-│   └── model
-│       ├── hisi3516_dv300
-│       │   └── hisimodel
-│       ├── openvino
-│       └── rv1126
-├── demo                                   示例
+├── cmake
 │   ├── hisi3516dv300
+│   ├── hisi3519av100
 │   ├── hisi3559av100
 │   ├── host
+│   ├── host_mnn
 │   ├── openvino
 │   └── rv1126
-└── platform                               平台相关sdk/库/头文件
-    ├── hisi3516dv300
-    ├── hisi3559av100
-    ├── host
-    ├── openvino
-    └── rv1126
+├── demo
+│   ├── data
+│   │   ├── image
+│   │   │   └── head_detect
+│   │   └── model
+│   │       ├── hisi3516_dv300
+│   │       ├── openvino
+│   │       └── rv_1126
+│   ├── hisi3516dv300
+│   │   └── include
+│   ├── hisi3519av100
+│   ├── hisi3559av100
+│   ├── host
+│   ├── host_mnn
+│   ├── host_mnn_windows
+│   ├── inc
+│   ├── openvino
+│   └── rv1126
+└── nce_alg
+    ├── alg
+    │   ├── alg_manager
+    │   │   ├── body_detect
+    │   │   ├── face_fake
+    │   │   ├── hd_alg
+    │   │   └── util
+    │   └── engine_manager
+    │       └── engine_interface
+    │           ├── hisi_3516dv300
+    │           ├── hisi_3559av100
+    │           ├── host
+    │           ├── MNN
+    │           ├── openvino_backend
+    │           └── rv1126
+    ├── common
+    └── platform
+        ├── hisi3516dv300
+        │   ├── audio
+        │   ├── common
+        │   ├── common_sys
+        │   ├── include
+        │   ├── lib
+        │   ├── rtsp-v2
+        │   ├── sample_nnie_software
+        │   └── tools
+        ├── hisi3519av100
+        │   └── MNN
+        │       └── include
+        │           └── MNN
+        │               ├── expr
+        │               └── plugin
+        ├── hisi3559av100
+        │   └── drv
+        │       ├── hisi_sdk_inc
+        │       └── hisi_sdk_src
+        │           ├── common
+        │           └── nnie
+        │               ├── sample
+        │               └── sample_nnie_software
+        ├── host
+        ├── host_mnn
+        │   └── MNN
+        │       └── include
+        │           └── MNN
+        │               ├── expr
+        │               └── plugin
+        ├── host_mnn_windows
+        ├── openvino
+        │   ├── builders
+        │   ├── c_api
+        │   ├── cldnn
+        │   ├── cpp
+        │   ├── details
+        │   │   └── os
+        │   ├── gna
+        │   ├── gpu
+        │   │   └── details
+        │   ├── hetero
+        │   ├── multi-device
+        │   ├── os
+        │   │   └── windows
+        │   ├── samples
+        │   └── vpu
+        └── rv1126
+            ├── include
+            └── lib
 ```
 # 编译运行步骤:
 
@@ -62,54 +124,20 @@
 
 ### HISI_3516dv300
 
-- 百度网盘地址：[https://pan.baidu.com/s/10BrgrOfU5dZNbzFQ7Ep7QA](https://pan.baidu.com/s/10BrgrOfU5dZNbzFQ7Ep7QA) 密码ojbk(解压后将lib放在**platform/HISI_3516dv300**目录下)
-- 相关编译链
-- cmake 3.11+
-
 ### openvino
 
-- 百度网盘地址：https://pan.baidu.com/s/1Z1f6jfutojzNzoRCdxDOAQ 密码ojbk(解压后将lib放在**platform/openvino**目录下，当前版本为**2020.3**月版本)
-- vs2015+
-- cmake 3.11+
 
 ## 编译+运行步骤
-
-### 编译RV_1126
-
-```bash
-cd NceAlg
-cmake -Bbuild -DCMAKE_TOOLCHAIN_FILE=./platform/rv1126/rv1126.cmake -DPLATFORM=rv1126 -DOPENCVOPTION=ON -DEXE_TEST=ON -DCMAKE_BUILD_TYPE=Debug
-make install
-```
-
-### 运行
-
-在板端为LD_LIBRARY_PATH增加对应opencv动态库路径，即可运行。
-### 编译HISI_3516dv300
+### linux
+### 编译
 
 ```bash
 cd NceAlg
-cmake -Bbuild -DCMAKE_TOOLCHAIN_FILE=./platform/hisi3516dv300/hi3516d.cmake -DPLATFORM=hisi3516dv300 -DOPENCVOPTION=ON -DEXE_TEST=ON -DCMAKE_BUILD_TYPE=Debug
+./build.sh -i host -b Debug
 make install
 ```
-### 运行
-
-在板端为LD_LIBRARY_PATH增加对应opencv动态库路径，即可运行。
-
-
-### 编译HISI_3559av100
-
-```bash
-cd NceAlg
-mkdir build
-cmake .. 
-cmake -DCMAKE_TOOLCHAIN_FILE=./platform/hisi3559av100/hi3559.cmake -DPLATFORM=hisi3559av100 -DOPENCVOPTION=ON -DEXE_TEST=OFF -DCMAKE_BUILD_TYPE=Debug
-make install
-```
-
-### 运行
-
-在板端为LD_LIBRARY_PATH增加对应opencv动态库路径，即可运行。
+- 对于支持的多平台可以通过 ./build.sh -h 查看
+### windows
 
 ### 生成openvinoVS工程
 

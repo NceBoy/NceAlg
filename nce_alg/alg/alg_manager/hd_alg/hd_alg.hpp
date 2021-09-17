@@ -33,11 +33,12 @@ namespace nce_alg {
 class hd_alg_priv
 {
 public:
-    task_config_info      alg_cfg;
-    vector<alg_result>    tmp_result;
-    vector<detect_result> detect_results;
-    NCE_S32               u32Stride;
-    img_info              model_image_info;
+    task_config_info           alg_cfg;
+    vector<alg_result>         tmp_result;
+    vector<detect_result>      detect_results;
+    NCE_S32                    u32Stride;
+    img_info                   model_image_info;
+    vector<input_tensor_info> *input_tensor_infos;
 
     hd_alg_priv();
 };

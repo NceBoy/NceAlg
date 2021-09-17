@@ -28,7 +28,7 @@ hd_alg::hd_alg()
  * 将输出层map定义好
  * ...
  */
-NCE_S32 hd_alg::alg_init(vector<input_tensor_info> &st_img_info, unordered_map<string, tmp_map_result> &st_result_map)
+NCE_S32 hd_alg::alg_init(vector<input_tensor_info> &st_tensor_infos, unordered_map<string, tmp_map_result> &st_result_map)
 {
     NCE_S32 ret = NCE_FAILED;
     pPriv       = shared_ptr<hd_alg_priv>(new hd_alg_priv());
@@ -38,8 +38,17 @@ NCE_S32 hd_alg::alg_init(vector<input_tensor_info> &st_img_info, unordered_map<s
     st_result_map["wh"]             = tmp_map_result{ 0 };
     st_result_map["hm"].tensor.name = "hm";
     st_result_map["wh"].tensor.name = "wh";
-    input_tensor_info img_info;
-    st_img_info.push_back(img_info);
+
+    input_tensor_info input0{ 0 };
+    input0.order     = RGB;
+    NCE_F32 mean0[3] = { 127.5f, 127.5f, 127.5f };
+    NCE_F32 std[3]   = { 0.0078125f, 0.0078125f, 0.0078125f };
+
+    memcpy(input0.mean, mean0, sizeof(NCE_F32) * 3);
+    memcpy(input0.std, std, sizeof(NCE_F32) * 3);
+    st_tensor_infos.push_back(input0);
+    pPriv->input_tensor_infos = &st_tensor_infos;
+
     if (NULL != pPriv)
     {
         ret = NCE_SUCCESS;

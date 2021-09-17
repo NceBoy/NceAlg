@@ -27,17 +27,15 @@ typedef struct pos_score
 
 centernet_priv::centernet_priv()
 {
-    alg_cfg.threshold = 0.3;
-    alg_cfg.isLog     = false;
-    score             = new NCE_F32[3];
-    input_info        = NULL;
-    topk              = 100;
-    memset(&model_image_info, 0, sizeof(img_info));
+    alg_cfg.threshold  = 0.3;
+    alg_cfg.isLog      = false;
+    input_tensor_infos = nullptr;
+    topk               = 100;
 }
 
 centernet_priv::~centernet_priv()
 {
-    delete score;
+
 }
 
 NCE_S32 centernet::alg_init(vector<input_tensor_info> &            st_tensor_infos,
@@ -58,6 +56,13 @@ NCE_S32 centernet::alg_init(vector<input_tensor_info> &            st_tensor_inf
     memcpy(input0.std, std, sizeof(NCE_F32) * 3);
     st_tensor_infos.push_back(input0);
 
+    st_tensor_infos.push_back(input0);
+    pPriv->input_tensor_infos = &st_tensor_infos;
+
+    if (NULL != pPriv)
+    {
+        ret = NCE_SUCCESS;
+    }
     return ret;
 }
 
@@ -98,10 +103,9 @@ NCE_S32 centernet::alg_get_result(alg_result_info &results, unordered_map<string
     NCE_F32 *wh      = (NCE_F32 *)st_result_map["wh"].pu32Feat;
     NCE_F32 *offset  = (NCE_F32 *)st_result_map["off"].pu32Feat;
 
-
-    NCE_U32 width        = st_result_map["hm"].tensor.u32FeatWidth;
-    NCE_U32 height       = st_result_map["hm"].tensor.u32FeatHeight;
-    NCE_U32 stride       = st_result_map["hm"].tensor.u32Stride;
+    NCE_U32 width  = st_result_map["hm"].tensor.u32FeatWidth;
+    NCE_U32 height = st_result_map["hm"].tensor.u32FeatHeight;
+    NCE_U32 stride = st_result_map["hm"].tensor.u32Stride;
 
     NCE_U32 feature_size = width * height;
 
@@ -126,7 +130,7 @@ NCE_S32 centernet::alg_get_result(alg_result_info &results, unordered_map<string
         NCE_F32   score = tmp.score;
         NCE_U32   cur_h = index / width;
         NCE_U32   cur_w = index % width;
-        // printf("topk score is : %f\n", score);
+
         if (score < pPriv->alg_cfg.threshold)
             continue;
         NCE_U32 w  = wh[index + 0 * feature_size] * 4;

@@ -50,8 +50,6 @@ int main(int argc, char *argv[])
         char *pcModelName = argv[1];
         char *pcSrcFile   = argv[2];
 
-        // opencv读进来 是hwc 也就是 pakcage
-
         printf("before imread\n");
         img_t input_img;
         printf("after imread\n");
@@ -60,7 +58,7 @@ int main(int argc, char *argv[])
         ImageProcessParam resize_info;
         resize_info.type                         = PROC_RESIZE;
         resize_info.Info.resize_info.dst_channel = 3;
-        resize_info.Info.resize_info.dst_height  = 288;
+        resize_info.Info.resize_info.dst_height  = 256;
         resize_info.Info.resize_info.dst_width   = 512;
 
         nce_resize func_resize(resize_info);
@@ -73,7 +71,7 @@ int main(int argc, char *argv[])
         img_t frame;
         frame.image                 = input_img.image;
         frame.image_attr.u32channel = 3;
-        frame.image_attr.u32Height  = 288;
+        frame.image_attr.u32Height  = 256;
         frame.image_attr.u32Width   = 512;
         frame.image_attr.order      = RGB;
         frame.image_attr.format     = PACKAGE;
@@ -83,13 +81,13 @@ int main(int argc, char *argv[])
         mnn_param.pc_model_path = pcModelName;
 
         task_config_info task_config;
-        task_config.threshold                   = 0.3;
+        task_config.threshold                   = 0.5;
         task_config.isLog                       = 0;
         task_config.st_cfg.hd_config.nms_thresh = 0.3;
         alg_result_info results;
 
         vector<img_info> imgInfo;
-        nce_alg_machine  hd_model(CENTERNET, MNNPLATFORM);
+        nce_alg_machine  hd_model(VFNET, MNNPLATFORM);
         hd_model.nce_alg_init(mnn_param, imgInfo);
         hd_model.nce_alg_cfg_set(task_config);
         OSA_DEBUG_DEFINE_TIME
@@ -97,12 +95,12 @@ int main(int argc, char *argv[])
         hd_model.nce_alg_inference(frames);
         hd_model.nce_alg_get_result(results);
         OSA_DEBUG_END_TIME(head detect cost:)
-        alg_result *result = NULL;
+        detect_result *result = NULL;
         printf("model detect %d results\n", results.num);
         NCE_S32 color[3] = { 0, 0, 255 };
         for (int i = 0; i < results.num; i++)
         {
-            result = ((alg_result *)results.st_alg_results) + i;
+            result = ((detect_result *)results.st_alg_results->obj) + i;
             Bbox box;
             box.x1 = result->x1;
             box.y1 = result->y1;

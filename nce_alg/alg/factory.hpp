@@ -15,7 +15,7 @@
 using namespace std;
 
 namespace nce_alg {
-// 动态对象创建工厂
+
 class NceFactory
 {
 public:
@@ -40,7 +40,6 @@ public:
     shared_ptr<IEngine> CreateEngine(int platform_type);
 };
 
-// 动态对象创建器
 template <typename T, NCE_S32 alg_type>
 class NceAlgCreator
 {
@@ -75,7 +74,6 @@ public:
     }
 };
 
-// 动态对象创建器
 template <typename T, NCE_S32 engine_type>
 class NceEngineCreator
 {
@@ -109,7 +107,7 @@ public:
         engine_registor.do_nothing();
     }
 };
-//不理解这种写法
+
 template <typename T, NCE_S32 alg_type>
 typename NceAlgCreator<T, alg_type>::Registor NceAlgCreator<T, alg_type>::alg_registor;
 

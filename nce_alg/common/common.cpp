@@ -1,4 +1,5 @@
 #include "common.h"
+#include <iostream>
 #include "stb_image.h"
 #include "stb_image_write.h"
 
@@ -291,7 +292,7 @@ NCE_S32 nce_resize::forward(img_t &input_img)
     NCE_F32 dst_width   = (NCE_F32)output_img.image_attr.u32Width;
     NCE_F32 dst_height  = (NCE_F32)output_img.image_attr.u32Height;
     NCE_F32 dst_channel = (NCE_F32)output_img.image_attr.u32channel;
-    printf("nce_resize\n");
+
     assert(src_channel == dst_channel);
 
     NCE_F32 factor_x = src_width / dst_width;

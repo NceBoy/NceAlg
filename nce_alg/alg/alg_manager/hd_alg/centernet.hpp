@@ -42,13 +42,13 @@ namespace nce_alg {
 class centernet_priv
 {
 public:
-    task_config_info    alg_cfg;
-    vector<alg_result>  tmp_result;
-    vector<person_head> head_info;
-    img_info *          input_info;
-    NCE_F32 *           score;
-    img_info            model_image_info;
-    NCE_U32             topk;
+    task_config_info      alg_cfg;
+    vector<alg_result>    tmp_result;
+    vector<detect_result> detect_results;
+    img_info *            input_info;
+    NCE_F32 *             score;
+    img_info              model_image_info;
+    NCE_U32               topk;
 
     centernet_priv();
 

@@ -96,12 +96,12 @@ int main(int argc, char *argv[])
         hd_model.nce_alg_inference(frames);
         hd_model.nce_alg_get_result(results);
         OSA_DEBUG_END_TIME(head detect cost:)
-        alg_result *result = NULL;
+        detect_result *result = NULL;
         printf("model detect %d results\n", results.num);
         NCE_S32 color[3] = { 0, 0, 255 };
         for (int i = 0; i < results.num; i++)
         {
-            result = ((alg_result *)results.st_alg_results) + i;
+            result = ((detect_result *)results.st_alg_results->obj) + i;
             Bbox box;
             box.x1 = result->x1;
             box.y1 = result->y1;

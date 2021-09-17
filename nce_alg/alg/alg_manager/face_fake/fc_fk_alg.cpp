@@ -94,7 +94,7 @@ NCE_S32 fc_fk_alg::alg_get_result(alg_result_info &results, map<int, tmp_map_res
 
     softmax(3, pPriv->score);
     pPriv->head_info.push_back(person_head{ pPriv->score[0], { 0, 0, 0 } });
-    pPriv->tmp_result.push_back(alg_result{ 0, 0, 0, 0, 0.f, PERSON_HEAD, &pPriv->head_info[0] });
+    pPriv->tmp_result.push_back(alg_result{PERSON_HEAD, &pPriv->head_info[0] });
     results.st_alg_results = &pPriv->tmp_result[0];
 
     return ret;

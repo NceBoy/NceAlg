@@ -5,16 +5,16 @@
 #include <math.h>
 using namespace std;
 namespace nce_alg {
-NCE_S32 nms(vector<alg_result> input, vector<alg_result> &output, float threshold)
+NCE_S32 nms(vector<detect_result> input, vector<detect_result> &output, NCE_F32 threshold)
 {
     output.clear();
-    sort(input.begin(), input.end(), [](const alg_result &a, const alg_result &b) { return a.score > b.score; });
+    sort(input.begin(), input.end(), [](const detect_result &a, const detect_result &b) { return a.score > b.score; });
 
-    int box_num = input.size();
+    NCE_S32 box_num = input.size();
 
-    vector<int> merged(box_num, 0);
+    vector<NCE_S32> merged(box_num, 0);
 
-    for (int i = 0; i < box_num; i++)
+    for (NCE_S32 i = 0; i < box_num; i++)
     {
         if (merged[i])
             continue;
@@ -22,37 +22,36 @@ NCE_S32 nms(vector<alg_result> input, vector<alg_result> &output, float threshol
         // output.push_back(input[i]);
         output.emplace_back(input[i]);
 
-        float h0 = input[i].y2 - input[i].y1 + 1;
-        float w0 = input[i].x2 - input[i].x1 + 1;
+        NCE_F32 h0 = input[i].y2 - input[i].y1 + 1;
+        NCE_F32 w0 = input[i].x2 - input[i].x1 + 1;
 
-        float area0 = h0 * w0;
+        NCE_F32 area0 = h0 * w0;
 
-        for (int j = i + 1; j < box_num; j++)
+        for (NCE_S32 j = i + 1; j < box_num; j++)
         {
             if (merged[j])
                 continue;
 
-            float inner_x0 = max(input[i].x1, input[j].x1);
-            float inner_y0 = max(input[i].y1, input[j].y1);
+            NCE_F32 inner_x0 = max(input[i].x1, input[j].x1);
+            NCE_F32 inner_y0 = max(input[i].y1, input[j].y1);
 
-            float inner_x1 = min(input[i].x2, input[j].x2);
-            float inner_y1 = min(input[i].y2, input[j].y2);
+            NCE_F32 inner_x1 = min(input[i].x2, input[j].x2);
+            NCE_F32 inner_y1 = min(input[i].y2, input[j].y2);
 
-            float inner_h = inner_y1 - inner_y0 + 1;
-            float inner_w = inner_x1 - inner_x0 + 1;
+            NCE_F32 inner_h = inner_y1 - inner_y0 + 1;
+            NCE_F32 inner_w = inner_x1 - inner_x0 + 1;
 
             if (inner_h <= 0 || inner_w <= 0)
                 continue;
 
-            float inner_area = inner_h * inner_w;
+            NCE_F32 inner_area = inner_h * inner_w;
 
-            float h1 = input[j].y2 - input[j].y1 + 1;
-            float w1 = input[j].x2 - input[j].x1 + 1;
+            NCE_F32 h1 = input[j].y2 - input[j].y1 + 1;
+            NCE_F32 w1 = input[j].x2 - input[j].x1 + 1;
 
-            float area1 = h1 * w1;
+            NCE_F32 area1 = h1 * w1;
 
-            float score = inner_area / (area0 + area1 - inner_area);
-
+            NCE_F32 score        = inner_area / (area0 + area1 - inner_area);
             if (score > threshold)
                 merged[j] = 1;
         }

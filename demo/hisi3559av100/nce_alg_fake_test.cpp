@@ -1,17 +1,13 @@
-#include "opencv2/core/core.hpp"
-#include "opencv2/highgui/highgui.hpp"
-#include "opencv2/imgproc/imgproc.hpp"
 #include <iostream>
 #include <stdio.h>
 #include "alg_type.h"
+#include "common.h"
 #include "nce_alg.hpp"
-#include "util/util.hpp"
 #include "hi_comm_svp.h"
 #include "sample_comm_svp.h"
 
 using namespace std;
 using namespace nce_alg;
-using namespace cv;
 
 /******************************************************************************
  * function : show usage
@@ -32,56 +28,82 @@ int main(int argc, char *argv[])
 
     try
     {
+        SAMPLE_COMM_SVP_CheckSysInit();
         char *pcModelName = argv[1];
         char *pcSrcFile   = argv[2];
 
-        SAMPLE_COMM_SVP_CheckSysInit();
-
-        Mat image = imread(pcSrcFile);
-        resize(image, image, Size(80, 80));
-
+        // opencv读进来 是hwc 也就是 pakcage
+        img_t frame;
+        nce_read_img(pcSrcFile, frame);
         // cvtColor(image, image, COLOR_BGR2RGB);
 
-        int ret;
+        unsigned char *    pu8PicAddr = NULL;
+        unsigned long long u64VirAddr = 0;
+        unsigned long long u64PhyAddr = 0;
 
-        img_info frame;
-        frame.image      = image.data;
-        frame.u32channel = 3;
-        frame.u32Height  = 80;
-        frame.u32Width   = 80;
-        frame.format     = PACKAGE;
-        nce_alg::RB_REPLACE_PACKAGE(frame);
+        int                            ret;
+        std::vector<ImageProcessParam> preprocesses;
+        ImageProcessParam              package2planner;
+        package2planner.type                              = PROC_PACKAGE2PLANNER;
+        package2planner.Info.package2planner_info.channel = 3;
+        package2planner.Info.package2planner_info.width   = 128;
+        package2planner.Info.package2planner_info.height  = 128;
+        preprocesses.push_back(package2planner);
+        // preprocesses.push_back(resizer);
+        // preprocesses.push_back(planner2package);
 
-        engine_param_info openvino_param;
-        openvino_param.pc_model_path = pcModelName;
+        // nce_alg::RB_REPLACE_PACKAGE(frame);
+
+        param_info hisi3559_param;
+        hisi3559_param.pc_model_path = pcModelName;
 
         task_config_info task_config;
-        task_config.threshold = 0.3;
-        task_config.isLog     = 0;
+        task_config.threshold                   = 0.3;
+        task_config.isLog                       = 0;
+        task_config.st_cfg.hd_config.nms_thresh = 0.6;
         alg_result_info results;
 
-        nce_alg_machine hd_model(FACE_FAKE);
-        hd_model.nce_alg_init(openvino_param);
-        hd_model.nce_alg_cfg_set(task_config);
-        hd_model.nce_alg_inference(frame);
-        hd_model.nce_alg_get_result(results);
+        vector<img_info> imgInfos;
+        nce_alg_machine  hd_model(FACE_FAKE, HISI_3559AV100);
 
-        alg_result *result = NULL;
+        hd_model.nce_alg_init(hisi3559_param, imgInfos);
+        hd_model.nce_alg_cfg_set(task_config);
+        hd_model.nce_alg_process_set(preprocesses);
+        vector<img_t> imgs;
+        imgs.push_back(frame);
+        hd_model.nce_alg_inference(imgs);
+        long            spend;
+        struct timespec start, next, end;
+        clock_gettime(0, &start);
+        hd_model.nce_alg_get_result(results);
+        clock_gettime(0, &end);
+        spend = (end.tv_sec - start.tv_sec) * 1000 + (end.tv_nsec - start.tv_nsec) / 1000000;
+        printf("\n[for hisi]===== TIME SPEND: %ld ms =====\n", spend);
+        detect_result *result   = NULL;
+        NCE_S32        color[3] = { 0, 0, 255 };
+        Bbox           box;
+        // nce_package2planner doo(package2planner);
+        // doo.forward(frame);
 
         for (int i = 0; i < results.num; i++)
         {
-            char        str[30];
-            alg_result *result = (alg_result *)results.st_alg_results;
-            NCE_F32     score  = ((person_head *)result->obj)->fake;
-            sprintf(str, "score:%f", score);
-            putText(image, str, Point(5, 5), 0, 0.2, Scalar(0, 0, 255), 0.3);
+
+            result = ((detect_result *)results.st_alg_results->obj) + i;
+            box.x1 = result->x1;
+            box.y1 = result->y1;
+            box.x2 = result->x2;
+            box.y2 = result->y2;
+            printf(" %d %d %d %d\n", box.x1, box.x2, box.y1, box.y2);
+            nce_draw_bbox(frame, box, 2, color);
         }
         hd_model.nce_alg_destroy();
-        imwrite("test.jpg", image);
 
+        // nce_planner2package doo2(planner2package);
+        // doo2.forward(frame);
+
+        nce_write_img("result.jpg", frame);
+        nce_free_img(frame);
         SAMPLE_COMM_SVP_CheckSysExit();
-        return 0;
-
     }
     // HI_MPI_SYS_Munmap((void *)&u64VirAddr, 640*640*12);
 

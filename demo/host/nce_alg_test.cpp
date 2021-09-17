@@ -70,35 +70,11 @@ int main(int argc, char *argv[])
 
         std::vector<ImageProcessParam> preprocesses;
 
-        ImageProcessParam package2planner;
-
-        package2planner.type = PROC_PACKAGE2PLANNER;
-
-        package2planner.Info.package2planner_info.channel = 3;
-
-        package2planner.Info.package2planner_info.width = 640;
-
-        package2planner.Info.package2planner_info.height = 640;
-
-        ImageProcessParam planner2package;
-
-        planner2package.type = PROC_PLANNER2PACKAGE;
-
-        planner2package.Info.planner2package_info.channel = 3;
-
-        planner2package.Info.planner2package_info.width = 640;
-
-        planner2package.Info.planner2package_info.height = 640;
-
-        preprocesses.push_back(package2planner);
-
-        preprocesses.push_back(planner2package);
-
         // nce_alg::RB_REPLACE_PACKAGE(frame);
 
-        param_info openvino_param;
+        param_info rv1126_param;
 
-        openvino_param.pc_model_path = pcModelName;
+        rv1126_param.pc_model_path = pcModelName;
 
         task_config_info task_config;
 
@@ -116,7 +92,7 @@ int main(int argc, char *argv[])
 
         nce_alg_machine hd_model(PERSON_HEAD, HOST);
 
-        hd_model.nce_alg_init(openvino_param, imgInfo);
+        hd_model.nce_alg_init(rv1126_param, imgInfo);
 
         hd_model.nce_alg_cfg_set(task_config);
 
@@ -138,21 +114,17 @@ int main(int argc, char *argv[])
 
         printf("\n[for hisi]===== TIME SPEND: %ld ms =====\n", spend);
 
-        alg_result *result = NULL;
+        detect_result *result = NULL;
 
         NCE_S32 color[3] = { 0, 0, 255 };
 
         Bbox box;
 
-        nce_package2planner doo(package2planner);
-
-        doo.forward(frame);
-
         for (int i = 0; i < results.num; i++)
 
         {
 
-            result = ((alg_result *)results.st_alg_results) + i;
+            result = ((detect_result *)results.st_alg_results->obj) + i;
 
             box.x1 = result->x1;
 
@@ -168,10 +140,6 @@ int main(int argc, char *argv[])
         }
 
         hd_model.nce_alg_destroy();
-
-        nce_planner2package doo2(planner2package);
-
-        doo2.forward(frame);
 
         nce_write_img(pcSrcFile, frame);
 

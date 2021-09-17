@@ -26,10 +26,10 @@ typedef struct pos_score
     float score;
 } pos_score;
 
-NCE_S32 body_nms(vector<alg_result> input, vector<alg_result> &output, float threshold)
+NCE_S32 body_nms(vector<detect_result> input, vector<detect_result> &output, float threshold)
 {
     output.clear();
-    sort(input.begin(), input.end(), [](const alg_result &a, const alg_result &b) { return a.score > b.score; });
+    sort(input.begin(), input.end(), [](const detect_result &a, const detect_result &b) { return a.score > b.score; });
 
     int box_num = input.size();
 
@@ -43,39 +43,39 @@ NCE_S32 body_nms(vector<alg_result> input, vector<alg_result> &output, float thr
         // output.push_back(input[i]);
         output.emplace_back(input[i]);
 
-        float h0 = input[i].y2 - input[i].y1 + 1;
-        float w0 = input[i].x2 - input[i].x1 + 1;
+        NCE_F32 h0 = input[i].y2 - input[i].y1 + 1;
+        NCE_F32 w0 = input[i].x2 - input[i].x1 + 1;
 
-        float area0 = h0 * w0;
+        NCE_F32 area0 = h0 * w0;
 
-        for (int j = i + 1; j < box_num; j++)
+        for (NCE_S32 j = i + 1; j < box_num; j++)
         {
             if (merged[j])
                 continue;
 
-            float inner_x0 = max(input[i].x1, input[j].x1);
-            float inner_y0 = max(input[i].y1, input[j].y1);
+            NCE_F32 inner_x0 = max(input[i].x1, input[j].x1);
+            NCE_F32 inner_y0 = max(input[i].y1, input[j].y1);
 
-            float inner_x1 = min(input[i].x2, input[j].x2);
-            float inner_y1 = min(input[i].y2, input[j].y2);
+            NCE_F32 inner_x1 = min(input[i].x2, input[j].x2);
+            NCE_F32 inner_y1 = min(input[i].y2, input[j].y2);
 
-            float inner_h = inner_y1 - inner_y0 + 1;
-            float inner_w = inner_x1 - inner_x0 + 1;
+            NCE_F32 inner_h = inner_y1 - inner_y0 + 1;
+            NCE_F32 inner_w = inner_x1 - inner_x0 + 1;
 
             if (inner_h <= 0 || inner_w <= 0)
                 continue;
 
-            float inner_area = inner_h * inner_w;
+            NCE_F32 inner_area = inner_h * inner_w;
 
-            float h1 = input[j].y2 - input[j].y1 + 1;
-            float w1 = input[j].x2 - input[j].x1 + 1;
+            NCE_F32 h1 = input[j].y2 - input[j].y1 + 1;
+            NCE_F32 w1 = input[j].x2 - input[j].x1 + 1;
 
-            float area1 = h1 * w1;
+            NCE_F32 area1 = h1 * w1;
 
-            float score        = inner_area / (area0 + area1 - inner_area);
-            float score2       = inner_area / min(area1, area0);
-            float deltah_threh = 0.05 * h1;
-            float delta_y1     = min((NCE_S32)input[i].y1 - (NCE_S32)input[j].y1, 0);
+            NCE_F32 score        = inner_area / (area0 + area1 - inner_area);
+            NCE_F32 score2       = inner_area / min(area1, area0);
+            NCE_F32 deltah_threh = 0.05 * h1;
+            NCE_F32 delta_y1     = min((NCE_S32)input[i].y1 - (NCE_S32)input[j].y1, 0);
             if (score > threshold)
                 merged[j] = 1;
             if (score2 > deltah_threh && delta_y1 > deltah_threh)
@@ -91,8 +91,8 @@ vfnet_priv::vfnet_priv()
     alg_cfg.isLog     = false;
     score             = new NCE_F32[3];
 
-    topk              = 100;
-    model_image_info  = { 0 };
+    topk             = 100;
+    model_image_info = { 0 };
 }
 
 vfnet_priv::~vfnet_priv()
@@ -104,9 +104,9 @@ NCE_S32 vfnet::alg_init(vector<input_tensor_info> &            st_tensor_infos,
                         unordered_map<string, tmp_map_result> &st_result_map)
 {
 
-    NCE_S32 ret                = NCE_FAILED;
-    pPriv                      = shared_ptr<vfnet_priv>(new vfnet_priv());
-    pPriv->input_tensor_infos  = nullptr;
+    NCE_S32 ret               = NCE_FAILED;
+    pPriv                     = shared_ptr<vfnet_priv>(new vfnet_priv());
+    pPriv->input_tensor_infos = nullptr;
 
     st_result_map["P3_logits"] = tmp_map_result{ 0 };
     st_result_map["P4_logits"] = tmp_map_result{ 0 };
@@ -119,7 +119,6 @@ NCE_S32 vfnet::alg_init(vector<input_tensor_info> &            st_tensor_infos,
     st_result_map["P5_bbox_reg"] = tmp_map_result{ 0 };
     st_result_map["P6_bbox_reg"] = tmp_map_result{ 0 };
     st_result_map["P7_bbox_reg"] = tmp_map_result{ 0 };
-
 
     input_tensor_info input0{ 0 };
     input0.order     = RGB;
@@ -156,7 +155,7 @@ NCE_S32 vfnet::alg_inference(vector<img_t> &pc_img)
 NCE_S32 vfnet::alg_get_result(alg_result_info &results, unordered_map<string, tmp_map_result> &st_result_map)
 {
     results.num = 0;
-    pPriv->head_info.clear();
+    pPriv->detect_results.clear();
     pPriv->tmp_result.clear();
 
     NCE_S32 ret = NCE_FAILED;
@@ -188,6 +187,7 @@ NCE_S32 vfnet::alg_get_result(alg_result_info &results, unordered_map<string, tm
 
         NCE_S32 feature_size = feat_width * feat_height;
         NCE_S32 cur_stride   = pow(2, i + 3);
+
         for (NCE_S32 index = 0; index < feature_size; index++)
         {
             NCE_S32 x = index % feat_width * cur_stride;
@@ -210,22 +210,19 @@ NCE_S32 vfnet::alg_get_result(alg_result_info &results, unordered_map<string, tm
                 NCE_U32 x2 = std::min((NCE_F32)(*pPriv->input_tensor_infos)[0].width, x + right);
                 NCE_U32 y2 = std::min((NCE_F32)(*pPriv->input_tensor_infos)[0].height, y + bottom);
 
-                NCE_F32 fake     = 0.f;
-                NCE_S32 angle[3] = { 0, 0, 0 };
-
-                pPriv->head_info.push_back(person_head{ fake, angle[0], angle[1], angle[2] });
-                pPriv->tmp_result.push_back(
-                    alg_result{ x1, y1, x2, y2, score, PERSON_HEAD, &pPriv->head_info[pPriv->head_info.size() - 1] });
+                pPriv->detect_results.push_back(detect_result{ x1, y1, x2, y2, score });
             }
         }
     }
-
-    body_nms(pPriv->tmp_result, pPriv->tmp_result, pPriv->alg_cfg.st_cfg.hd_config.nms_thresh);
-    NCE_U32 num = pPriv->tmp_result.size();
+    body_nms(pPriv->detect_results, pPriv->detect_results, pPriv->alg_cfg.st_cfg.hd_config.nms_thresh);
+    for (auto &item : pPriv->detect_results)
+    {
+        pPriv->tmp_result.push_back(alg_result{ VFNET, &item });
+    }
+    NCE_U32 num = pPriv->detect_results.size();
     results.num = num;
     if (num > 0)
         results.st_alg_results = &pPriv->tmp_result[0];
-
 
     return ret;
 }

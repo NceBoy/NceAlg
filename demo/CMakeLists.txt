@@ -9,9 +9,9 @@ if(CMAKE_BUILD_TYPE MATCHES "Debug")
 SET(CMAKE_BUILD_TYPE_POSTFIX "d")
 endif()
 
-message(${NCE_BUILD_PATH}/nce_alg/platform/${PLATFORM}/lib)
 link_directories(${LIBRARY_OUTPUT_PATH})
 link_directories(${LIBRARY_OUTPUT_PATH}${CMAKE_BUILD_TYPE})
+
 execute_process(
     COMMAND mkdir -p ${PROJECT_SOURCE_DIR}/inc/
     COMMAND cp ${NCE_BUILD_PATH}/nce_alg/common/common.h    ${PROJECT_SOURCE_DIR}/inc/

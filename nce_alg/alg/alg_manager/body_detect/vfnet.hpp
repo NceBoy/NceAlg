@@ -33,8 +33,8 @@ class vfnet_priv
 public:
     task_config_info           alg_cfg;
     vector<input_tensor_info>* input_tensor_infos;
+    vector<detect_result>      detect_results;
     vector<alg_result>         tmp_result;
-    vector<person_head>        head_info;
     NCE_F32 *                  score;
     img_info                   model_image_info;
     NCE_U32                    topk;

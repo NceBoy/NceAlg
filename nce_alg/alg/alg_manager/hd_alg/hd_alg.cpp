@@ -82,7 +82,7 @@ NCE_S32 hd_alg::alg_get_result(alg_result_info &results, unordered_map<string, t
     }
     // TODO 此处为清除上一轮调用结果，所以使用者必须及时拷贝走数据结果，且该函数不可重入
     pPriv->tmp_result.clear();
-    pPriv->head_info.clear();
+    pPriv->detect_results.clear();
 
     NCE_F32 ratio  = 4;
     NCE_U32 width  = st_result_map["hm"].tensor.u32FeatWidth;
@@ -119,12 +119,11 @@ NCE_S32 hd_alg::alg_get_result(alg_result_info &results, unordered_map<string, t
                 NCE_U32 y1       = cur_h * ratio - top;
                 NCE_U32 x2       = cur_w * ratio + right;
                 NCE_U32 y2       = cur_h * ratio + down;
-                NCE_F32 fake     = 0.f;
-                NCE_S32 angle[3] = { 0, 0, 0 };
-                pPriv->head_info.push_back(person_head{ fake, angle[0], angle[1], angle[2] });
+
+                pPriv->detect_results.push_back(detect_result{ x1, y1, x2, y2, score });
                 // cun shu xing
                 pPriv->tmp_result.push_back(
-                    alg_result{ x1, y1, x2, y2, score, PERSON_HEAD, &pPriv->head_info[pPriv->head_info.size() - 1] });
+                    alg_result{ PERSON_HEAD, &pPriv->detect_results[pPriv->detect_results.size() - 1] });
             }
         }
         else
@@ -149,17 +148,18 @@ NCE_S32 hd_alg::alg_get_result(alg_result_info &results, unordered_map<string, t
                 NCE_U32 y2       = cur_h * ratio + down;
                 NCE_F32 fake     = 0.f;
                 NCE_S32 angle[3] = { 0, 0, 0 };
-                pPriv->head_info.push_back(person_head{ fake, angle[0], angle[1], angle[2] });
-                // cun shu xing
-                pPriv->tmp_result.push_back(
-                    alg_result{ x1, y1, x2, y2, score, PERSON_HEAD, &pPriv->head_info[pPriv->head_info.size() - 1] });
+                pPriv->detect_results.push_back(detect_result{ x1, y1, x2, y2, score });
             }
         }
     }
     else
     {
     }
-    nms(pPriv->tmp_result, pPriv->tmp_result, pPriv->alg_cfg.st_cfg.hd_config.nms_thresh);
+    nms(pPriv->detect_results, pPriv->detect_results, pPriv->alg_cfg.st_cfg.hd_config.nms_thresh);
+    for (auto &item : pPriv->detect_results)
+    {
+        pPriv->tmp_result.push_back(alg_result{ VFNET, &item });
+    }
     NCE_U32 num = pPriv->tmp_result.size();
     results.num = num;
     if (num > 0)

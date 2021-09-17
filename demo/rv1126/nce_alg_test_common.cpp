@@ -37,10 +37,9 @@ int main(int argc, char *argv[])
 	char *pcModelName = argv[1];
         char *pcSrcFile   = argv[2];
 
-        // opencv读进来 是hwc 也就是 pakcage
+
         img_t frame;
         nce_read_img(pcSrcFile, frame);
-        // cvtColor(image, image, COLOR_BGR2RGB);
 
         unsigned char *    pu8PicAddr = NULL;
         unsigned long long u64VirAddr = 0;
@@ -67,10 +66,6 @@ int main(int argc, char *argv[])
         resizer.Info.resize_info.dst_channel = 3;          
 
         preprocesses.push_back(package2planner);
-        //preprocesses.push_back(resizer);
-        //preprocesses.push_back(planner2package);
-
-        // nce_alg::RB_REPLACE_PACKAGE(frame);
 
         param_info openvino_param;
         openvino_param.pc_model_path = pcModelName;
@@ -97,17 +92,16 @@ int main(int argc, char *argv[])
         clock_gettime(0, &end);
         spend = (end.tv_sec - start.tv_sec) * 1000 + (end.tv_nsec - start.tv_nsec) / 1000000;
         printf("\n[for hisi]===== TIME SPEND: %ld ms =====\n", spend);
-        alg_result *        result   = NULL;
+        detect_result *     result   = NULL;
         NCE_S32             color[3] = { 0, 0, 255 };
         Bbox                box;
-        //nce_package2planner doo(package2planner);
-       //doo.forward(frame);
+
 		nce_planner2package doo(planner2package);
 		doo.forward(frame);
         for (int i = 0; i < results.num; i++)
         {
 
-            result = ((alg_result *)results.st_alg_results) + i;
+            result = ((detect_result *)results.st_alg_results->obj) + i;
             box.x1 = result->x1;
             box.y1 = result->y1;
             box.x2 = result->x2;
@@ -117,13 +111,11 @@ int main(int argc, char *argv[])
         }
         hd_model.nce_alg_destroy();
 
-        //nce_planner2package doo2(planner2package);
-        //doo2.forward(frame);
 
         nce_write_img("result.jpg", frame);
         nce_free_img(frame);
 	}
-    //HI_MPI_SYS_Munmap((void *)&u64VirAddr, 640*640*12);
+
 
 	catch (const std::exception& error) {
 		std::cerr << "[ ERROR ] " << error.what() << std::endl;

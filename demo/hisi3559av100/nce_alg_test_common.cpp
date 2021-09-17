@@ -50,13 +50,9 @@ int main(int argc, char *argv[])
         package2planner.Info.package2planner_info.height  = 640;
 
         preprocesses.push_back(package2planner);
-        // preprocesses.push_back(resizer);
-        // preprocesses.push_back(planner2package);
 
-        // nce_alg::RB_REPLACE_PACKAGE(frame);
-
-        param_info hisi3516_param;
-        hisi3516_param.pc_model_path = pcModelName;
+        param_info hisi3559_param;
+        hisi3559_param.pc_model_path = pcModelName;
 
         task_config_info task_config;
         task_config.threshold                   = 0.3;
@@ -67,7 +63,7 @@ int main(int argc, char *argv[])
         vector<img_info> imgInfos;
         nce_alg_machine  hd_model(PERSON_HEAD, HISI_3516DV300);
 
-        hd_model.nce_alg_init(hisi3516_param, imgInfos);
+        hd_model.nce_alg_init(hisi3559_param, imgInfos);
         hd_model.nce_alg_cfg_set(task_config);
         hd_model.nce_alg_process_set(preprocesses);
         vector<img_t> imgs;

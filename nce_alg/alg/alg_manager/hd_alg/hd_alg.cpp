@@ -19,6 +19,7 @@ hd_alg_priv::hd_alg_priv()
     alg_cfg.isLog                       = false;
     u32Stride                           = 0;
     model_image_info                    = { 0 };
+    input_tensor_infos                  = nullptr;
 }
 
 hd_alg::hd_alg()

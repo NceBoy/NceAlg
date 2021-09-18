@@ -20,6 +20,7 @@ hd_alg_priv::hd_alg_priv()
     u32Stride                           = 0;
     model_image_info                    = { 0 };
     output_stride                       = 4;
+    input_tensor_infos                  = nullptr;
 }
 
 hd_alg::hd_alg()

@@ -2,7 +2,7 @@
 ###
  # @Author: your name
  # @Date: 2021-09-16 10:31:35
- # @LastEditTime: 2021-09-16 18:00:36
+ # @LastEditTime: 2021-09-18 14:14:52
  # @LastEditors: Please set LastEditors
  # @Description: In User Settings Edit
  # @FilePath: \NceAlg\build.sh
@@ -84,7 +84,17 @@ function build_project()
         make
     fi
 }
- 
+function build_output()
+{
+	cd $HOME_PATH
+if [ ! -d output_$PLATFORM ]; then
+    mkdir output_$PLATFORM
+fi
+    cp $HOME_PATH/build/lib/* output_$PLATFORM
+    cp $HOME_PATH/build/bin/* output_$PLATFORM
+
+}
 process_param $*
 #prepare_env
 build_project
+build_output

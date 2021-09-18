@@ -129,7 +129,7 @@ NCE_S32 vfnet::alg_init(vector<input_tensor_info> &            st_tensor_infos,
     memcpy(input0.std, std, sizeof(NCE_F32) * 3);
     st_tensor_infos.push_back(input0);
     pPriv->input_tensor_infos = &st_tensor_infos;
-
+    printf("finshed alg init\n!");
     return ret;
 }
 

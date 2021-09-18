@@ -91,8 +91,8 @@ int main(int argc, char *argv[])
         ImageProcessParam resize_info;
         resize_info.type                         = PROC_RESIZE;
         resize_info.Info.resize_info.dst_channel = 3;
-        resize_info.Info.resize_info.dst_height  = 256;
-        resize_info.Info.resize_info.dst_width   = 512;
+        resize_info.Info.resize_info.dst_height  = 128;
+        resize_info.Info.resize_info.dst_width   = 128;
 
         nce_resize func_resize(resize_info);
         printf("before func_resize\n");
@@ -104,8 +104,8 @@ int main(int argc, char *argv[])
         img_t frame;
         frame.image                 = input_img.image;
         frame.image_attr.u32channel = 3;
-        frame.image_attr.u32Height  = 256;
-        frame.image_attr.u32Width   = 512;
+        frame.image_attr.u32Height  = 128;
+        frame.image_attr.u32Width   = 128;
         frame.image_attr.order      = RGB;
         frame.image_attr.format     = PACKAGE;
 
@@ -120,7 +120,7 @@ int main(int argc, char *argv[])
         alg_result_info results;
 
         vector<img_info> imgInfo;
-        nce_alg_machine  hd_model(VFNET, MNNPLATFORM);
+        nce_alg_machine  hd_model(CENTERNET, MNNPLATFORM);
         hd_model.nce_alg_init(mnn_param, imgInfo);
         hd_model.nce_alg_cfg_set(task_config);
         OSA_DEBUG_DEFINE_TIME

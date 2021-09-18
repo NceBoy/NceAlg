@@ -67,14 +67,13 @@ public:
                unordered_map<string, tmp_map_result> &st_result_map,
                vector<input_tensor_info> &            st_tensor_infos)
     {
-        // backendconfig.memory         = MNN::BackendConfig::Memory_High;
-        // backendconfig.power          = MNN::BackendConfig::Power_High;
-        // backendconfig.precision      = MNN::BackendConfig::Precision_High;
-        schedue_config.backendConfig = &backendconfig;
-
+        printf("load model!\n");
+        // schedue_config.backendConfig = &backendconfig;
+        printf("createFromFile!\n");
         pnet     = MNN::Interpreter::createFromFile(model_path);
+        printf("createSession!\n");
         psession = pnet->createSession(schedue_config);
-
+        printf("successful createSession!\n");
         all_tensor.input_tensors_map  = pnet->getSessionInputAll(psession);
         all_tensor.output_tensors_map = pnet->getSessionOutputAll(psession);
         // TODO Ugly and useless code!!! must be removed

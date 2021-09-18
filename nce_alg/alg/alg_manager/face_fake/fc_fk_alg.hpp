@@ -16,16 +16,6 @@ extern "C" {
 #endif
 #endif /* __cplusplus */
 
-/*
-DIR alg_manager
-Ialg.hpp
-        DIR hd_alg
-        hd_dt.hpp(继承IAlg, 实现init、setconfig、inference、destroy)
-        DIR ttf
-                ttf.cpp(继承hd_dt, 实现getresult)
-                ttf.hpp
-
-*/
 
 using namespace std;
 namespace nce_alg {

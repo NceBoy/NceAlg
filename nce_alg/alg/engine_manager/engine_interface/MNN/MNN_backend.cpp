@@ -70,7 +70,7 @@ public:
         printf("load model!\n");
         // schedue_config.backendConfig = &backendconfig;
         printf("createFromFile!\n");
-        pnet     = MNN::Interpreter::createFromFile(model_path);
+        pnet = MNN::Interpreter::createFromFile(model_path);
         printf("createSession!\n");
         psession = pnet->createSession(schedue_config);
         printf("successful createSession!\n");
@@ -106,21 +106,41 @@ public:
             std::string  name                        = kv.first;
             MNN::Tensor *pTensor                     = kv.second;
             auto         shape                       = pTensor->shape();
-            all_tensor.output_tensors_map_host[name] = new MNN::Tensor(pTensor, pTensor->getDimensionType());
+            auto         dimension_type              = pTensor->getDimensionType();
+            all_tensor.output_tensors_map_host[name] = new MNN::Tensor(pTensor, dimension_type);
             printf("st_result_map[%d] name is: %s\n", count, name.c_str());
             if (name != kv.first)
             {
                 printf("Error! alg results sequences are not consistent with engine results\n");
                 return NCE_FAILED;
             }
-            st_result_map[name].tensor.name          = name;
-            st_result_map[name].tensor.outfmt        = PLANNER;
-            st_result_map[name].tensor.scale         = 1;
-            st_result_map[name].tensor.u32ch         = shape[1];
-            st_result_map[name].tensor.u32FeatHeight = shape[2];
-            st_result_map[name].tensor.u32FeatWidth  = shape[3];
-            st_result_map[name].tensor.u32Stride     = shape[3];
-            st_result_map[name].tensor.zp            = 0;
+            // TODO Now MNN stride only support nchw output
+            if (dimension_type == MNN::Tensor::CAFFE)
+            {
+                st_result_map[name].tensor.name           = name;
+                st_result_map[name].tensor.outfmt         = PLANNER;
+                st_result_map[name].tensor.scale          = 1;
+                st_result_map[name].tensor.u32ch          = shape[1];
+                st_result_map[name].tensor.u32FeatHeight  = shape[2];
+                st_result_map[name].tensor.u32FeatWidth   = shape[3];
+                st_result_map[name].tensor.width_stride   = 1;
+                st_result_map[name].tensor.height_stride  = shape[3];
+                st_result_map[name].tensor.channel_stride = shape[2] * shape[3];
+                st_result_map[name].tensor.zp             = 0;
+            }
+            else
+            {
+                st_result_map[name].tensor.name           = name;
+                st_result_map[name].tensor.outfmt         = PLANNER;
+                st_result_map[name].tensor.scale          = 1;
+                st_result_map[name].tensor.u32ch          = shape[3];
+                st_result_map[name].tensor.u32FeatHeight  = shape[1];
+                st_result_map[name].tensor.u32FeatWidth   = shape[2];
+                st_result_map[name].tensor.width_stride   = shape[3];
+                st_result_map[name].tensor.height_stride  = shape[2] * shape[3];
+                st_result_map[name].tensor.channel_stride = 1;
+                st_result_map[name].tensor.zp             = 0;
+            }
 
             count++;
         }

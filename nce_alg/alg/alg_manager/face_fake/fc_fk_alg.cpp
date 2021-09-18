@@ -6,7 +6,6 @@
 #include "IEngine.hpp"
 #include <string.h>
 #include "util.hpp"
-// TODO:去除打印
 
 using namespace std;
 namespace nce_alg {
@@ -67,13 +66,10 @@ NCE_S32 fc_fk_alg::alg_get_result(alg_result_info &results, map<int, tmp_map_res
     NCE_F32 *cls    = (NCE_F32 *)st_result_map[0].pu32Feat;
     NCE_U32  width  = st_result_map[0].tensor.u32FeatWidth;
     NCE_U32  height = st_result_map[0].tensor.u32FeatHeight;
-    NCE_U32  stride = st_result_map[0].tensor.u32Stride;
+    NCE_U32  stride = st_result_map[0].tensor.u32FeatWidth;
 
     NCE_F32 xi = st_result_map[0].tensor.scale;
-    /*(st_result_map[0].tensor.zp - st_result_map[0].tensor.fl)**/
-    // printf("%f,output %d zp %d fl %d, sacle %f
-    // \n",xi,st_result_map[0].tensor.outfmt,st_result_map[0].tensor.zp,st_result_map[0].tensor.fl,st_result_map[0].tensor.scale);
-    if (st_result_map[0].tensor.outfmt == PLANNER)
+   if (st_result_map[0].tensor.outfmt == PLANNER)
     {
         if (xi == 1.0f)
         {

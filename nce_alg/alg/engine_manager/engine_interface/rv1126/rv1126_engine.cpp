@@ -218,6 +218,17 @@ NCE_S32 rv1126_engine::engine_init(const param_info &                     st_par
             pPriv->u32OutHeights.push_back(tensor_output[i].dims[2]);
             pPriv->u32OutWidths.push_back(tensor_output[i].dims[1]);
 
+            st_result_map[to_string(i)].tensor.u32ch          = pPriv->u32OutChs[i];
+            st_result_map[to_string(i)].tensor.u32FeatWidth   = pPriv->u32OutWidths[i];
+            st_result_map[to_string(i)].tensor.u32FeatHeight  = pPriv->u32OutHeights[i];
+            st_result_map[to_string(i)].tensor.width_stride   = pPriv->u32OutChs[i];
+            st_result_map[to_string(i)].tensor.height_stride  = pPriv->u32OutWidths[i] * pPriv->u32OutChs[i];
+            st_result_map[to_string(i)].tensor.channel_stride = 1;
+            st_result_map[to_string(i)].tensor.zp             = 0; // tensor_output[i].zp;
+            st_result_map[to_string(i)].tensor.fl             = 0; // tensor_output[i].fl;
+            st_result_map[to_string(i)].tensor.scale          = 1;
+            st_result_map[to_string(i)].feat_type             = FEAT_F32;
+
             st_result_map[to_string(i)].tensor.outfmt = PACKAGE;
         }
         else
@@ -226,17 +237,21 @@ NCE_S32 rv1126_engine::engine_init(const param_info &                     st_par
             pPriv->u32OutHeights.push_back(tensor_output[i].dims[1]);
             pPriv->u32OutWidths.push_back(tensor_output[i].dims[0]);
 
+            st_result_map[to_string(i)].tensor.u32ch          = pPriv->u32OutChs[i];
+            st_result_map[to_string(i)].tensor.u32FeatWidth   = pPriv->u32OutWidths[i];
+            st_result_map[to_string(i)].tensor.u32FeatHeight  = pPriv->u32OutHeights[i];
+            st_result_map[to_string(i)].tensor.width_stride   = 1;
+            st_result_map[to_string(i)].tensor.height_stride  = pPriv->u32OutWidths[i];
+            st_result_map[to_string(i)].tensor.channel_stride = pPriv->u32OutWidths[i] * pPriv->u32Heights[i];
+            st_result_map[to_string(i)].tensor.zp             = 0; // tensor_output[i].zp;
+            st_result_map[to_string(i)].tensor.fl             = 0; // tensor_output[i].fl;
+            st_result_map[to_string(i)].tensor.scale          = 1;
+            st_result_map[to_string(i)].feat_type             = FEAT_F32;
+
             st_result_map[to_string(i)].tensor.outfmt = PLANNER;
         }
         // out_tensor get
-        st_result_map[to_string(i)].tensor.u32ch         = pPriv->u32OutChs[i];
-        st_result_map[to_string(i)].tensor.u32FeatWidth  = pPriv->u32OutWidths[i];
-        st_result_map[to_string(i)].tensor.u32FeatHeight = pPriv->u32OutHeights[i];
-        st_result_map[to_string(i)].tensor.u32Stride     = pPriv->u32OutWidths[i];
-        st_result_map[to_string(i)].tensor.zp            = 0; // tensor_output[i].zp;
-        st_result_map[to_string(i)].tensor.fl            = 0; // tensor_output[i].fl;
-        st_result_map[to_string(i)].tensor.scale         = 1;
-        st_result_map[to_string(i)].feat_type            = FEAT_F32;
+
         // printf("%d \n",i);
         pPriv->printRKNNTensor(&tensor_output[i]);
     }

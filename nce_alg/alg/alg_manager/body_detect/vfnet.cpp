@@ -93,6 +93,8 @@ vfnet_priv::vfnet_priv()
     score              = new NCE_F32[3];
 
     topk             = 100;
+    num_anchors      = 3;
+    num_cls          = 4;
     model_image_info = { 0 };
 }
 
@@ -177,40 +179,55 @@ NCE_S32 vfnet::alg_get_result(alg_result_info &results, unordered_map<string, tm
 
     for (int i = 0; i < 5; i++)
     {
-        // auto shape = output_logits[0]->shape();
 
         NCE_F32 *logits = (NCE_F32 *)all_logits[i].pu32Feat;
         NCE_F32 *bboxes = (NCE_F32 *)all_reg[i].pu32Feat;
 
-        auto feat_width  = all_logits[i].tensor.u32Stride;
+        auto feat_width  = all_logits[i].tensor.u32FeatWidth;
         auto feat_height = all_logits[i].tensor.u32FeatHeight;
+
+        auto logist_height_stride  = all_logits[i].tensor.height_stride;
+        auto logist_width_stride   = all_logits[i].tensor.width_stride;
+        auto logist_channel_stride = all_logits[i].tensor.channel_stride;
+
+        auto reg_height_stride  = all_logits[i].tensor.height_stride;
+        auto reg_width_stride   = all_logits[i].tensor.width_stride;
+        auto reg_channel_stride = all_logits[i].tensor.channel_stride;
 
         NCE_S32 feature_size = feat_width * feat_height;
         NCE_S32 cur_stride   = pow(2, i + 3);
 
-        for (NCE_S32 index = 0; index < feature_size; index++)
+        for (NCE_S32 h=0; h < feat_height; h++)
         {
-            NCE_S32 x = index % feat_width * cur_stride;
-            NCE_S32 y = index / feat_width * cur_stride;
-            for (NCE_S32 anchor_index = 0; anchor_index < 3; anchor_index++)
+            for (NCE_S32 w=0; w < feat_width; w++)
             {
+                for (NCE_S32 anchor_index = 0; anchor_index < pPriv->num_anchors; anchor_index++)
+                {
+                    NCE_U32 logits_index =
+                        h * logist_height_stride + w * logist_width_stride + anchor_index * logist_channel_stride * pPriv->num_cls;
+                    NCE_U32 reg_index = h * reg_height_stride + w * reg_width_stride
+                                        + anchor_index * logist_channel_stride * 4;
 
-                NCE_F32 score = logits[feature_size * anchor_index * 4 + index];
-                score         = sqrt(score);
-                if (score < 0.6)
-                    continue;
+                    NCE_F32 score = logits[logits_index];
+                    score         = sqrt(score);
+                    if (score < pPriv->alg_cfg.threshold)
+                        continue;
 
-                NCE_F32 left   = bboxes[feature_size * (anchor_index * 4 + 0) + index];
-                NCE_F32 top    = bboxes[feature_size * (anchor_index * 4 + 1) + index];
-                NCE_F32 right  = bboxes[feature_size * (anchor_index * 4 + 2) + index];
-                NCE_F32 bottom = bboxes[feature_size * (anchor_index * 4 + 3) + index];
+                    NCE_F32 left   = bboxes[reg_index + 0 * reg_channel_stride];
+                    NCE_F32 top    = bboxes[reg_index + 1 * reg_channel_stride];
+                    NCE_F32 right  = bboxes[reg_index + 2 * reg_channel_stride];
+                    NCE_F32 bottom = bboxes[reg_index + 3 * reg_channel_stride];
 
-                NCE_U32 x1 = std::max((NCE_F32)0, x - left);
-                NCE_U32 y1 = std::max((NCE_F32)0, y - top);
-                NCE_U32 x2 = std::min((NCE_F32)(*pPriv->input_tensor_infos)[0].width, x + right);
-                NCE_U32 y2 = std::min((NCE_F32)(*pPriv->input_tensor_infos)[0].height, y + bottom);
+                    NCE_U32 x = w * cur_stride;
+                    NCE_U32 y = h * cur_stride;
 
-                pPriv->detect_results.push_back(detect_result{ x1, y1, x2, y2, score });
+                    NCE_U32 x1 = std::max((NCE_F32)0, x - left);
+                    NCE_U32 y1 = std::max((NCE_F32)0, y - top);
+                    NCE_U32 x2 = std::min((NCE_F32)(*pPriv->input_tensor_infos)[0].width, x + right);
+                    NCE_U32 y2 = std::min((NCE_F32)(*pPriv->input_tensor_infos)[0].height, y + bottom);
+
+                    pPriv->detect_results.push_back(detect_result{ x1, y1, x2, y2, score });
+                }
             }
         }
     }

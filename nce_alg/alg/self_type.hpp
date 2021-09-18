@@ -30,7 +30,9 @@ typedef struct tag_input_tensor_info
 } input_tensor_info;
 typedef struct output_tensor
 {
-    NCE_S32      u32Stride;
+    NCE_S32      height_stride;
+    NCE_S32      width_stride;
+    NCE_S32      channel_stride;
     NCE_S32      u32FeatWidth;
     NCE_S32      u32FeatHeight;
     NCE_S32      u32ch;

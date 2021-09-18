@@ -19,16 +19,14 @@ hd_alg_priv::hd_alg_priv()
     alg_cfg.isLog                       = false;
     u32Stride                           = 0;
     model_image_info                    = { 0 };
+    output_stride                       = 4;
 }
 
 hd_alg::hd_alg()
 {}
-/*
- * alg_init 算法层初始化
- * 将输出层map定义好
- * ...
- */
-NCE_S32 hd_alg::alg_init(vector<input_tensor_info> &st_tensor_infos, unordered_map<string, tmp_map_result> &st_result_map)
+
+NCE_S32 hd_alg::alg_init(vector<input_tensor_info> &            st_tensor_infos,
+                         unordered_map<string, tmp_map_result> &st_result_map)
 {
     NCE_S32 ret = NCE_FAILED;
     pPriv       = shared_ptr<hd_alg_priv>(new hd_alg_priv());
@@ -89,81 +87,52 @@ NCE_S32 hd_alg::alg_get_result(alg_result_info &results, unordered_map<string, t
         printf("Failed to init pPriv of alg");
         return NCE_FAILED;
     }
-    // TODO 此处为清除上一轮调用结果，所以使用者必须及时拷贝走数据结果，且该函数不可重入
+
     pPriv->tmp_result.clear();
     pPriv->detect_results.clear();
 
-    NCE_F32 ratio  = 4;
-    NCE_U32 width  = st_result_map["hm"].tensor.u32FeatWidth;
-    NCE_U32 height = st_result_map["hm"].tensor.u32FeatHeight;
-    NCE_U32 stride = st_result_map["hm"].tensor.u32Stride;
+    auto hm = st_result_map["hm"];
+    auto wh = st_result_map["wh"];
 
-    NCE_F32 *cls = (NCE_F32 *)st_result_map["hm"].pu32Feat;
-    NCE_F32 *reg = (NCE_F32 *)st_result_map["wh"].pu32Feat;
+    auto feat_width  = hm.tensor.u32FeatWidth;
+    auto feat_height = hm.tensor.u32FeatHeight;
 
-    NCE_U32 feature_size   = width * height;
-    NCE_U32 feature_stride = stride * height;
+    auto hm_height_stride  = hm.tensor.height_stride;
+    auto hm_width_stride   = hm.tensor.width_stride;
+    auto hm_channel_stride = hm.tensor.channel_stride;
 
-    // TODO 异常后处理模块 nchw nhwc处理
-    NCE_F32 xi = /*(st_result_map[0].tensor.zp - st_result_map[0].tensor.fl)**/ st_result_map[0].tensor.scale;
-    if (st_result_map[0].tensor.outfmt == PLANNER)
+    auto wh_height_stride  = wh.tensor.height_stride;
+    auto wh_width_stride   = wh.tensor.width_stride;
+    auto wh_channel_stride = wh.tensor.channel_stride;
+
+    NCE_F32 *hm_feat = (NCE_F32 *)hm.pu32Feat;
+    NCE_F32 *wh_feat = (NCE_F32 *)wh.pu32Feat;
+
+    for (NCE_U32 y = 0; y < feat_height; y++)
     {
-        if (xi == 1.0f)
+        for (NCE_U32 x = 0; x < feat_width; x++)
         {
-            for (NCE_U32 i = 0; i < feature_size; i++)
-            {
-                NCE_U32 cur_h = i / width;
-                NCE_U32 cur_w = i % width;
+            NCE_U32 hm_index = x * hm_width_stride + y * hm_height_stride;
+            NCE_U32 wh_index = x * wh_width_stride + y * wh_height_stride;
 
-                NCE_F32 score = (NCE_F32)(cls[cur_h * stride + cur_w]);
-                NCE_U32 left  = (NCE_F32)(reg[cur_h * stride + cur_w + feature_stride * 0]);
-                NCE_U32 top   = (NCE_F32)(reg[cur_h * stride + cur_w + feature_stride * 1]);
-                NCE_U32 right = (NCE_F32)(reg[cur_h * stride + cur_w + feature_stride * 2]);
-                NCE_U32 down  = (NCE_F32)(reg[cur_h * stride + cur_w + feature_stride * 3]);
+            NCE_F32 score = hm_feat[hm_index];
+            if (score < pPriv->alg_cfg.threshold)
+                continue;
 
-                if (score < pPriv->alg_cfg.threshold)
-                    continue;
-                // printf("count:%d score:%f\n", i, score);
-                NCE_U32 x1       = cur_w * ratio - left;
-                NCE_U32 y1       = cur_h * ratio - top;
-                NCE_U32 x2       = cur_w * ratio + right;
-                NCE_U32 y2       = cur_h * ratio + down;
+            NCE_F32 left  = wh_feat[wh_index + 0 * wh_channel_stride] * 4;
+            NCE_F32 top   = wh_feat[wh_index + 1 * wh_channel_stride] * 4;
+            NCE_F32 right = wh_feat[wh_index + 2 * wh_channel_stride] * 4;
+            NCE_F32 down  = wh_feat[wh_index + 3 * wh_channel_stride] * 4;
 
-                pPriv->detect_results.push_back(detect_result{ x1, y1, x2, y2, score });
-                // cun shu xing
-                pPriv->tmp_result.push_back(
-                    alg_result{ PERSON_HEAD, &pPriv->detect_results[pPriv->detect_results.size() - 1] });
-            }
-        }
-        else
-        {
-            for (NCE_U32 i = 0; i < feature_size; i++)
-            {
-                NCE_U32 cur_h = i / width;
-                NCE_U32 cur_w = i % width;
+            NCE_U32 x1 = x * pPriv->output_stride - left;
+            NCE_U32 y1 = y * pPriv->output_stride - top;
+            NCE_U32 x2 = x * pPriv->output_stride + right;
+            NCE_U32 y2 = y * pPriv->output_stride + down;
 
-                NCE_F32 score = (NCE_F32)(cls[cur_h * stride + cur_w]) / xi;
-                NCE_U32 left  = (NCE_F32)(reg[cur_h * stride + cur_w + feature_stride * 0]) / xi;
-                NCE_U32 top   = (NCE_F32)(reg[cur_h * stride + cur_w + feature_stride * 1]) / xi;
-                NCE_U32 right = (NCE_F32)(reg[cur_h * stride + cur_w + feature_stride * 2]) / xi;
-                NCE_U32 down  = (NCE_F32)(reg[cur_h * stride + cur_w + feature_stride * 3]) / xi;
-
-                if (score < pPriv->alg_cfg.threshold)
-                    continue;
-
-                NCE_U32 x1       = cur_w * ratio - left;
-                NCE_U32 y1       = cur_h * ratio - top;
-                NCE_U32 x2       = cur_w * ratio + right;
-                NCE_U32 y2       = cur_h * ratio + down;
-                NCE_F32 fake     = 0.f;
-                NCE_S32 angle[3] = { 0, 0, 0 };
-                pPriv->detect_results.push_back(detect_result{ x1, y1, x2, y2, score });
-            }
+            pPriv->detect_results.push_back({ x1, y1, x2, y2, score });
         }
     }
-    else
-    {
-    }
+
     nms(pPriv->detect_results, pPriv->detect_results, pPriv->alg_cfg.st_cfg.hd_config.nms_thresh);
     for (auto &item : pPriv->detect_results)
     {

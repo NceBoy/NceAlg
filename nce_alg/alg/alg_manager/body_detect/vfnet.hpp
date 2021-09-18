@@ -38,6 +38,8 @@ public:
     NCE_F32 *                  score;
     img_info                   model_image_info;
     NCE_U32                    topk;
+    NCE_U32                    num_cls;
+    NCE_U32                    num_anchors;
 
     vfnet_priv();
 

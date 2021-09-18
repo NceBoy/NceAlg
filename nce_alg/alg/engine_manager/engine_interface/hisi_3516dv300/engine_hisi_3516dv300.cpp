@@ -400,15 +400,17 @@ NCE_S32 hisi_3516dv300_engine::engine_init(const param_info &                   
     //目前不分段
     for (auto &kv : st_result_map)
     {
-        kv.second.tensor.u32ch         = pPriv->stENnieParam.astSegData[0].astDst[i].unShape.stWhc.u32Chn;
-        kv.second.tensor.u32FeatWidth  = pPriv->stENnieParam.astSegData[0].astDst[i].unShape.stWhc.u32Width;
-        kv.second.tensor.u32FeatHeight = pPriv->stENnieParam.astSegData[0].astDst[i].unShape.stWhc.u32Height;
-        kv.second.tensor.u32Stride     = pPriv->stENnieParam.astSegData[0].astDst[i].u32Stride / sizeof(size_t);
-        kv.second.tensor.zp            = 0;
-        kv.second.tensor.fl            = 0;
-        kv.second.tensor.scale         = 4096;
-        kv.second.tensor.outfmt        = PLANNER;
-        kv.second.feat_type            = FEAT_S32;
+        kv.second.tensor.u32ch          = pPriv->stENnieParam.astSegData[0].astDst[i].unShape.stWhc.u32Chn;
+        kv.second.tensor.u32FeatWidth   = pPriv->stENnieParam.astSegData[0].astDst[i].unShape.stWhc.u32Width;
+        kv.second.tensor.u32FeatHeight  = pPriv->stENnieParam.astSegData[0].astDst[i].unShape.stWhc.u32Height;
+        kv.second.tensor.width_stride   = 1;
+        kv.second.tensor.height_stride  = pPriv->stENnieParam.astSegData[0].astDst[i].u32Stride / sizeof(size_t);
+        kv.second.tensor.channel_stride = kv.second.tensor.height_stride * kv.second.tensor.u32FeatHeight;
+        kv.second.tensor.zp             = 0;
+        kv.second.tensor.fl             = 0;
+        kv.second.tensor.scale          = 4096;
+        kv.second.tensor.outfmt         = PLANNER;
+        kv.second.feat_type             = FEAT_S32;
     }
 
     return NCE_SUCCESS;

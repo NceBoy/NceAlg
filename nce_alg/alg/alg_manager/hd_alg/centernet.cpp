@@ -15,15 +15,9 @@
 #include <string.h>
 #include "util.hpp"
 #include <algorithm>
-// TODO:去除打印
 
 using namespace std;
 namespace nce_alg {
-typedef struct pos_score
-{
-    int   index;
-    float score;
-} pos_score;
 
 centernet_priv::centernet_priv()
 {
@@ -31,12 +25,11 @@ centernet_priv::centernet_priv()
     alg_cfg.isLog      = false;
     input_tensor_infos = nullptr;
     topk               = 100;
+    output_stride      = 4;
 }
 
 centernet_priv::~centernet_priv()
-{
-
-}
+{}
 
 NCE_S32 centernet::alg_init(vector<input_tensor_info> &            st_tensor_infos,
                             unordered_map<string, tmp_map_result> &st_result_map)
@@ -54,7 +47,6 @@ NCE_S32 centernet::alg_init(vector<input_tensor_info> &            st_tensor_inf
     NCE_F32 std[3]   = { 0.0078125f, 0.0078125f, 0.0078125f };
     memcpy(input0.mean, mean0, sizeof(NCE_F32) * 3);
     memcpy(input0.std, std, sizeof(NCE_F32) * 3);
-    st_tensor_infos.push_back(input0);
 
     st_tensor_infos.push_back(input0);
     pPriv->input_tensor_infos = &st_tensor_infos;
@@ -98,55 +90,52 @@ NCE_S32 centernet::alg_get_result(alg_result_info &results, unordered_map<string
         return NCE_FAILED;
     }
 
-    NCE_F32 *hm      = (NCE_F32 *)st_result_map["hm"].pu32Feat;
-    NCE_F32 *maxpool = (NCE_F32 *)st_result_map["pool"].pu32Feat;
-    NCE_F32 *wh      = (NCE_F32 *)st_result_map["wh"].pu32Feat;
-    NCE_F32 *offset  = (NCE_F32 *)st_result_map["off"].pu32Feat;
+    auto hm      = st_result_map["hm"];
+    auto maxpool = st_result_map["pool"];
+    auto wh      = st_result_map["wh"];
+    auto offset  = st_result_map["off"];
 
-    NCE_U32 width  = st_result_map["hm"].tensor.u32FeatWidth;
-    NCE_U32 height = st_result_map["hm"].tensor.u32FeatHeight;
-    NCE_U32 stride = st_result_map["hm"].tensor.u32Stride;
+    auto feat_width  = hm.tensor.u32FeatWidth;
+    auto feat_height = hm.tensor.u32FeatHeight;
 
-    NCE_U32 feature_size = width * height;
+    auto hm_height_stride  = hm.tensor.height_stride;
+    auto hm_width_stride   = hm.tensor.width_stride;
+    auto hm_channel_stride = hm.tensor.channel_stride;
 
-    NCE_F32 xi = st_result_map["hm"].tensor.scale;
+    auto wh_height_stride  = wh.tensor.height_stride;
+    auto wh_width_stride   = wh.tensor.width_stride;
+    auto wh_channel_stride = wh.tensor.channel_stride;
 
-    std::vector<pos_score> valid_value;
-    for (int index = 0; index < feature_size; index++)
+    NCE_F32 *hm_feat  = (NCE_F32 *)hm.pu32Feat;
+    NCE_F32 *wh_feat  = (NCE_F32 *)wh.pu32Feat;
+    NCE_F32 *off_feat = (NCE_F32 *)offset.pu32Feat;
+
+    for (NCE_U32 y = 0; y < feat_height; y++)
     {
-        if (hm[index] == maxpool[index])
+        for (NCE_U32 x = 0; x < feat_width; x++)
         {
-            valid_value.push_back({ index, hm[index] });
+            NCE_U32 hm_index = x * hm_width_stride + y * hm_height_stride;
+            NCE_U32 wh_index = x * wh_width_stride + y * wh_height_stride;
+
+            NCE_F32 score = hm_feat[hm_index];
+            if (score < pPriv->alg_cfg.threshold)
+                continue;
+
+            NCE_F32 w  = wh_feat[wh_index + 0 * wh_channel_stride] * pPriv->output_stride;
+            NCE_F32 h  = wh_feat[wh_index + 1 * wh_channel_stride] * pPriv->output_stride;
+            NCE_F32 dx = off_feat[wh_index + 0 * wh_channel_stride] * pPriv->output_stride;
+            NCE_F32 dy = off_feat[wh_index + 1 * wh_channel_stride] * pPriv->output_stride;
+
+            NCE_F32 ct_x = x * pPriv->output_stride + dx;
+            NCE_F32 ct_y = y * pPriv->output_stride + dy;
+
+            NCE_U32 x1 = ct_x + dx - w / 2;
+            NCE_U32 y1 = ct_y + dy - h / 2;
+            NCE_U32 x2 = ct_x + dx + w / 2;
+            NCE_U32 y2 = ct_y + dy + h / 2;
+
+            pPriv->detect_results.push_back({ x1, y1, x2, y2, score });
         }
-    }
-
-    std::sort(valid_value.begin(), valid_value.end(), [](pos_score a, pos_score b) { return a.score > b.score; });
-    NCE_U32 valid_topk = min(pPriv->topk, (NCE_U32)valid_value.size());
-
-    for (int i = 0; i < valid_topk; i++)
-    {
-        pos_score tmp   = valid_value[i];
-        NCE_U32   index = tmp.index;
-        NCE_F32   score = tmp.score;
-        NCE_U32   cur_h = index / width;
-        NCE_U32   cur_w = index % width;
-
-        if (score < pPriv->alg_cfg.threshold)
-            continue;
-        NCE_U32 w  = wh[index + 0 * feature_size] * 4;
-        NCE_U32 h  = wh[index + 1 * feature_size] * 4;
-        NCE_U32 dx = offset[index + 0 * feature_size] * 4;
-        NCE_U32 dy = offset[index + 1 * feature_size] * 4;
-
-        NCE_U32 ct_x = cur_w * 4 + dx;
-        NCE_U32 ct_y = cur_h * 4 + dy;
-
-        NCE_U32 x1 = ct_x + dx - w / 2;
-        NCE_U32 y1 = ct_y + dy - h / 2;
-        NCE_U32 x2 = ct_x + dx + w / 2;
-        NCE_U32 y2 = ct_y + dy + h / 2;
-
-        pPriv->detect_results.push_back(detect_result{ x1, y1, x2, y2, score });
     }
 
     nms(pPriv->detect_results, pPriv->detect_results, pPriv->alg_cfg.st_cfg.hd_config.nms_thresh);

@@ -39,6 +39,7 @@ public:
     NCE_S32                    u32Stride;
     img_info                   model_image_info;
     vector<input_tensor_info> *input_tensor_infos;
+    NCE_S32                    output_stride;
 
     hd_alg_priv();
 };

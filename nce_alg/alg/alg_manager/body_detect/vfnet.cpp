@@ -16,7 +16,7 @@
 #include "util.hpp"
 #include <algorithm>
 #include <cmath>
-// TODO:去除打印
+
 
 using namespace std;
 namespace nce_alg {

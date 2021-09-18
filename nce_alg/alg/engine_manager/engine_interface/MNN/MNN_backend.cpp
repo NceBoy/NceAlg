@@ -175,10 +175,10 @@ public:
         printf("start get result\n");
         for (auto &kv : st_engine_result)
         {
-            std::string  name            = kv.second.tensor.name;
+            std::string  name            = kv.first;
             MNN::Tensor *tmp_output      = all_tensor.output_tensors_map[name];
             MNN::Tensor *tmp_output_host = all_tensor.output_tensors_map_host[name];
-            printf("st_engine_resul name is: %s\n", name.c_str());
+            
             tmp_output->copyToHostTensor(tmp_output_host);
             kv.second.pu32Feat = tmp_output_host->host<NCE_S32>();
         }

@@ -116,7 +116,7 @@ typedef struct TagImageProcessParam
 typedef struct person_head
 {
     NCE_F32 fake;
-    NCE_S32 angle[3]; 
+    NCE_S32 angle[3];
 } person_head;
 
 typedef struct tag_detect_result

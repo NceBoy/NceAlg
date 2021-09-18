@@ -10,7 +10,7 @@ SET(CMAKE_BUILD_TYPE_POSTFIX "d")
 endif()
 
 link_directories(${LIBRARY_OUTPUT_PATH})
-link_directories(${LIBRARY_OUTPUT_PATH}${CMAKE_BUILD_TYPE})
+link_directories(${LIBRARY_OUTPUT_PATH}/${CMAKE_BUILD_TYPE})
 
 execute_process(
     COMMAND mkdir -p ${PROJECT_SOURCE_DIR}/inc/

@@ -16,7 +16,7 @@
 #include "IEngine.hpp"
 #include <vector>
 #include <memory>
-#include "self_type.hpp"
+#include "nce_tensor.hpp"
 #include "factory.hpp"
 #ifdef __cplusplus
 #if __cplusplus
@@ -46,7 +46,7 @@ public:
     NCE_S32 alg_priv_engine_init();
 };
 
-class centernet : public IAlg, public NceAlgCreator<centernet, CENTERNET>
+class centernet : public IAlg, public NceCreator<centernet, IAlg, CENTERNET>
 {
 public:
     NCE_S32 alg_init(vector<input_tensor_info> &st_tensor_infos, unordered_map<string, tmp_map_result> &st_result_map);

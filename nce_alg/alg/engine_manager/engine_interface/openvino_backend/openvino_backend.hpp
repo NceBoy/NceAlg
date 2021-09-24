@@ -16,7 +16,7 @@ extern "C" {
 #endif /* __cplusplus */
 
 namespace nce_alg {
-class openvino_engine : public IEngine, public NceEngineCreator<openvino_engine>
+class openvino_engine : public IEngine, public NceEngineCreator<openvino_engine, IEngine, OPENVINO>
 {
 public:
     NCE_S32

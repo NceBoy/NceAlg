@@ -7,7 +7,7 @@
 #include "IEngine.hpp"
 #include <vector>
 #include <memory>
-#include "self_type.hpp"
+#include "nce_tensor.hpp"
 #include "factory.hpp"
 #ifdef __cplusplus
 #if __cplusplus
@@ -37,7 +37,7 @@ public:
     NCE_S32 alg_priv_engine_init();
 };
 
-class fc_fk_alg : public IAlg, public NceAlgCreator<fc_fk_alg, FACE_FAKE>
+class fc_fk_alg : public IAlg, public NceCreator<fc_fk_alg, IAlg, FACE_FAKE>
 {
 public:
     NCE_S32 alg_init(const param_info &st_param_info, map<int, tmp_map_result> &st_result_map);

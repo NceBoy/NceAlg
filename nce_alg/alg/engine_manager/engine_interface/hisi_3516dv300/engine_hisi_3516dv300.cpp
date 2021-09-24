@@ -2,7 +2,7 @@
 #include <errno.h>
 #include <fcntl.h>
 #include "alg_type.h"
-#include "self_type.hpp"
+#include "nce_tensor.hpp"
 #include <sys/mman.h>
 #include <sys/stat.h>
 #include <sys/types.h>

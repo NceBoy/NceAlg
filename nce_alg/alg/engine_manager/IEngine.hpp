@@ -2,7 +2,7 @@
 #define __IENGINE_HPP__
 #include <unordered_map>
 #include "alg_type.h"
-#include "self_type.hpp"
+#include "nce_tensor.hpp"
 #include <vector>
 #ifdef __cplusplus
 #if __cplusplus

@@ -24,7 +24,7 @@ extern "C" {
 #endif /* __cplusplus */
 
 namespace nce_alg {
-class MNN_engine : public IEngine, public NceEngineCreator<MNN_engine, MNNPLATFORM>
+class MNN_engine : public IEngine, public NceCreator<MNN_engine, IEngine, MNNPLATFORM>
 {
 public:
     MNN_engine();

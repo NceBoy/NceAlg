@@ -77,7 +77,7 @@ int main(int argc, char *argv[])
         alg_result_info results;
 
         vector<img_info>        imgInfos;
-        nce_alg_machine hd_model(PERSON_HEAD, HISI_3516DV300);
+        nce_alg_machine hd_model(PERSON_HEAD, RV_1126);
 
         hd_model.nce_alg_init(openvino_param, imgInfos);
         hd_model.nce_alg_cfg_set(task_config);

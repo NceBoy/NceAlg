@@ -23,7 +23,7 @@ extern "C" {
 #endif /* __cplusplus */
 
 namespace nce_alg {
-class hisi_3516dv300_engine : public IEngine, public NceEngineCreator<hisi_3516dv300_engine, HISI_3516DV300>
+class hisi_3516dv300_engine : public IEngine, public NceCreator<hisi_3516dv300_engine, IEngine, HISI_3516DV300>
 {
 public:
     hisi_3516dv300_engine();

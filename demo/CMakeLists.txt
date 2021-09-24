@@ -15,9 +15,9 @@ link_directories(${LIBRARY_OUTPUT_PATH}/${CMAKE_BUILD_TYPE})
 execute_process(
     COMMAND mkdir -p ${PROJECT_SOURCE_DIR}/inc/
     COMMAND cp ${NCE_BUILD_PATH}/nce_alg/common/common.h    ${PROJECT_SOURCE_DIR}/inc/
-    COMMAND cp ${NCE_BUILD_PATH}/nce_alg/alg/nce_alg_c.h    ${PROJECT_SOURCE_DIR}/inc/
-    COMMAND cp ${NCE_BUILD_PATH}/nce_alg/alg/nce_alg.hpp    ${PROJECT_SOURCE_DIR}/inc/
-    COMMAND cp ${NCE_BUILD_PATH}/nce_alg/alg/alg_type.h     ${PROJECT_SOURCE_DIR}/inc/
+    COMMAND cp ${NCE_BUILD_PATH}/nce_alg/include/nce_alg_c.h    ${PROJECT_SOURCE_DIR}/inc/
+    COMMAND cp ${NCE_BUILD_PATH}/nce_alg/include/nce_alg.hpp    ${PROJECT_SOURCE_DIR}/inc/
+    COMMAND cp ${NCE_BUILD_PATH}/nce_alg/include/alg_type.h     ${PROJECT_SOURCE_DIR}/inc/
     COMMAND cp  -rf ${NCE_BUILD_PATH}/nce_alg/platform/${PLATFORM}/lib   ${PROJECT_SOURCE_DIR}/${PLATFORM}
 )
 # Find all main*.cpp files and store in list mains

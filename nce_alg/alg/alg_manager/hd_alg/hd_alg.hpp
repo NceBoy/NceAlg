@@ -6,7 +6,7 @@
 #include <vector>
 #include <memory>
 #include "alg_type.h"
-#include "self_type.hpp"
+#include "nce_tensor.hpp"
 #include "IAlg.hpp"
 #include "factory.hpp"
 
@@ -44,7 +44,7 @@ public:
     hd_alg_priv();
 };
 
-class hd_alg : public IAlg, public NceAlgCreator<hd_alg, PERSON_HEAD>
+class hd_alg : public IAlg, public NceCreator<hd_alg, IAlg, CENTERNET>
 {
 public:
     hd_alg();

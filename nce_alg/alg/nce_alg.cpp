@@ -3,7 +3,7 @@
 #include "IAlg.hpp"
 #include "IEngine.hpp"
 #include "factory.hpp"
-#include "self_type.hpp"
+#include "nce_tensor.hpp"
 #include <map>
 #include <cstring>
 
@@ -41,8 +41,9 @@ nce_alg_machine::nce_alg_machine(taskcls alg_type, const platform engine_type)
 {
 
     pPriv          = shared_ptr<dynamic_factory>(new nce_alg_machine::dynamic_factory());
-    pPriv->pAlg    = NceFactory::Instance().CreateAlg(alg_type);
-    pPriv->pEngine = NceFactory::Instance().CreateEngine(engine_type);
+    auto map = NceFactory<IAlg>::GetReigistMap();
+    pPriv->pAlg = NceFactory<IAlg>::GetInstance()->CreateObject(alg_type);
+    pPriv->pEngine = NceFactory<IEngine>::GetInstance()->CreateObject(engine_type);
 }
 
 NCE_S32 nce_alg_machine::nce_alg_init(const param_info &st_param_info, vector<img_info> &st_img_infos)

@@ -11,7 +11,7 @@
 
 #include <iostream>
 #include <alg_type.h>
-#include "self_type.hpp"
+#include "nce_tensor.hpp"
 #include <unordered_map>
 #include <vector>
 #ifdef __cplusplus

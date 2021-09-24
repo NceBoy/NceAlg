@@ -1,14 +1,8 @@
-/*
- * @Descripttion:
- * @version:
- * @Author: Haochen Ye
- * @Date: 2021-08-20 10:32:17
- * @LastEditors: Haochen Ye
- * @LastEditTime: 2021-09-06 15:58:08
- */
-#ifndef __SELF_TYPE_H__
-#define __SELF_TYPE_H__
+#ifndef __nce_tensor_H__
+#define __nce_tensor_H__
 #include "alg_type.h"
+#include <iostream>
+
 namespace nce_alg {
 typedef enum Tagfeattype
 {

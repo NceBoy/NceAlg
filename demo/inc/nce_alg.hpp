@@ -22,6 +22,8 @@ public:
 
     NCE_S32 NCE_PUBLIC nce_alg_cfg_set(const task_config_info &st_task_config_info);
 
+    NCE_S32 NCE_PUBLIC nce_alg_img_convert(img_t &pc_img);
+
     NCE_S32 NCE_PUBLIC nce_alg_inference(vector<img_t> &pc_imgs);
 
     NCE_S32 NCE_PUBLIC nce_alg_get_result(alg_result_info &results);

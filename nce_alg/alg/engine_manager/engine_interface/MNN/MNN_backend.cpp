@@ -64,7 +64,7 @@ private:
 public:
     NCE_S32
     load_model(const char *                           model_path,
-               unordered_map<string, tmp_map_result> &st_result_map,
+               LinkedHashMap<string, tmp_map_result> &st_result_map,
                vector<input_tensor_info> &            st_tensor_infos)
     {
         printf("load model!\n");
@@ -170,7 +170,7 @@ public:
         return NCE_SUCCESS;
     }
 
-    NCE_S32 get_result(unordered_map<string, tmp_map_result> &st_engine_result)
+    NCE_S32 get_result(LinkedHashMap<string, tmp_map_result> &st_engine_result)
     {
         printf("start get result\n");
         for (auto &kv : st_engine_result)
@@ -194,7 +194,7 @@ MNN_engine::MNN_engine()
 NCE_S32
 MNN_engine::engine_init(const param_info &                     st_param_info,
                         vector<input_tensor_info> &            st_tensor_infos,
-                        unordered_map<string, tmp_map_result> &st_result_map)
+                        LinkedHashMap<string, tmp_map_result> &st_result_map)
 {
     // TODO support multi-image input, assert input and model dimension
     pPriv->load_model(st_param_info.pc_model_path, st_result_map, st_tensor_infos);
@@ -207,7 +207,7 @@ NCE_S32 MNN_engine::engine_inference(vector<img_t> &pc_img)
     return NCE_SUCCESS;
 }
 
-NCE_S32 MNN_engine::engine_get_result(unordered_map<string, tmp_map_result> &st_engine_result)
+NCE_S32 MNN_engine::engine_get_result(LinkedHashMap<string, tmp_map_result> &st_engine_result)
 {
     pPriv->get_result(st_engine_result);
     return NCE_SUCCESS;

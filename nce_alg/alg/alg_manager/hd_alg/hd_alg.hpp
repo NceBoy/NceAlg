@@ -2,7 +2,7 @@
 #define __HD_ALG_HPP__
 
 #include <iostream>
-#include <unordered_map>
+#include  "linkedhashmap.h"
 #include <vector>
 #include <memory>
 #include "alg_type.h"
@@ -44,18 +44,18 @@ public:
     hd_alg_priv();
 };
 
-class hd_alg : public IAlg, public NceCreator<hd_alg, IAlg, CENTERNET>
+class hd_alg : public IAlg, public NceCreator<hd_alg, IAlg, PERSON_HEAD>
 {
 public:
     hd_alg();
 
-    NCE_S32 alg_init(vector<input_tensor_info> &st_tensor_infos, unordered_map<string, tmp_map_result> &st_result_map);
+    NCE_S32 alg_init(vector<input_tensor_info> &st_tensor_infos, LinkedHashMap<string, tmp_map_result> &st_result_map);
 
     NCE_S32 alg_cfg_set(const task_config_info &st_task_config_info);
 
     NCE_S32 alg_inference(vector<img_t> &pc_img);
 
-    NCE_S32 alg_get_result(alg_result_info &results, unordered_map<string, tmp_map_result> &st_result_map);
+    NCE_S32 alg_get_result(alg_result_info &results, LinkedHashMap<string, tmp_map_result> &st_result_map);
 
     NCE_S32 alg_destroy();
 

@@ -12,7 +12,7 @@
 #include <iostream>
 #include <alg_type.h>
 #include "nce_tensor.hpp"
-#include <unordered_map>
+#include  "linkedhashmap.h"
 #include <vector>
 #ifdef __cplusplus
 #if __cplusplus
@@ -27,7 +27,7 @@ class IAlg
 {
 public:
     virtual NCE_S32 alg_init(vector<input_tensor_info> &            st_tensor_infos,
-                             unordered_map<string, tmp_map_result> &st_result_map)
+                             LinkedHashMap<string, tmp_map_result> &st_result_map)
     {
         return NCE_FAILED;
     }
@@ -42,7 +42,7 @@ public:
         return NCE_FAILED;
     }
 
-    virtual NCE_S32 alg_get_result(alg_result_info &results, unordered_map<string, tmp_map_result> &st_result_map)
+    virtual NCE_S32 alg_get_result(alg_result_info &results, LinkedHashMap<string, tmp_map_result> &st_result_map)
     {
         return NCE_FAILED;
     }

@@ -36,7 +36,9 @@ typedef struct nce_alg_c_img_infos
 
 typedef NCE_S32 (*nce_alg_c_init)(NCE_PTR pPriv, param_info *st_param_info, nce_alg_c_img_infos *st_img_info);
 
-typedef NCE_S32 (*nnce_alg_c_cfg_set)(NCE_PTR pPriv, task_config_info *st_task_config_info);
+typedef NCE_S32 (*nce_alg_c_cfg_set)(NCE_PTR pPriv, task_config_info *st_task_config_info);
+
+typedef NCE_S32 (*nce_alg_c_img_convert)(NCE_PTR pPriv, img_t *pc_img);
 
 typedef NCE_S32 (*nce_alg_c_inference)(NCE_PTR pPriv, img_t **pc_img,int num);
 
@@ -52,7 +54,8 @@ typedef struct nce_alg_c_machine
     taskcls               clstype;
     platform              platformtype;
     nce_alg_c_init        init_func;
-    nnce_alg_c_cfg_set    cfg_set_func;
+    nce_alg_c_cfg_set     cfg_set_func;
+    nce_alg_c_img_convert img_convert_func;
     nce_alg_c_inference   inference_func;
     nce_alg_c_process_set process_set_func;
     nce_alg_c_get_result  getResult_func;

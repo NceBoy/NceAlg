@@ -31,6 +31,14 @@ static NCE_S32 nce_alg_cfg_set_self(NCE_PTR pPriv, task_config_info *st_task_con
     return ret;
 }
 
+static NCE_S32 nce_alg_img_convert_self(NCE_PTR pPriv, img_t *pc_img)
+{
+    NCE_S32          ret  = NCE_FAILED;
+    nce_alg_machine *self = (nce_alg_machine *)pPriv;
+    ret                   = self->nce_alg_img_convert(*pc_img);
+    return ret;
+}
+
 static NCE_S32 nce_alg_inference_self(NCE_PTR pPriv, img_t **pc_img, int num)
 {
     int                i    = 0;
@@ -82,6 +90,7 @@ NCE_S32 nce_alg_c_machine_int(nce_alg_c_machine *machine)
 
     machine->init_func        = nce_alg_init_self;
     machine->cfg_set_func     = nce_alg_cfg_set_self;
+    machine->img_convert_func = nce_alg_img_convert_self;
     machine->inference_func   = nce_alg_inference_self;
     machine->getResult_func   = nce_alg_get_result_self;
     machine->process_set_func = nce_alg_process_set_self;

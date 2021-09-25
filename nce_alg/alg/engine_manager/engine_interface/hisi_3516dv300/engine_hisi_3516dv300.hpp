@@ -14,6 +14,7 @@
 #include <map>
 #include <memory>
 #include "factory.hpp"
+#include  "linkedhashmap.h"
 #ifdef __cplusplus
 #if __cplusplus
 
@@ -30,11 +31,11 @@ public:
 
     NCE_S32 engine_init(const param_info &                     st_param_info,
                         vector<input_tensor_info> &            st_tensor_infos,
-                        unordered_map<string, tmp_map_result> &st_result_map);
+                        LinkedHashMap<string, tmp_map_result> &st_result_map);
 
     NCE_S32 engine_inference(vector<img_t> &pc_img);
 
-    NCE_S32 engine_get_result(unordered_map<string, tmp_map_result> &st_engine_result);
+    NCE_S32 engine_get_result(LinkedHashMap<string, tmp_map_result> &st_engine_result);
 
     NCE_S32 engine_destroy();
 

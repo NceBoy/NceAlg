@@ -27,14 +27,14 @@ hd_alg::hd_alg()
 {}
 
 NCE_S32 hd_alg::alg_init(vector<input_tensor_info> &            st_tensor_infos,
-                         unordered_map<string, tmp_map_result> &st_result_map)
+                         LinkedHashMap<string, tmp_map_result> &st_result_map)
 {
     NCE_S32 ret = NCE_FAILED;
     pPriv       = shared_ptr<hd_alg_priv>(new hd_alg_priv());
     // st_result_map.insert({0,pPriv->tag[0]});
     // st_result_map.insert({1,pPriv->tag[1]});
-    st_result_map["hm"]             = tmp_map_result{ 0 };
-    st_result_map["wh"]             = tmp_map_result{ 0 };
+    st_result_map.insert(std::make_pair("hm",tmp_map_result{ 0 }));
+    st_result_map.insert(std::make_pair("wh",tmp_map_result{ 0 }));
     st_result_map["hm"].tensor.name = "hm";
     st_result_map["wh"].tensor.name = "wh";
 
@@ -80,7 +80,7 @@ NCE_S32 hd_alg::alg_destroy()
     return ret;
 }
 
-NCE_S32 hd_alg::alg_get_result(alg_result_info &results, unordered_map<string, tmp_map_result> &st_result_map)
+NCE_S32 hd_alg::alg_get_result(alg_result_info &results, LinkedHashMap<string, tmp_map_result> &st_result_map)
 {
     NCE_S32 ret = NCE_FAILED;
     if (NULL == pPriv)
@@ -105,10 +105,8 @@ NCE_S32 hd_alg::alg_get_result(alg_result_info &results, unordered_map<string, t
     auto wh_height_stride  = wh.tensor.height_stride;
     auto wh_width_stride   = wh.tensor.width_stride;
     auto wh_channel_stride = wh.tensor.channel_stride;
-
     NCE_F32 *hm_feat = (NCE_F32 *)hm.pu32Feat;
     NCE_F32 *wh_feat = (NCE_F32 *)wh.pu32Feat;
-
     for (NCE_U32 y = 0; y < feat_height; y++)
     {
         for (NCE_U32 x = 0; x < feat_width; x++)
@@ -119,11 +117,10 @@ NCE_S32 hd_alg::alg_get_result(alg_result_info &results, unordered_map<string, t
             NCE_F32 score = hm_feat[hm_index];
             if (score < pPriv->alg_cfg.threshold)
                 continue;
-
-            NCE_F32 left  = wh_feat[wh_index + 0 * wh_channel_stride] * 4;
-            NCE_F32 top   = wh_feat[wh_index + 1 * wh_channel_stride] * 4;
-            NCE_F32 right = wh_feat[wh_index + 2 * wh_channel_stride] * 4;
-            NCE_F32 down  = wh_feat[wh_index + 3 * wh_channel_stride] * 4;
+            NCE_F32 left  = wh_feat[wh_index + 0 * wh_channel_stride];
+            NCE_F32 top   = wh_feat[wh_index + 1 * wh_channel_stride];
+            NCE_F32 right = wh_feat[wh_index + 2 * wh_channel_stride];
+            NCE_F32 down  = wh_feat[wh_index + 3 * wh_channel_stride];
 
             NCE_U32 x1 = x * pPriv->output_stride - left;
             NCE_U32 y1 = y * pPriv->output_stride - top;

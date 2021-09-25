@@ -274,7 +274,6 @@ nce_resize::nce_resize(ImageProcessParam param)
     output_img.image_attr.u32Width   = width;
     output_img.image_attr.u32Height  = height;
     output_img.image_attr.u32channel = channel;
-
     output_img.image = new NCE_U8[width * height * channel];
 }
 
@@ -331,18 +330,17 @@ NCE_S32 nce_resize::forward(img_t &input_img)
                 NCE_U32 src_index_lb = (src_y_lb * src_width + src_x_lb) * src_channel + c;
                 NCE_U32 src_index_rt = (src_y_rt * src_width + src_x_rt) * src_channel + c;
                 NCE_U32 src_index_rb = (src_y_rb * src_width + src_x_rb) * src_channel + c;
-
                 output_img.image[dst_index] =
                     input_img.image[src_index_lt] * factor_lt + input_img.image[src_index_lb] * factor_lb
                     + input_img.image[src_index_rt] * factor_rt + input_img.image[src_index_rb] * factor_rb;
             }
         }
     }
-
     input_img.image_attr.u32Height = dst_height;
     input_img.image_attr.u32Width  = dst_width;
-    nce_free_img(input_img);
-    input_img.image = output_img.image;
+    input_img.image = (NCE_U8 *) STBI_REALLOC((void *)input_img.image,output_img.image_attr.u32Width * output_img.image_attr.u32Height * output_img.image_attr.u32channel);
+    if(input_img.image != NULL)
+        memcpy(input_img.image,output_img.image,output_img.image_attr.u32Width * output_img.image_attr.u32Height * output_img.image_attr.u32channel);
 
     return NCE_SUCCESS;
 }

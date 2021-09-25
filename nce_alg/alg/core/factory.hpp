@@ -42,6 +42,7 @@ public:
             printf("no match alg!\n");
             return NULL;
         }
+        printf("match alg!\n");
         return it->second();
     }
 

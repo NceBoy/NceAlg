@@ -40,7 +40,7 @@ int main(int argc, char *argv[])
 
         img_t frame;
         nce_read_img(pcSrcFile, frame);
-
+        printf(" frame image%p h%d w%d\n",frame.image,frame.image_attr.u32Height,frame.image_attr.u32Width);
         unsigned char *    pu8PicAddr = NULL;
         unsigned long long u64VirAddr = 0;
         unsigned long long u64PhyAddr = 0;
@@ -50,22 +50,23 @@ int main(int argc, char *argv[])
         ImageProcessParam              package2planner;
         package2planner.type                              = PROC_PACKAGE2PLANNER;
         package2planner.Info.package2planner_info.channel = 3;
-        package2planner.Info.package2planner_info.width   = 640;
-        package2planner.Info.package2planner_info.height  = 640;
+        package2planner.Info.package2planner_info.width   = 512;
+        package2planner.Info.package2planner_info.height  = 512;
 
         ImageProcessParam planner2package;
         planner2package.type                              = PROC_PLANNER2PACKAGE;
         planner2package.Info.planner2package_info.channel = 3;
-        planner2package.Info.planner2package_info.width   = 640;
-        planner2package.Info.planner2package_info.height  = 640;
+        planner2package.Info.planner2package_info.width   = 512;
+        planner2package.Info.planner2package_info.height  = 512;
 
         ImageProcessParam resizer;
         resizer.type = PROC_RESIZE;
         resizer.Info.resize_info.dst_width = 512;    
         resizer.Info.resize_info.dst_height = 512;    
         resizer.Info.resize_info.dst_channel = 3;          
-
+        preprocesses.push_back(resizer);
         preprocesses.push_back(package2planner);
+     
 
         param_info openvino_param;
         openvino_param.pc_model_path = pcModelName;
@@ -82,6 +83,9 @@ int main(int argc, char *argv[])
         hd_model.nce_alg_init(openvino_param, imgInfos);
         hd_model.nce_alg_cfg_set(task_config);
         hd_model.nce_alg_process_set(preprocesses);
+                printf(" frame image%p h%d w%d\n",frame.image,frame.image_attr.u32Height,frame.image_attr.u32Width);
+        hd_model.nce_alg_img_convert(frame);
+        printf(" frame image%p h%d w%d\n",frame.image,frame.image_attr.u32Height,frame.image_attr.u32Width);
         vector<img_t> imgs;
         imgs.push_back(frame);
         hd_model.nce_alg_inference(imgs);
@@ -95,8 +99,18 @@ int main(int argc, char *argv[])
         detect_result *     result   = NULL;
         NCE_S32             color[3] = { 0, 0, 255 };
         Bbox                box;
+        for (int i = 0; i < results.num; i++)
+        {
 
+            result = ((detect_result *)results.st_alg_results->obj) + i;
+            box.x1 = result->x1;
+            box.y1 = result->y1;
+            box.x2 = result->x2;
+            box.y2 = result->y2;
+            printf(" %d %d %d %d\n", box.x1, box.x2, box.y1, box.y2);
+        }
 		nce_planner2package doo(planner2package);
+        printf(" frame image%p h%d w%d\n",frame.image,frame.image_attr.u32Height,frame.image_attr.u32Width);
 		doo.forward(frame);
         for (int i = 0; i < results.num; i++)
         {
@@ -111,7 +125,7 @@ int main(int argc, char *argv[])
         }
         hd_model.nce_alg_destroy();
 
-
+            printf(" draw tamadaae \n");
         nce_write_img("result.jpg", frame);
         nce_free_img(frame);
 	}

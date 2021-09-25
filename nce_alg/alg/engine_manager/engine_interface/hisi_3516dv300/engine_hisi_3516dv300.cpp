@@ -351,12 +351,13 @@ hisi_3516dv300_engine::hisi_3516dv300_engine()
 
 NCE_S32 hisi_3516dv300_engine::engine_init(const param_info &                     st_param_info,
                                            vector<input_tensor_info> &            st_tensor_infos,
-                                           unordered_map<string, tmp_map_result> &st_result_map)
+                                           LinkedHashMap<string, tmp_map_result> &st_result_map)
 {
     HI_S32 s32Ret = HI_SUCCESS;
     /*Set configuration parameter*/
     HI_U32 u32PicNum = 1;
     HI_U32 i         = 0;
+    HI_U32 count = 0;
     /*Set configuration parameter*/
     pPriv->stNnieCfg.u32MaxInputNum   = u32PicNum; // max input image num in each batch
     pPriv->stNnieCfg.u32MaxRoiNum     = 0;
@@ -387,30 +388,32 @@ NCE_S32 hisi_3516dv300_engine::engine_init(const param_info &                   
 
     for (NCE_U32 i = 0; i < pPriv->input_num; i++)
     {
-        input_tensor_info tmp_info;
-        tmp_info.format    = PLANNER;
-        tmp_info.name      = to_string(i);
-        tmp_info.channel   = pPriv->stENnieParam.astSegData[0].astSrc[i].unShape.stWhc.u32Chn;
-        tmp_info.height    = pPriv->stENnieParam.astSegData[0].astSrc[i].unShape.stWhc.u32Height;
-        tmp_info.width     = pPriv->stENnieParam.astSegData[0].astSrc[i].unShape.stWhc.u32Width;
-        st_tensor_infos[i] = tmp_info;
+        st_tensor_infos[i].format    = PLANNER;
+        st_tensor_infos[i].name      = to_string(i);
+        st_tensor_infos[i].channel   = pPriv->stENnieParam.astSegData[0].astSrc[i].unShape.stWhc.u32Chn;
+        st_tensor_infos[i].height    = pPriv->stENnieParam.astSegData[0].astSrc[i].unShape.stWhc.u32Height;
+        st_tensor_infos[i].width     = pPriv->stENnieParam.astSegData[0].astSrc[i].unShape.stWhc.u32Width;
     }
     // NCE强制要求RGB，给你脸了？
 
     //目前不分段
     for (auto &kv : st_result_map)
     {
-        kv.second.tensor.u32ch          = pPriv->stENnieParam.astSegData[0].astDst[i].unShape.stWhc.u32Chn;
-        kv.second.tensor.u32FeatWidth   = pPriv->stENnieParam.astSegData[0].astDst[i].unShape.stWhc.u32Width;
-        kv.second.tensor.u32FeatHeight  = pPriv->stENnieParam.astSegData[0].astDst[i].unShape.stWhc.u32Height;
-        kv.second.tensor.width_stride   = 1;
-        kv.second.tensor.height_stride  = pPriv->stENnieParam.astSegData[0].astDst[i].u32Stride / sizeof(size_t);
-        kv.second.tensor.channel_stride = kv.second.tensor.height_stride * kv.second.tensor.u32FeatHeight;
-        kv.second.tensor.zp             = 0;
-        kv.second.tensor.fl             = 0;
-        kv.second.tensor.scale          = 4096;
-        kv.second.tensor.outfmt         = PLANNER;
-        kv.second.feat_type             = FEAT_S32;
+        st_result_map[kv].tensor.u32ch          = pPriv->stENnieParam.astSegData[0].astDst[count].unShape.stWhc.u32Chn;
+        st_result_map[kv].tensor.u32FeatWidth   = pPriv->stENnieParam.astSegData[0].astDst[count].unShape.stWhc.u32Width;
+        st_result_map[kv].tensor.u32FeatHeight  = pPriv->stENnieParam.astSegData[0].astDst[count].unShape.stWhc.u32Height;
+        st_result_map[kv].tensor.width_stride   = 1;
+        st_result_map[kv].tensor.height_stride  = pPriv->stENnieParam.astSegData[0].astDst[count].u32Stride / sizeof(size_t);
+        st_result_map[kv].tensor.channel_stride = st_result_map[kv].tensor.height_stride *st_result_map[kv].tensor.u32FeatHeight;
+        st_result_map[kv].tensor.zp             = 0;
+        st_result_map[kv].tensor.fl             = 0;
+        st_result_map[kv].tensor.scale          = 4096;
+        st_result_map[kv].tensor.outfmt         = PLANNER;
+        st_result_map[kv].feat_type             = FEAT_S32;
+        printf("stride w%d h %d c %d\n",st_result_map[kv].tensor.width_stride,
+        st_result_map[kv].tensor.height_stride,
+        st_result_map[kv].tensor.channel_stride);
+        count++;
     }
 
     return NCE_SUCCESS;
@@ -470,7 +473,7 @@ CNN_FAIL_0:
     return NCE_FAILED;
 }
 
-NCE_S32 hisi_3516dv300_engine::engine_get_result(unordered_map<string, tmp_map_result> &st_engine_result)
+NCE_S32 hisi_3516dv300_engine::engine_get_result(LinkedHashMap<string, tmp_map_result> &st_engine_result)
 {
     NCE_S32  count        = 0;
     HI_S32 * tmp_feat     = NULL;
@@ -481,17 +484,21 @@ NCE_S32 hisi_3516dv300_engine::engine_get_result(unordered_map<string, tmp_map_r
     {
         tmp_feat        = (HI_S32 *)((size_t)pPriv->stENnieParam.astSegData[0].astDst[count].u64VirAddr);
         tmp_feat_f32    = (NCE_F32 *)tmp_feat;
-        NCE_S32 width   = kv.second.tensor.u32FeatWidth;
-        NCE_S32 height  = kv.second.tensor.u32FeatHeight;
-        NCE_S32 channel = kv.second.tensor.u32ch;
+        NCE_S32 width   = st_engine_result[kv].tensor.height_stride;
+        NCE_S32 height  = st_engine_result[kv].tensor.u32FeatHeight;
+        NCE_S32 channel = st_engine_result[kv].tensor.u32ch;
         NCE_S32 num     = width * height * channel;
-
+        printf("%s %d %d %d \n",st_engine_result[kv].tensor.name.c_str(),
+        width,
+        height,
+        channel
+        );
         for (int i = 0; i < num; i++)
         {
-            *(tmp_feat_f32 + i) = (NCE_F32)(*(tmp_feat + i));
+            *(tmp_feat_f32 + i) = ((NCE_F32)(*(tmp_feat + i)))/4096.f;
         }
 
-        kv.second.pu32Feat = (NCE_S32 *)tmp_feat;
+        st_engine_result[kv].pu32Feat = (NCE_S32 *)tmp_feat;
         count++;
     }
 

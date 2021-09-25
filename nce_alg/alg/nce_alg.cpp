@@ -21,7 +21,7 @@ class nce_alg_machine::dynamic_factory
 public:
     shared_ptr<IEngine>                        pEngine;
     shared_ptr<IAlg>                           pAlg;
-    std::unordered_map<string, tmp_map_result> tmp_map;
+    LinkedHashMap<string, tmp_map_result> tmp_map;
     std::map<int, base_process_create>         img_process_map = {
         { PROC_PACKAGE2PLANNER, nce_package2planner::create_instance },
         { PROC_PLANNER2PACKAGE, nce_planner2package::create_instance },
@@ -84,6 +84,16 @@ NCE_S32 nce_alg_machine::nce_alg_process_set(std::vector<ImageProcessParam> &pre
     return ret;
 }
 
+NCE_S32 nce_alg_machine::nce_alg_img_convert(img_t &pc_img)
+{
+    NCE_S32 ret = NCE_FAILED;
+    for (int k = 0; k < pPriv->img_pre_processes.size(); k++)
+    {
+        pPriv->img_pre_processes[k]->forward(pc_img);
+    }
+    return ret;
+
+}
 NCE_S32 nce_alg_machine::nce_alg_inference(vector<img_t> &pc_imgs)
 {
     if (pc_imgs.size() != pPriv->ImageInfo.size())
@@ -93,13 +103,6 @@ NCE_S32 nce_alg_machine::nce_alg_inference(vector<img_t> &pc_imgs)
     }
     NCE_S32 ret = NCE_FAILED;
 
-    for (int k = 0; k < pPriv->img_pre_processes.size(); k++)
-    {
-        for (int i = 0; i < pc_imgs.size(); i++)
-        {
-            pPriv->img_pre_processes[k]->forward(pc_imgs[i]);
-        }
-    }
 
     for (NCE_U32 i = 0; i < pPriv->ImageInfo.size(); i++)
     {

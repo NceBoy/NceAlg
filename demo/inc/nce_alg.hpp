@@ -1,3 +1,11 @@
+/*
+ * @Author: your name
+ * @Date: 2021-09-26 10:15:19
+ * @LastEditTime: 2021-09-26 12:18:02
+ * @LastEditors: Please set LastEditors
+ * @Description: In User Settings Edit
+ * @FilePath: \NceAlg\nce_alg\include\nce_alg.hpp
+ */
 #ifndef __NCE_ALG_HPP__
 #define __NCE_ALG_HPP__
 #include "alg_type.h"
@@ -21,8 +29,6 @@ public:
     NCE_S32 NCE_PUBLIC nce_alg_init(const param_info &st_param_info, vector<img_info> &st_img_infos);
 
     NCE_S32 NCE_PUBLIC nce_alg_cfg_set(const task_config_info &st_task_config_info);
-
-    NCE_S32 NCE_PUBLIC nce_alg_img_convert(img_t &pc_img);
 
     NCE_S32 NCE_PUBLIC nce_alg_inference(vector<img_t> &pc_imgs);
 

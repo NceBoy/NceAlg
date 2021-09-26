@@ -84,7 +84,7 @@ int main(int argc, char *argv[])
         hd_model.nce_alg_cfg_set(task_config);
         hd_model.nce_alg_process_set(preprocesses);
                 printf(" frame image%p h%d w%d\n",frame.image,frame.image_attr.u32Height,frame.image_attr.u32Width);
-        hd_model.nce_alg_img_convert(frame);
+
         printf(" frame image%p h%d w%d\n",frame.image,frame.image_attr.u32Height,frame.image_attr.u32Width);
         vector<img_t> imgs;
         imgs.push_back(frame);
@@ -99,19 +99,7 @@ int main(int argc, char *argv[])
         detect_result *     result   = NULL;
         NCE_S32             color[3] = { 0, 0, 255 };
         Bbox                box;
-        for (int i = 0; i < results.num; i++)
-        {
 
-            result = ((detect_result *)results.st_alg_results->obj) + i;
-            box.x1 = result->x1;
-            box.y1 = result->y1;
-            box.x2 = result->x2;
-            box.y2 = result->y2;
-            printf(" %d %d %d %d\n", box.x1, box.x2, box.y1, box.y2);
-        }
-		nce_planner2package doo(planner2package);
-        printf(" frame image%p h%d w%d\n",frame.image,frame.image_attr.u32Height,frame.image_attr.u32Width);
-		doo.forward(frame);
         for (int i = 0; i < results.num; i++)
         {
 

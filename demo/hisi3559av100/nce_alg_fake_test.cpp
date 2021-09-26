@@ -69,7 +69,7 @@ int main(int argc, char *argv[])
         hd_model.nce_alg_init(hisi3559_param, imgInfos);
         hd_model.nce_alg_cfg_set(task_config);
         hd_model.nce_alg_process_set(preprocesses);
-        hd_model.nce_alg_img_convert(frame);
+
         vector<img_t> imgs;
         imgs.push_back(frame);
         hd_model.nce_alg_inference(imgs);

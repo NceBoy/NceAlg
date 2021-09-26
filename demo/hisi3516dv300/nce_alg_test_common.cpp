@@ -75,7 +75,7 @@ int main(int argc, char *argv[])
         hd_model.nce_alg_init(hisi3516_param, imgInfos);
         hd_model.nce_alg_cfg_set(task_config);
         hd_model.nce_alg_process_set(preprocesses);
-        hd_model.nce_alg_img_convert(frame);
+
 
         vector<img_t> imgs;
         imgs.push_back(frame);
@@ -90,15 +90,7 @@ int main(int argc, char *argv[])
         detect_result *result   = NULL;
         NCE_S32        color[3] = { 0, 0, 255 };
         Bbox           box;
-        // nce_package2planner doo(package2planner);
-        // doo.forward(frame);
-        ImageProcessParam planner2package;
-        planner2package.type                              = PROC_PLANNER2PACKAGE;
-        planner2package.Info.planner2package_info.channel = 3;
-        planner2package.Info.planner2package_info.width   = 640;
-        planner2package.Info.planner2package_info.height  = 640;
-         nce_planner2package doo2(planner2package);
-         doo2.forward(frame);
+
         for (int i = 0; i < results.num; i++)
         {
 

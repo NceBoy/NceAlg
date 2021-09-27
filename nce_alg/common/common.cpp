@@ -294,11 +294,11 @@ NCE_S32 nce_resize::forward(img_t &input_img, img_t &output_img)
 {
     NCE_F32 src_width   = (NCE_F32)input_img.image_attr.u32Width;
     NCE_F32 src_height  = (NCE_F32)input_img.image_attr.u32Height;
-    NCE_F32 src_channel = (NCE_F32)input_img.image_attr.u32channel;
+    NCE_U32 src_channel = (NCE_F32)input_img.image_attr.u32channel;
 
     NCE_F32 dst_width   = (NCE_F32)tmp_img.image_attr.u32Width;
     NCE_F32 dst_height  = (NCE_F32)tmp_img.image_attr.u32Height;
-    NCE_F32 dst_channel = (NCE_F32)tmp_img.image_attr.u32channel;
+    NCE_U32 dst_channel = (NCE_F32)tmp_img.image_attr.u32channel;
     NCE_U8 *dst_img     = output_img.image;
     assert(src_channel == dst_channel);
     assert(output_img.image != nullptr);
@@ -314,6 +314,7 @@ NCE_S32 nce_resize::forward(img_t &input_img, img_t &output_img)
         {
             NCE_F32 src_x    = (w + 1) * factor_x - 1;
             NCE_F32 src_y    = (h + 1) * factor_y - 1;
+
             NCE_U32 src_x_lt = (NCE_U32)std::min(src_x, src_width - 2);
             NCE_U32 src_y_lt = (NCE_U32)std::min(src_y, src_height - 2);
 
@@ -336,12 +337,15 @@ NCE_S32 nce_resize::forward(img_t &input_img, img_t &output_img)
 
             for (NCE_U32 c = 0; c < dst_channel; c++)
             {
-                NCE_U32 dst_index = (h * dst_width + w) * dst_channel + c;
 
-                NCE_U32 src_index_lt = (src_y_lt * src_width + src_x_lt) * src_channel + c;
-                NCE_U32 src_index_lb = (src_y_lb * src_width + src_x_lb) * src_channel + c;
-                NCE_U32 src_index_rt = (src_y_rt * src_width + src_x_rt) * src_channel + c;
-                NCE_U32 src_index_rb = (src_y_rb * src_width + src_x_rb) * src_channel + c;
+                NCE_U32 dst_index = NCE_U32((NCE_U32)(h * dst_width + w) * dst_channel) + c;
+
+                NCE_U32 src_index_lt = (src_y_lt * (NCE_U32)src_width + src_x_lt) * src_channel + c;
+                NCE_U32 src_index_lb = (src_y_lb * (NCE_U32)src_width + src_x_lb) * src_channel + c;
+                NCE_U32 src_index_rt = (src_y_rt * (NCE_U32)src_width + src_x_rt) * src_channel + c;
+                NCE_U32 src_index_rb = (src_y_rb * (NCE_U32)src_width + src_x_rb) * src_channel + c;
+
+
                 dst_img[dst_index] =
                     input_img.image[src_index_lt] * factor_lt + input_img.image[src_index_lb] * factor_lb
                     + input_img.image[src_index_rt] * factor_rt + input_img.image[src_index_rb] * factor_rb;
@@ -360,6 +364,7 @@ NCE_S32 nce_resize::forward(img_t &input_img, img_t &output_img)
                    tmp_img.image_attr.u32Width * tmp_img.image_attr.u32Height * tmp_img.image_attr.u32channel);
 
     }
+    
     memcpy(&output_img.image_attr, &tmp_img.image_attr, sizeof(img_info));
 
 

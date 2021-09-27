@@ -137,7 +137,7 @@ NCE_S32 hd_alg::alg_get_result(alg_result_info &results, unordered_map<string, t
     nms(pPriv->detect_results, pPriv->detect_results, pPriv->alg_cfg.st_cfg.hd_config.nms_thresh);
     for (auto &item : pPriv->detect_results)
     {
-        pPriv->tmp_result.push_back(alg_result{ VFNET, &item });
+        pPriv->tmp_result.push_back(alg_result{ PERSON_HEAD, &item });
     }
     NCE_U32 num = pPriv->tmp_result.size();
     results.num = num;

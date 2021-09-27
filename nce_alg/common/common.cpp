@@ -358,11 +358,10 @@ NCE_S32 nce_resize::forward(img_t &input_img, img_t &output_img)
             memcpy(input_img.image,
                    tmp_img.image,
                    tmp_img.image_attr.u32Width * tmp_img.image_attr.u32Height * tmp_img.image_attr.u32channel);
+
     }
-    else
-    {
-        memcpy(&output_img.image_attr, &input_img.image_attr, sizeof(img_info));
-    }
+    memcpy(&output_img.image_attr, &tmp_img.image_attr, sizeof(img_info));
+
 
     return NCE_SUCCESS;
 }

@@ -18,7 +18,7 @@ public:
     NCE_PUBLIC nce_base_process()
     {}
     // nce_base_process* create_instance(ImageProcessParam param){ return nullptr;}
-    NCE_S32 NCE_PUBLIC virtual forward(img_t &input_img)
+    NCE_S32 NCE_PUBLIC virtual forward(img_t &input_img,img_t &output_img)
     {
         return NCE_FAILED;
     }
@@ -48,7 +48,7 @@ public:
         parent_ptr = new nce_planner2package(param);
         return (nce_base_process *)parent_ptr;
     }
-    NCE_S32 NCE_PUBLIC forward(img_t &input_img);
+    NCE_S32 NCE_PUBLIC forward(img_t &input_img,img_t &output_img);
 
 private:
     NCE_U8 *tmp_buffer;
@@ -64,7 +64,7 @@ public:
         parent_ptr = new nce_package2planner(param);
         return (nce_base_process *)parent_ptr;
     }
-    NCE_S32 NCE_PUBLIC forward(img_t &input_img);
+    NCE_S32 NCE_PUBLIC forward(img_t &input_img,img_t &output_img);
     NCE_PUBLIC  ~nce_package2planner();
 
 private:
@@ -75,7 +75,7 @@ class nce_gray2bgr : public nce_base_process
 {
 public:
     NCE_PUBLIC nce_gray2bgr(ImageProcessParam param);
-    NCE_S32 NCE_PUBLIC forward(img_t &input_img);
+    NCE_S32 NCE_PUBLIC forward(img_t &input_img,img_t &output_img);
 };
 class nce_normalization : public nce_base_process
 {
@@ -87,7 +87,7 @@ public:
         parent_ptr = new nce_normalization(param);
         return (nce_base_process *)parent_ptr;
     }
-    NCE_S32 NCE_PUBLIC forward(img_t &input_img);
+    NCE_S32 NCE_PUBLIC forward(img_t &input_img,img_t &output_img);
 
 private:
     NCE_F32 mean[3];
@@ -106,11 +106,11 @@ public:
         parent_ptr = new nce_resize(param);
         return (nce_base_process *)parent_ptr;
     }
-    NCE_S32 NCE_PUBLIC forward(img_t &input_img);
+    NCE_S32 NCE_PUBLIC forward(img_t &input_img,img_t &output_img);
     NCE_PUBLIC  ~nce_resize();
 
 private:
-    img_t output_img;
+    img_t tmp_img;
 };
 
 #endif

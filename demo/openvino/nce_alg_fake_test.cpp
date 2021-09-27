@@ -4,7 +4,7 @@
  * @Author: Haochen Ye
  * @Date: 2021-08-23 10:12:26
  * @LastEditors: Please set LastEditors
- * @LastEditTime: 2021-09-10 16:33:25
+ * @LastEditTime: 2021-09-26 12:23:28
  */
 
 #include <iostream>
@@ -64,7 +64,7 @@ int main(int argc, char *argv[])
 
         nce_resize func_resize(resize_info);
         printf("before func_resize");
-        func_resize.forward(input_img);
+        func_resize.forward(input_img,input_img);
         printf("after func_resize");
         // cvtColor(image, image, COLOR_BGR2RGB);
         vector<img_t> frames;

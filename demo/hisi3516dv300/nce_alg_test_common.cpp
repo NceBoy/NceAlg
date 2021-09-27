@@ -48,7 +48,12 @@ int main(int argc, char *argv[])
         package2planner.Info.package2planner_info.channel = 3;
         package2planner.Info.package2planner_info.width   = 640;
         package2planner.Info.package2planner_info.height  = 640;
-
+        ImageProcessParam resizer;
+        resizer.type = PROC_RESIZE;
+        resizer.Info.resize_info.dst_width = 640;    
+        resizer.Info.resize_info.dst_height = 640;    
+        resizer.Info.resize_info.dst_channel = 3;          
+        preprocesses.push_back(resizer);
         preprocesses.push_back(package2planner);
         // preprocesses.push_back(resizer);
         // preprocesses.push_back(planner2package);
@@ -70,6 +75,8 @@ int main(int argc, char *argv[])
         hd_model.nce_alg_init(hisi3516_param, imgInfos);
         hd_model.nce_alg_cfg_set(task_config);
         hd_model.nce_alg_process_set(preprocesses);
+
+
         vector<img_t> imgs;
         imgs.push_back(frame);
         hd_model.nce_alg_inference(imgs);
@@ -83,8 +90,6 @@ int main(int argc, char *argv[])
         detect_result *result   = NULL;
         NCE_S32        color[3] = { 0, 0, 255 };
         Bbox           box;
-        // nce_package2planner doo(package2planner);
-        // doo.forward(frame);
 
         for (int i = 0; i < results.num; i++)
         {
@@ -99,8 +104,6 @@ int main(int argc, char *argv[])
         }
         hd_model.nce_alg_destroy();
 
-        // nce_planner2package doo2(planner2package);
-        // doo2.forward(frame);
 
         nce_write_img("result.jpg", frame);
         nce_free_img(frame);

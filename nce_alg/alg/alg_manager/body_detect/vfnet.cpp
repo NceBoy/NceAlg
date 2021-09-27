@@ -104,23 +104,23 @@ vfnet_priv::~vfnet_priv()
 }
 
 NCE_S32 vfnet::alg_init(vector<input_tensor_info> &            st_tensor_infos,
-                        unordered_map<string, tmp_map_result> &st_result_map)
+                        LinkedHashMap<string, tmp_map_result> &st_result_map)
 {
 
     NCE_S32 ret = NCE_FAILED;
     pPriv       = shared_ptr<vfnet_priv>(new vfnet_priv());
 
-    st_result_map["P3_logits"] = tmp_map_result{ 0 };
-    st_result_map["P4_logits"] = tmp_map_result{ 0 };
-    st_result_map["P5_logits"] = tmp_map_result{ 0 };
-    st_result_map["P6_logits"] = tmp_map_result{ 0 };
-    st_result_map["P7_logits"] = tmp_map_result{ 0 };
+    st_result_map.insert(make_pair("P3_logits", tmp_map_result{ 0 }));
+    st_result_map.insert(make_pair("P4_logits", tmp_map_result{ 0 }));
+    st_result_map.insert(make_pair("P5_logits", tmp_map_result{ 0 }));
+    st_result_map.insert(make_pair("P6_logits", tmp_map_result{ 0 }));
+    st_result_map.insert(make_pair("P7_logits", tmp_map_result{ 0 }));
 
-    st_result_map["P3_bbox_reg"] = tmp_map_result{ 0 };
-    st_result_map["P4_bbox_reg"] = tmp_map_result{ 0 };
-    st_result_map["P5_bbox_reg"] = tmp_map_result{ 0 };
-    st_result_map["P6_bbox_reg"] = tmp_map_result{ 0 };
-    st_result_map["P7_bbox_reg"] = tmp_map_result{ 0 };
+    st_result_map.insert(make_pair("P3_bbox_reg", tmp_map_result{ 0 }));
+    st_result_map.insert(make_pair("P4_bbox_reg", tmp_map_result{ 0 }));
+    st_result_map.insert(make_pair("P5_bbox_reg", tmp_map_result{ 0 }));
+    st_result_map.insert(make_pair("P6_bbox_reg", tmp_map_result{ 0 }));
+    st_result_map.insert(make_pair("P7_bbox_reg", tmp_map_result{ 0 }));
 
     input_tensor_info input0{ 0 };
     input0.order     = RGB;
@@ -154,7 +154,7 @@ NCE_S32 vfnet::alg_inference(vector<img_t> &pc_img)
     return ret;
 }
 
-NCE_S32 vfnet::alg_get_result(alg_result_info &results, unordered_map<string, tmp_map_result> &st_result_map)
+NCE_S32 vfnet::alg_get_result(alg_result_info &results, LinkedHashMap<string, tmp_map_result> &st_result_map)
 {
     results.num = 0;
     pPriv->detect_results.clear();
@@ -167,12 +167,12 @@ NCE_S32 vfnet::alg_get_result(alg_result_info &results, unordered_map<string, tm
         return NCE_FAILED;
     }
 
-    vector<tmp_map_result> all_logits = {
+    static vector<tmp_map_result> all_logits = {
         st_result_map["P3_logits"], st_result_map["P4_logits"], st_result_map["P5_logits"],
         st_result_map["P6_logits"], st_result_map["P7_logits"],
     };
 
-    vector<tmp_map_result> all_reg = {
+    static vector<tmp_map_result> all_reg = {
         st_result_map["P3_bbox_reg"], st_result_map["P4_bbox_reg"], st_result_map["P5_bbox_reg"],
         st_result_map["P6_bbox_reg"], st_result_map["P7_bbox_reg"],
     };

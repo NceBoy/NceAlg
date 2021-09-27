@@ -32,14 +32,15 @@ centernet_priv::~centernet_priv()
 {}
 
 NCE_S32 centernet::alg_init(vector<input_tensor_info> &            st_tensor_infos,
-                            unordered_map<string, tmp_map_result> &st_result_map)
+                            LinkedHashMap<string, tmp_map_result> &st_result_map)
 {
     NCE_S32 ret           = NCE_FAILED;
     pPriv                 = shared_ptr<centernet_priv>(new centernet_priv());
-    st_result_map["hm"]   = tmp_map_result{ 0 };
-    st_result_map["pool"] = tmp_map_result{ 0 };
-    st_result_map["wh"]   = tmp_map_result{ 0 };
-    st_result_map["off"]  = tmp_map_result{ 0 };
+    st_result_map.insert(std::make_pair("hm",tmp_map_result{ 0 }));
+    st_result_map.insert(std::make_pair("pool",tmp_map_result{ 0 }));
+    st_result_map.insert(std::make_pair("wh",tmp_map_result{ 0 }));
+    st_result_map.insert(std::make_pair("off",tmp_map_result{ 0 }));
+
 
     input_tensor_info input0{ 0 };
     input0.order     = RGB;
@@ -77,7 +78,7 @@ NCE_S32 centernet::alg_inference(vector<img_t> &pc_img)
     return ret;
 }
 
-NCE_S32 centernet::alg_get_result(alg_result_info &results, unordered_map<string, tmp_map_result> &st_result_map)
+NCE_S32 centernet::alg_get_result(alg_result_info &results, LinkedHashMap<string, tmp_map_result> &st_result_map)
 {
     results.num = 0;
     pPriv->detect_results.clear();

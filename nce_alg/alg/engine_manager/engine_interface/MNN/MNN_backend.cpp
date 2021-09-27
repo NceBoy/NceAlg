@@ -8,6 +8,7 @@
  */
 
 #include "MNN_backend.hpp"
+#include "linkedhashmap.h"
 #include "MNN/Interpreter.hpp"
 #include <MNN/ImageProcess.hpp>
 #include <memory>
@@ -64,7 +65,7 @@ private:
 public:
     NCE_S32
     load_model(const char *                           model_path,
-               unordered_map<string, tmp_map_result> &st_result_map,
+               LinkedHashMap<string, tmp_map_result> &st_result_map,
                vector<input_tensor_info> &            st_tensor_infos)
     {
         printf("load model!\n");
@@ -114,34 +115,36 @@ public:
                 printf("Error! alg results sequences are not consistent with engine results\n");
                 return NCE_FAILED;
             }
-            // TODO Now MNN stride only support nchw output
+            tmp_map_result tmp_tensor;
             if (dimension_type == MNN::Tensor::CAFFE)
             {
-                st_result_map[name].tensor.name           = name;
-                st_result_map[name].tensor.outfmt         = PLANNER;
-                st_result_map[name].tensor.scale          = 1;
-                st_result_map[name].tensor.u32ch          = shape[1];
-                st_result_map[name].tensor.u32FeatHeight  = shape[2];
-                st_result_map[name].tensor.u32FeatWidth   = shape[3];
-                st_result_map[name].tensor.width_stride   = 1;
-                st_result_map[name].tensor.height_stride  = shape[3];
-                st_result_map[name].tensor.channel_stride = shape[2] * shape[3];
-                st_result_map[name].tensor.zp             = 0;
+                tmp_tensor.tensor.name                               = name;
+                tmp_tensor.tensor.outfmt                             = PLANNER;
+                tmp_tensor.tensor.scale                              = 1;
+                tmp_tensor.tensor.u32ch                              = shape[1];
+                tmp_tensor.tensor.u32FeatHeight                      = shape[2];
+                tmp_tensor.tensor.u32FeatWidth                       = shape[3];
+                tmp_tensor.tensor.width_stride                       = 1;
+                tmp_tensor.tensor.height_stride                      = shape[3];
+                tmp_tensor.tensor.channel_stride                     = shape[2] * shape[3];
+                tmp_tensor.tensor.zp                                 = 0;
+
             }
             else
             {
-                st_result_map[name].tensor.name           = name;
-                st_result_map[name].tensor.outfmt         = PLANNER;
-                st_result_map[name].tensor.scale          = 1;
-                st_result_map[name].tensor.u32ch          = shape[3];
-                st_result_map[name].tensor.u32FeatHeight  = shape[1];
-                st_result_map[name].tensor.u32FeatWidth   = shape[2];
-                st_result_map[name].tensor.width_stride   = shape[3];
-                st_result_map[name].tensor.height_stride  = shape[2] * shape[3];
-                st_result_map[name].tensor.channel_stride = 1;
-                st_result_map[name].tensor.zp             = 0;
-            }
+                tmp_tensor.tensor.name           = name;
+                tmp_tensor.tensor.outfmt         = PLANNER;
+                tmp_tensor.tensor.scale          = 1;
+                tmp_tensor.tensor.u32ch          = shape[3];
+                tmp_tensor.tensor.u32FeatHeight  = shape[1];
+                tmp_tensor.tensor.u32FeatWidth   = shape[2];
+                tmp_tensor.tensor.width_stride   = shape[3];
+                tmp_tensor.tensor.height_stride  = shape[2] * shape[3];
+                tmp_tensor.tensor.channel_stride = 1;
+                tmp_tensor.tensor.zp             = 0;
 
+            }
+            st_result_map.insert(make_pair(name, tmp_tensor));
             count++;
         }
 
@@ -152,35 +155,30 @@ public:
 
     NCE_S32 inference(vector<img_t> &image_datas)
     {
-        printf("start inference\n");
         NCE_S32 count = 0;
         for (auto &kv : all_tensor.input_tensors_map)
         {
-            printf("start convert, model_width: %d model_height: %d\n");
             pprocessors[count]->convert(image_datas[count].image,
                                         image_datas[count].image_attr.u32Width,
                                         image_datas[count].image_attr.u32Height,
                                         0,
                                         kv.second);
-            printf("finish convert\n");
             count++;
         }
         pnet->runSession(psession);
-        printf("finish inference\n");
         return NCE_SUCCESS;
     }
 
-    NCE_S32 get_result(unordered_map<string, tmp_map_result> &st_engine_result)
+    NCE_S32 get_result(LinkedHashMap<string, tmp_map_result> &st_engine_result)
     {
-        printf("start get result\n");
         for (auto &kv : st_engine_result)
         {
-            std::string  name            = kv.first;
+            std::string  name            = kv;
             MNN::Tensor *tmp_output      = all_tensor.output_tensors_map[name];
             MNN::Tensor *tmp_output_host = all_tensor.output_tensors_map_host[name];
             
             tmp_output->copyToHostTensor(tmp_output_host);
-            kv.second.pu32Feat = tmp_output_host->host<NCE_S32>();
+            st_engine_result[kv].pu32Feat = tmp_output_host->host<NCE_S32>();
         }
         return NCE_SUCCESS;
     }
@@ -194,7 +192,7 @@ MNN_engine::MNN_engine()
 NCE_S32
 MNN_engine::engine_init(const param_info &                     st_param_info,
                         vector<input_tensor_info> &            st_tensor_infos,
-                        unordered_map<string, tmp_map_result> &st_result_map)
+                        LinkedHashMap<string, tmp_map_result> &st_result_map)
 {
     // TODO support multi-image input, assert input and model dimension
     pPriv->load_model(st_param_info.pc_model_path, st_result_map, st_tensor_infos);
@@ -207,7 +205,7 @@ NCE_S32 MNN_engine::engine_inference(vector<img_t> &pc_img)
     return NCE_SUCCESS;
 }
 
-NCE_S32 MNN_engine::engine_get_result(unordered_map<string, tmp_map_result> &st_engine_result)
+NCE_S32 MNN_engine::engine_get_result(LinkedHashMap<string, tmp_map_result> &st_engine_result)
 {
     pPriv->get_result(st_engine_result);
     return NCE_SUCCESS;

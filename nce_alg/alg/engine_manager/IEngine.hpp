@@ -1,6 +1,6 @@
 #ifndef __IENGINE_HPP__
 #define __IENGINE_HPP__
-#include <unordered_map>
+#include  "linkedhashmap.h"
 #include "alg_type.h"
 #include "nce_tensor.hpp"
 #include <vector>
@@ -18,7 +18,7 @@ class IEngine
 public:
     virtual NCE_S32 engine_init(const param_info &                     st_param_info,
                                 vector<input_tensor_info> &            st_img_infos,
-                                unordered_map<string, tmp_map_result> &st_result_map)
+                                LinkedHashMap<string, tmp_map_result> &st_result_map)
     {
         return NCE_FAILED;
     }
@@ -27,7 +27,7 @@ public:
     {
         return NCE_FAILED;
     }
-    virtual NCE_S32 engine_get_result(unordered_map<string, tmp_map_result> &st_engine_result)
+    virtual NCE_S32 engine_get_result(LinkedHashMap<string, tmp_map_result> &st_engine_result)
     {
         return NCE_FAILED;
     }

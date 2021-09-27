@@ -12,7 +12,7 @@
 #include <iostream>
 #include "alg_type.h"
 #include "IAlg.hpp"
-#include <unordered_map>
+#include  "linkedhashmap.h"
 #include "IEngine.hpp"
 #include <vector>
 #include <memory>
@@ -49,13 +49,13 @@ public:
 class centernet : public IAlg, public NceCreator<centernet, IAlg, CENTERNET>
 {
 public:
-    NCE_S32 alg_init(vector<input_tensor_info> &st_tensor_infos, unordered_map<string, tmp_map_result> &st_result_map);
+    NCE_S32 alg_init(vector<input_tensor_info> &st_tensor_infos, LinkedHashMap<string, tmp_map_result> &st_result_map);
 
     NCE_S32 alg_cfg_set(const task_config_info &st_task_config_info);
 
     NCE_S32 alg_inference(vector<img_t> &pc_img);
 
-    NCE_S32 alg_get_result(alg_result_info &results, unordered_map<string, tmp_map_result> &st_result_map);
+    NCE_S32 alg_get_result(alg_result_info &results, LinkedHashMap<string, tmp_map_result> &st_result_map);
 
     NCE_S32 alg_destroy();
 

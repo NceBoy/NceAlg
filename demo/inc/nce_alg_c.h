@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-08-31 15:24:33
- * @LastEditTime: 2021-09-09 17:17:06
+ * @LastEditTime: 2021-09-26 12:18:49
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \NceAlg\nce_alg\alg\nce_alg_c.h
@@ -36,7 +36,7 @@ typedef struct nce_alg_c_img_infos
 
 typedef NCE_S32 (*nce_alg_c_init)(NCE_PTR pPriv, param_info *st_param_info, nce_alg_c_img_infos *st_img_info);
 
-typedef NCE_S32 (*nnce_alg_c_cfg_set)(NCE_PTR pPriv, task_config_info *st_task_config_info);
+typedef NCE_S32 (*nce_alg_c_cfg_set)(NCE_PTR pPriv, task_config_info *st_task_config_info);
 
 typedef NCE_S32 (*nce_alg_c_inference)(NCE_PTR pPriv, img_t **pc_img,int num);
 
@@ -52,7 +52,7 @@ typedef struct nce_alg_c_machine
     taskcls               clstype;
     platform              platformtype;
     nce_alg_c_init        init_func;
-    nnce_alg_c_cfg_set    cfg_set_func;
+    nce_alg_c_cfg_set     cfg_set_func;
     nce_alg_c_inference   inference_func;
     nce_alg_c_process_set process_set_func;
     nce_alg_c_get_result  getResult_func;

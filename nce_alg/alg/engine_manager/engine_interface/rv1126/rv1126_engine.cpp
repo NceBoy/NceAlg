@@ -223,7 +223,6 @@ NCE_S32 rv1126_engine::engine_init(const param_info &                     st_par
             pPriv->u32OutChs.push_back(tensor_output[i].dims[2]);
             pPriv->u32OutHeights.push_back(tensor_output[i].dims[1]);
             pPriv->u32OutWidths.push_back(tensor_output[i].dims[0]);
-
         }
         // out_tensor get
 
@@ -231,11 +230,11 @@ NCE_S32 rv1126_engine::engine_init(const param_info &                     st_par
         pPriv->printRKNNTensor(&tensor_output[i]);
     }
     int kvcnt = 0;
-    if(tensor_output[kvcnt].fmt == RKNN_TENSOR_NCHW)
+    if (tensor_output[kvcnt].fmt == RKNN_TENSOR_NCHW)
     {
         for (auto &kv : st_result_map)
         {
-            
+
             st_result_map[kv].tensor.u32ch          = pPriv->u32OutChs[kvcnt];
             st_result_map[kv].tensor.u32FeatWidth   = pPriv->u32OutWidths[kvcnt];
             st_result_map[kv].tensor.u32FeatHeight  = pPriv->u32OutHeights[kvcnt];
@@ -254,12 +253,13 @@ NCE_S32 rv1126_engine::engine_init(const param_info &                     st_par
     {
         for (auto &kv : st_result_map)
         {
-            
-            st_result_map[kv].tensor.u32ch          = pPriv->u32OutChs[kvcnt];
-            st_result_map[kv].tensor.u32FeatWidth   = pPriv->u32OutWidths[kvcnt];
-            st_result_map[kv].tensor.u32FeatHeight  = pPriv->u32OutHeights[kvcnt];
-            st_result_map[kv].tensor.width_stride   = pPriv->u32OutChs[kvcnt];
-            st_result_map[kv].tensor.height_stride  = pPriv->u32OutChs[kvcnt]*pPriv->u32OutWidths[kvcnt];;
+
+            st_result_map[kv].tensor.u32ch         = pPriv->u32OutChs[kvcnt];
+            st_result_map[kv].tensor.u32FeatWidth  = pPriv->u32OutWidths[kvcnt];
+            st_result_map[kv].tensor.u32FeatHeight = pPriv->u32OutHeights[kvcnt];
+            st_result_map[kv].tensor.width_stride  = pPriv->u32OutChs[kvcnt];
+            st_result_map[kv].tensor.height_stride = pPriv->u32OutChs[kvcnt] * pPriv->u32OutWidths[kvcnt];
+            ;
             st_result_map[kv].tensor.channel_stride = 1;
             st_result_map[kv].tensor.zp             = 0;
             st_result_map[kv].tensor.fl             = 0;
@@ -278,6 +278,10 @@ NCE_S32 rv1126_engine::engine_inference(vector<img_t> &pc_imgs)
 
     NCE_U32 ret = NCE_FAILED;
     // set inputs
+    long            spend;
+    struct timespec start, next, end;
+    clock_gettime(0, &start);
+
     for (int i = 0; i < pPriv->io_num.n_input; i++)
     {
         pPriv->inputs[i].index = i;
@@ -298,13 +302,19 @@ NCE_S32 rv1126_engine::engine_inference(vector<img_t> &pc_imgs)
         printf("rknn_input_set fail! ret=%d\n", ret);
         return NCE_FAILED;
     }
-
+    clock_gettime(0, &end);
+    spend = (end.tv_sec - start.tv_sec) * 1000 + (end.tv_nsec - start.tv_nsec) / 1000000;
+    //printf("\n[for set]===== TIME SPEND: %ld ms =====\n", spend);
+    clock_gettime(0, &start);
     ret = rknn_run(pPriv->ctx, nullptr);
     if (ret < 0)
     {
         printf("rknn_run fail! ret=%d\n", ret);
         return NCE_FAILED;
     }
+    clock_gettime(0, &end);
+    spend = (end.tv_sec - start.tv_sec) * 1000 + (end.tv_nsec - start.tv_nsec) / 1000000;
+    printf("\n[for rv_engine_run]===== TIME SPEND: %ld ms =====\n", spend);
     return NCE_SUCCESS;
 }
 
@@ -318,6 +328,7 @@ NCE_S32 rv1126_engine::engine_get_result(LinkedHashMap<string, tmp_map_result> &
     for (auto &kv : st_engine_result)
     {
         st_engine_result[kv].pu32Feat = (NCE_S32 *)(pPriv->outputs[count].buf);
+        printf("string %s, output %d", kv.c_str(), count);
         count++;
     }
 

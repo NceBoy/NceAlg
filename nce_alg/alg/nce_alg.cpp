@@ -65,6 +65,7 @@ NCE_S32 nce_alg_machine::nce_alg_init(const param_info &st_param_info, vector<im
         tmp.format     = info.format;
         img_t tmp_img;
         tmp_img.image      = new NCE_U8[info.width * info.height * info.channel];
+        printf("alg init %d %d %d\n",info.width,info.height,info.channel);
         pPriv->privImgs.push_back(tmp_img);
     }
 
@@ -103,7 +104,10 @@ NCE_S32 nce_alg_machine::nce_alg_inference(vector<img_t> &pc_imgs)
     {
         for (int i = 0; i < pc_imgs.size(); i++)
         {
-            pPriv->img_pre_processes[k]->forward(pc_imgs[i], pPriv->privImgs[i]);
+            if(k == 0)
+                pPriv->img_pre_processes[k]->forward(pc_imgs[i], pPriv->privImgs[i]);
+            else
+                pPriv->img_pre_processes[k]->forward(pPriv->privImgs[i], pPriv->privImgs[i]);
         }
     }
     if (k > 0) 
@@ -134,6 +138,7 @@ NCE_S32 nce_alg_machine::nce_alg_inference(vector<img_t> &pc_imgs)
         }
 
         ret = pPriv->pEngine->engine_inference(pPriv->privImgs);
+
     }
     else
     {

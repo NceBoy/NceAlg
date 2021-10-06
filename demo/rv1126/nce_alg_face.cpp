@@ -50,26 +50,29 @@ int main(int argc, char *argv[])
         ImageProcessParam              package2planner;
         package2planner.type                              = PROC_PACKAGE2PLANNER;
         package2planner.Info.package2planner_info.channel = 3;
-        package2planner.Info.package2planner_info.width   = 512;
-        package2planner.Info.package2planner_info.height  = 512;
+        package2planner.Info.package2planner_info.width   = 640;
+        package2planner.Info.package2planner_info.height  = 360;
 
         ImageProcessParam planner2package;
         planner2package.type                              = PROC_PLANNER2PACKAGE;
         planner2package.Info.planner2package_info.channel = 3;
-        planner2package.Info.planner2package_info.width   = 512;
-        planner2package.Info.planner2package_info.height  = 512;
+        planner2package.Info.planner2package_info.width   = 640;
+        planner2package.Info.planner2package_info.height  = 360;
 
+    //resizer should have highest priority!!!!!!!!!!!!!!!!!!!!
         ImageProcessParam resizer;
         resizer.type = PROC_RESIZE;
-        resizer.Info.resize_info.dst_width = 512;    
-        resizer.Info.resize_info.dst_height = 512;    
+        resizer.Info.resize_info.dst_width = 640;    
+        resizer.Info.resize_info.dst_height = 360;    
         resizer.Info.resize_info.dst_channel = 3;          
-        preprocesses.push_back(resizer);
-        preprocesses.push_back(package2planner);
-     
-        nce_package2planner doo(planner2package);
 
-        doo.forward(frame,frame);
+        //nce_package2planner doo(package2planner);
+
+       // doo.forward(frame,frame);
+        //preprocesses.push_back(resizer);
+        preprocesses.push_back(package2planner);
+
+
         param_info openvino_param;
         openvino_param.pc_model_path = pcModelName;
 
@@ -80,29 +83,30 @@ int main(int argc, char *argv[])
         alg_result_info results;
 
         vector<img_info>        imgInfos;
-        nce_alg_machine hd_model(PERSON_HEAD, RV_1126);
+        nce_alg_machine hd_model(CENTERNET, RV_1126);
 
         hd_model.nce_alg_init(openvino_param, imgInfos);
         hd_model.nce_alg_cfg_set(task_config);
-        //hd_model.nce_alg_process_set(preprocesses);
-                printf(" frame image%p h%d w%d\n",frame.image,frame.image_attr.u32Height,frame.image_attr.u32Width);
+        hd_model.nce_alg_process_set(preprocesses);
 
-        printf(" frame image%p h%d w%d\n",frame.image,frame.image_attr.u32Height,frame.image_attr.u32Width);
         vector<img_t> imgs;
         imgs.push_back(frame);
-        long            spend;
+        long  spend;
         struct timespec start, next, end;
         clock_gettime(0, &start);
         hd_model.nce_alg_inference(imgs);
 
+
         hd_model.nce_alg_get_result(results);
         clock_gettime(0, &end);
         spend = (end.tv_sec - start.tv_sec) * 1000 + (end.tv_nsec - start.tv_nsec) / 1000000;
-        printf("\n[for hisi]===== TIME SPEND: %ld ms =====\n", spend);
         detect_result *     result   = NULL;
         NCE_S32             color[3] = { 0, 0, 255 };
         Bbox                box;
 
+        nce_resize func_resize(resizer);
+
+        func_resize.forward(frame,frame);
         for (int i = 0; i < results.num; i++)
         {
 

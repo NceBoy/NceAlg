@@ -236,7 +236,6 @@ NCE_S32 nce_package2planner::forward(img_t &input_img, img_t &output_img)
             }
         }
     }
-
     memcpy(output_img.image, tmp_buffer, img_size * channel);
     if (input_img.image != output_img.image)
         memcpy(&output_img.image_attr, &input_img.image_attr, sizeof(img_info));
@@ -294,18 +293,17 @@ NCE_S32 nce_resize::forward(img_t &input_img, img_t &output_img)
 {
     NCE_F32 src_width   = (NCE_F32)input_img.image_attr.u32Width;
     NCE_F32 src_height  = (NCE_F32)input_img.image_attr.u32Height;
-    NCE_U32 src_channel = (NCE_F32)input_img.image_attr.u32channel;
+    NCE_U32 src_channel = (NCE_U32)input_img.image_attr.u32channel;
 
     NCE_F32 dst_width   = (NCE_F32)tmp_img.image_attr.u32Width;
     NCE_F32 dst_height  = (NCE_F32)tmp_img.image_attr.u32Height;
-    NCE_U32 dst_channel = (NCE_F32)tmp_img.image_attr.u32channel;
+    NCE_U32 dst_channel = (NCE_U32)tmp_img.image_attr.u32channel;
     NCE_U8 *dst_img     = output_img.image;
     assert(src_channel == dst_channel);
     assert(output_img.image != nullptr);
     // if src == dst
     if (input_img.image == output_img.image)
         dst_img = tmp_img.image;
-
     NCE_F32 factor_x = src_width / dst_width;
     NCE_F32 factor_y = src_height / dst_height;
     for (NCE_U32 h = 0; h < dst_height; h++)
@@ -352,6 +350,7 @@ NCE_S32 nce_resize::forward(img_t &input_img, img_t &output_img)
             }
         }
     }
+ 
     // if src == dst realloc src and memcpy from tmp data
     if (input_img.image == output_img.image)
     {
@@ -364,7 +363,9 @@ NCE_S32 nce_resize::forward(img_t &input_img, img_t &output_img)
                    tmp_img.image_attr.u32Width * tmp_img.image_attr.u32Height * tmp_img.image_attr.u32channel);
 
     }
-    
+    tmp_img.image_attr.format = input_img.image_attr.format; 
+    tmp_img.image_attr.order = input_img.image_attr.order;
+
     memcpy(&output_img.image_attr, &tmp_img.image_attr, sizeof(img_info));
 
 

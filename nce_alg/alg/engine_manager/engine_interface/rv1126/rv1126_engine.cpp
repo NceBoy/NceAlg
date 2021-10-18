@@ -11,6 +11,7 @@
 #include "alg_type.h"
 #include "rv1126_engine.hpp"
 #include "rknn_api.h"
+#include "rv1126_tool.hpp"
 
 using namespace std;
 namespace nce_alg {
@@ -18,25 +19,22 @@ namespace nce_alg {
 class rv1126_engine::engine_priv
 {
 public:
-    NCE_U8 *              pModel;
-    NCE_S32               model_len;
-    rknn_context          ctx;
-    rknn_input_output_num io_num;
-    vector<rknn_input>    inputs;
-    vector<rknn_output>   outputs; // TODO 这里是因为result传出去的是指针，那内存不能直接销毁，其他平台的*feat 例如海思
+    NCE_U8 *                pModel;
+    void   *                drm_buf;
+    NCE_S32                 model_len;
+    rknn_context            ctx;
+    rknn_input_output_num   io_num;
+    vector<rknn_tensor_mem> inmem;
+    vector<rknn_input>      inputs;
+    vector<rknn_output>     outputs; // TODO 这里是因为result传出去的是指针，那内存不能直接销毁，其他平台的*feat 例如海思
                                  // 是海思自己申请 自己维护的。 我们这里也要自己维护
     vector<rknn_tensor_attr> input_attrs;
-    // typedef struct TagRknnTensor
-    // {
-    //     vector<rknn_input>  inputs;
-    //     vector<rknn_output> inputs;
-    //     vector<img_info>    input_infos;
-
-    // } RknnTensor;
-    vector<NCE_U32> u32Strides;
-    vector<NCE_U32> u32Chs;
-    vector<NCE_U32> u32Heights;
-    vector<NCE_U32> u32Widths;
+    NCE_S32                  drm_fd;
+    drm_context              drm_ctx;
+    vector<NCE_U32>          u32Strides;
+    vector<NCE_U32>          u32Chs;
+    vector<NCE_U32>          u32Heights;
+    vector<NCE_U32>          u32Widths;
 
     vector<NCE_U32> u32OutStrides;
     vector<NCE_U32> u32OutChs;
@@ -45,6 +43,7 @@ public:
 
     engine_priv()
     {
+        drm_fd = -1;
         printf("successful create engine_priv");
     }
 
@@ -186,11 +185,14 @@ NCE_S32 rv1126_engine::engine_init(const param_info &                     st_par
         pPriv->input_attrs.push_back(tensor_input[i]);
         // Input  Data Init
         // TODO 更便捷的初始化方法？
-        pPriv->inputs.push_back(rknn_input{ 0, 0, 0, 0, tensor_input[i].type, tensor_input[i].fmt });
-
+        /*pPriv->inputs.push_back(rknn_input{ 0, 0, 0, 0, tensor_input[i].type, tensor_input[i].fmt });
+        pPriv->drm_fd = drm_init(&pPriv->drm_ctx);
+        pPriv->drm_buf = drm_buf_alloc(&pPriv->drm_ctx, pPriv->drm_fd, img_width, img_height, channel * 8,
+                            &buf_fd, &handle, &actual_size);*/
+        pPriv->inmem.push_back(rknn_tensor_mem{0});
         pPriv->printRKNNTensor(&tensor_input[i]);
     }
-
+    ret = rknn_inputs_map(pPriv->ctx, pPriv->io_num.n_input, &pPriv->inmem[0]);
     //查询输出信息，预分配内存，并填写好输出层的层信息
     rknn_tensor_attr tensor_output[pPriv->io_num.n_output];
     memset(tensor_output, 0, sizeof(tensor_output));
@@ -284,6 +286,7 @@ NCE_S32 rv1126_engine::engine_inference(vector<img_t> &pc_imgs)
 
     for (int i = 0; i < pPriv->io_num.n_input; i++)
     {
+#ifdef NO_ZERO_MAP
         pPriv->inputs[i].index = i;
         if (pc_imgs[i].image_attr.format == PACKAGE)
             pPriv->inputs[i].fmt = RKNN_TENSOR_NHWC;
@@ -294,8 +297,15 @@ NCE_S32 rv1126_engine::engine_inference(vector<img_t> &pc_imgs)
             pc_imgs[i].image_attr.u32Width * pc_imgs[i].image_attr.u32Height * pc_imgs[i].image_attr.u32channel;
 
         pPriv->inputs[i].buf = pc_imgs[i].image;
+ #else
+        memcpy(pPriv->inmem[i].logical_addr,pc_imgs[i].image,pc_imgs[i].image_attr.u32Width * pc_imgs[i].image_attr.u32Height * pc_imgs[i].image_attr.u32channel;)
+ #endif       
     }
+#ifdef NO_ZERO_MAP
     ret = rknn_inputs_set(pPriv->ctx, pPriv->io_num.n_input, &pPriv->inputs[0]);
+#else
+    ret = rknn_inputs_sync(pPriv->ctx, pPriv->io_num.n_input, &pPriv->inmem[0]);
+#endif
 
     if (ret < 0)
     {
@@ -304,7 +314,7 @@ NCE_S32 rv1126_engine::engine_inference(vector<img_t> &pc_imgs)
     }
     clock_gettime(0, &end);
     spend = (end.tv_sec - start.tv_sec) * 1000 + (end.tv_nsec - start.tv_nsec) / 1000000;
-    //printf("\n[for set]===== TIME SPEND: %ld ms =====\n", spend);
+    // printf("\n[for set]===== TIME SPEND: %ld ms =====\n", spend);
     clock_gettime(0, &start);
     ret = rknn_run(pPriv->ctx, nullptr);
     if (ret < 0)

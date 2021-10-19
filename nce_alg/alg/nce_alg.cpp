@@ -100,6 +100,7 @@ NCE_S32 nce_alg_machine::nce_alg_inference(vector<img_t> &pc_imgs)
         return NCE_FAILED;
     }
     NCE_S32 ret = NCE_FAILED;
+    printf("ff \n");
     for (k = 0; k < pPriv->img_pre_processes.size(); k++)
     {
         for (int i = 0; i < pc_imgs.size(); i++)
@@ -112,6 +113,7 @@ NCE_S32 nce_alg_machine::nce_alg_inference(vector<img_t> &pc_imgs)
     }
     if (k > 0) 
     {
+            printf("ff k\n");
         for (NCE_U32 i = 0; i < pPriv->ImageInfo.size(); i++)
         {
             if (pPriv->privImgs[i].image_attr.u32Height != pPriv->ImageInfo[i].height
@@ -142,7 +144,7 @@ NCE_S32 nce_alg_machine::nce_alg_inference(vector<img_t> &pc_imgs)
     }
     else
     {
-
+            printf("ff s\n");
         for (NCE_U32 i = 0; i < pPriv->ImageInfo.size(); i++)
         {
             if (pc_imgs[i].image_attr.u32Height != pPriv->ImageInfo[i].height

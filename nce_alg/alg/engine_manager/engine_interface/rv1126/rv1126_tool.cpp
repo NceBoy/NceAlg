@@ -20,7 +20,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "drm_func.h"
+#include "rv1126_tool.hpp"
 #include <dlfcn.h>
 
 int drm_init(drm_context *drm_ctx)
@@ -137,9 +137,9 @@ void *drm_buf_alloc(drm_context *drm_ctx, int drm_fd, int TexWidth, int TexHeigh
     {
         printf("failed to create map dumb: %s\n", strerror(errno));
         vir_addr = NULL;
-        goto destory_dumb;
     }
-    vir_addr = map = mmap(0, alloc_arg.size, PROT_READ | PROT_WRITE, MAP_SHARED, drm_fd, mmap_arg.offset);
+    vir_addr = mmap(0, alloc_arg.size, PROT_READ | PROT_WRITE, MAP_SHARED, drm_fd, mmap_arg.offset);
+    map = (char *)vir_addr;
     if (map == MAP_FAILED)
     {
         printf("failed to mmap buffer: %s\n", strerror(errno));

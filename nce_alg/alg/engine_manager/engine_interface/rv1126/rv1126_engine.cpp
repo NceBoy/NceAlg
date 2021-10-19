@@ -12,7 +12,7 @@
 #include "rv1126_engine.hpp"
 #include "rknn_api.h"
 #include "rv1126_tool.hpp"
-
+#define NO_ZERO_MAP   0
 using namespace std;
 namespace nce_alg {
 
@@ -185,8 +185,8 @@ NCE_S32 rv1126_engine::engine_init(const param_info &                     st_par
         pPriv->input_attrs.push_back(tensor_input[i]);
         // Input  Data Init
         // TODO 更便捷的初始化方法？
-        /*pPriv->inputs.push_back(rknn_input{ 0, 0, 0, 0, tensor_input[i].type, tensor_input[i].fmt });
-        pPriv->drm_fd = drm_init(&pPriv->drm_ctx);
+        pPriv->inputs.push_back(rknn_input{ 0, 0, 0, 0, tensor_input[i].type, tensor_input[i].fmt });
+        /*pPriv->drm_fd = drm_init(&pPriv->drm_ctx);
         pPriv->drm_buf = drm_buf_alloc(&pPriv->drm_ctx, pPriv->drm_fd, img_width, img_height, channel * 8,
                             &buf_fd, &handle, &actual_size);*/
         pPriv->inmem.push_back(rknn_tensor_mem{0});
@@ -286,7 +286,7 @@ NCE_S32 rv1126_engine::engine_inference(vector<img_t> &pc_imgs)
 
     for (int i = 0; i < pPriv->io_num.n_input; i++)
     {
-#ifdef NO_ZERO_MAP
+#if NO_ZERO_MAP
         pPriv->inputs[i].index = i;
         if (pc_imgs[i].image_attr.format == PACKAGE)
             pPriv->inputs[i].fmt = RKNN_TENSOR_NHWC;
@@ -297,11 +297,16 @@ NCE_S32 rv1126_engine::engine_inference(vector<img_t> &pc_imgs)
             pc_imgs[i].image_attr.u32Width * pc_imgs[i].image_attr.u32Height * pc_imgs[i].image_attr.u32channel;
 
         pPriv->inputs[i].buf = pc_imgs[i].image;
+        printf("pc_imgs %d %d %d %d %d\n",pc_imgs[i].image_attr.format,
+        pc_imgs[i].image_attr.order,
+        pc_imgs[i].image_attr.u32Height,
+        pc_imgs[i].image_attr.u32Width,
+        pc_imgs[i].image_attr.u32channel);
  #else
-        memcpy(pPriv->inmem[i].logical_addr,pc_imgs[i].image,pc_imgs[i].image_attr.u32Width * pc_imgs[i].image_attr.u32Height * pc_imgs[i].image_attr.u32channel;)
+        memcpy(pPriv->inmem[i].logical_addr,pc_imgs[i].image,pc_imgs[i].image_attr.u32Width * pc_imgs[i].image_attr.u32Height * pc_imgs[i].image_attr.u32channel);
  #endif       
     }
-#ifdef NO_ZERO_MAP
+#if NO_ZERO_MAP
     ret = rknn_inputs_set(pPriv->ctx, pPriv->io_num.n_input, &pPriv->inputs[0]);
 #else
     ret = rknn_inputs_sync(pPriv->ctx, pPriv->io_num.n_input, &pPriv->inmem[0]);
@@ -314,7 +319,7 @@ NCE_S32 rv1126_engine::engine_inference(vector<img_t> &pc_imgs)
     }
     clock_gettime(0, &end);
     spend = (end.tv_sec - start.tv_sec) * 1000 + (end.tv_nsec - start.tv_nsec) / 1000000;
-    // printf("\n[for set]===== TIME SPEND: %ld ms =====\n", spend);
+    printf("\n[for set]===== TIME SPEND: %ld ms =====\n", spend);
     clock_gettime(0, &start);
     ret = rknn_run(pPriv->ctx, nullptr);
     if (ret < 0)
@@ -332,9 +337,13 @@ NCE_S32 rv1126_engine::engine_get_result(LinkedHashMap<string, tmp_map_result> &
 {
     NCE_S32 count = 0;
     NCE_U32 ret   = NCE_FAILED;
-
+    long            spend;
+    struct timespec start, next, end;
+    clock_gettime(0, &start);
     ret = rknn_outputs_get(pPriv->ctx, pPriv->io_num.n_output, &pPriv->outputs[0], NULL);
-
+    clock_gettime(0, &end);
+    spend = (end.tv_sec - start.tv_sec) * 1000 + (end.tv_nsec - start.tv_nsec) / 1000000;
+    printf("\n[for get]===== TIME SPEND: %ld ms =====\n", spend);
     for (auto &kv : st_engine_result)
     {
         st_engine_result[kv].pu32Feat = (NCE_S32 *)(pPriv->outputs[count].buf);

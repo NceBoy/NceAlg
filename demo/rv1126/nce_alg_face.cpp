@@ -66,11 +66,11 @@ int main(int argc, char *argv[])
         resizer.Info.resize_info.dst_height = 360;    
         resizer.Info.resize_info.dst_channel = 3;          
 
-        //nce_package2planner doo(package2planner);
+        nce_package2planner doo(package2planner);
 
-       // doo.forward(frame,frame);
+        doo.forward(frame,frame);
         //preprocesses.push_back(resizer);
-        preprocesses.push_back(package2planner);
+        //preprocesses.push_back(package2planner);
 
 
         param_info openvino_param;
@@ -87,7 +87,7 @@ int main(int argc, char *argv[])
 
         hd_model.nce_alg_init(openvino_param, imgInfos);
         hd_model.nce_alg_cfg_set(task_config);
-        hd_model.nce_alg_process_set(preprocesses);
+        //hd_model.nce_alg_process_set(preprocesses);
 
         vector<img_t> imgs;
         imgs.push_back(frame);
@@ -104,9 +104,9 @@ int main(int argc, char *argv[])
         NCE_S32             color[3] = { 0, 0, 255 };
         Bbox                box;
 
-        nce_resize func_resize(resizer);
+        nce_planner2package doo2(planner2package);
+        doo2.forward(frame,frame);
 
-        func_resize.forward(frame,frame);
         for (int i = 0; i < results.num; i++)
         {
 
@@ -120,7 +120,7 @@ int main(int argc, char *argv[])
         }
         hd_model.nce_alg_destroy();
 
-            printf(" draw tamadaae \n");
+        printf(" draw tamadaae \n");
         nce_write_img("result.jpg", frame);
         nce_free_img(frame);
 	}

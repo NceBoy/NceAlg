@@ -102,7 +102,8 @@ int main(int argc, char *argv[])
         detect_result *     result   = NULL;
         NCE_S32             color[3] = { 0, 0, 255 };
         Bbox                box;
-
+        nce_planner2package doo2(planner2package);
+        doo2.forward(frame,frame);
         for (int i = 0; i < results.num; i++)
         {
 

@@ -1,7 +1,7 @@
 /*
  * @Author: your name
  * @Date: 2021-08-31 15:24:33
- * @LastEditTime: 2021-09-26 12:18:49
+ * @LastEditTime: 2021-10-27 12:23:32
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \NceAlg\nce_alg\alg\nce_alg_c.h
@@ -63,6 +63,19 @@ typedef struct nce_alg_c_machine
 NCE_S32 nce_alg_c_machine_int(nce_alg_c_machine *machine);
 NCE_S32 nce_alg_c_machine_destroy(nce_alg_c_machine *machine);
 
+
+//读进来的是package，操作都需要在pacakge上完成
+NCE_S32 nce_c_read_img(const char *img_path, img_t *input_img);
+
+NCE_S32 nce_c_write_img(const char *img_path, img_t *input_img);
+
+NCE_S32 nce_c_free_img(img_t *input_img);
+
+NCE_S32 nce_c_draw_bbox(img_t *input_img, Bbox box);
+
+NCE_S32 nce_c_package2planner(img_t *input_img);
+
+NCE_S32 nce_c_planner2package(img_t *input_img);
 #ifdef __cplusplus
 #if __cplusplus
 }

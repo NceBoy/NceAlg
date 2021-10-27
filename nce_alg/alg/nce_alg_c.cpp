@@ -1,13 +1,14 @@
 /*
  * @Author: your name
  * @Date: 2021-09-06 16:37:12
- * @LastEditTime: 2021-09-26 12:22:01
+ * @LastEditTime: 2021-10-27 13:24:01
  * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \NceAlg\nce_alg\alg\nce_alg_c.cpp
  */
 #include "nce_alg_c.h"
 #include "nce_alg.hpp"
+#include "common.h"
 #include "string.h"
 using namespace nce_alg;
 
@@ -94,4 +95,55 @@ NCE_S32 nce_alg_c_machine_destroy(nce_alg_c_machine *machine)
 
     delete (nce_alg_machine *)machine->pPriv;
     return NCE_SUCCESS;
+}
+
+
+//读进来的是package，操作都需要在pacakge上完成
+NCE_S32  nce_c_read_img(const char *img_path, img_t *input_img)
+{
+    nce_read_img(img_path, *input_img);
+    return 0;
+}
+
+NCE_S32 nce_c_write_img(const char *img_path, img_t *input_img)
+{
+    nce_write_img(img_path, *input_img);
+    return 0;
+}
+
+NCE_S32 nce_c_free_img(img_t *input_img)
+{
+    nce_free_img(*input_img);
+    return 0;
+}
+
+NCE_S32 nce_c_draw_bbox(img_t *input_img, Bbox box)
+{
+    NCE_S32 color[3] = { 0, 0, 255 };
+    nce_draw_bbox(*input_img, box, 2, color);
+    return 0;
+}
+
+NCE_S32 nce_c_package2planner(img_t *input_img)
+{       
+    ImageProcessParam              package2planner;
+    package2planner.type                              = PROC_PACKAGE2PLANNER;
+    package2planner.Info.package2planner_info.channel = input_img->image_attr.u32channel;
+    package2planner.Info.package2planner_info.width   = input_img->image_attr.u32Width;
+    package2planner.Info.package2planner_info.height  = input_img->image_attr.u32Height;
+    
+    nce_package2planner doo(package2planner);
+    doo.forward(*input_img, *input_img);
+}
+
+NCE_S32 nce_c_planner2package(img_t *input_img)
+{
+    ImageProcessParam planner2package;
+    planner2package.type                              = PROC_PLANNER2PACKAGE;
+    planner2package.Info.planner2package_info.channel = input_img->image_attr.u32channel;
+    planner2package.Info.planner2package_info.width   = input_img->image_attr.u32Width;
+    planner2package.Info.planner2package_info.height  = input_img->image_attr.u32Height;
+
+    nce_planner2package doo(planner2package);
+    doo.forward(*input_img, *input_img);
 }

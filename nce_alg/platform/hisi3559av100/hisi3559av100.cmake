@@ -1,9 +1,4 @@
-INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/platform/hisi3559av100/drv/hisi_sdk_inc/
-					${PROJECT_SOURCE_DIR}/platform/hisi3559av100/drv/hisi_sdk_src/common/
-					${PROJECT_SOURCE_DIR}/platform/hisi3559av100/drv/hisi_sdk_src/nnie/sample/
-					${PROJECT_SOURCE_DIR}/platform/hisi3559av100/drv/hisi_sdk_src/nnie/sample_nnie_software/
-					(${PROJECT_SOURCE_DIR}/platform/hisi3559av100/opencv/)
-					)
+INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/platform/hisi3559av100/include/)
 
 file(GLOB  PLATFORM_SRC ${PROJECT_SOURCE_DIR}/platform/hisi3559av100/drv/hisi_sdk_src/common/*.c
 						${PROJECT_SOURCE_DIR}/platform/hisi3559av100/drv/hisi_sdk_src/nnie/sample/*.c
@@ -12,6 +7,19 @@ file(GLOB  PLATFORM_SRC ${PROJECT_SOURCE_DIR}/platform/hisi3559av100/drv/hisi_sd
 						)
 					 
 message("${PLATFORM_SRC}")
-
-
+set(PLATFORM_LIB
+-ldnvqe
+-lVoiceEngine
+-ldsp
+-live
+-lmd
+-lnnie
+-lmpi
+-lupvqe
+-lsecurec
+-ldl
+-lpthread
+-lm
+)
+link_directories(${PROJECT_SOURCE_DIR}/platform/hisi3559av100/lib)
 SET(HISI_4096 4096.f)

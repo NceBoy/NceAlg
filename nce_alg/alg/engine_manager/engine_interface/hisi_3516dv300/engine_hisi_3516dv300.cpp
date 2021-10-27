@@ -403,7 +403,7 @@ NCE_S32 hisi_3516dv300_engine::engine_init(const param_info &                   
         st_result_map[kv].tensor.u32FeatWidth   = pPriv->stENnieParam.astSegData[0].astDst[count].unShape.stWhc.u32Width;
         st_result_map[kv].tensor.u32FeatHeight  = pPriv->stENnieParam.astSegData[0].astDst[count].unShape.stWhc.u32Height;
         st_result_map[kv].tensor.width_stride   = 1;
-        st_result_map[kv].tensor.height_stride  = pPriv->stENnieParam.astSegData[0].astDst[count].u32Stride / sizeof(size_t);
+        st_result_map[kv].tensor.height_stride  = pPriv->stENnieParam.astSegData[0].astDst[count].u32Stride / sizeof(NCE_F32);
         st_result_map[kv].tensor.channel_stride = st_result_map[kv].tensor.height_stride *st_result_map[kv].tensor.u32FeatHeight;
         st_result_map[kv].tensor.zp             = 0;
         st_result_map[kv].tensor.fl             = 0;

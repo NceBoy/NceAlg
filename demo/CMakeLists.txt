@@ -21,16 +21,16 @@ execute_process(
     COMMAND cp  -rf ${NCE_BUILD_PATH}/nce_alg/platform/${PLATFORM}/lib   ${PROJECT_SOURCE_DIR}/${PLATFORM}
 )
 # Find all main*.cpp files and store in list mains
-file(GLOB_RECURSE demos ${PROJECT_SOURCE_DIR}/${PLATFORM}/*.cpp)
+file(GLOB_RECURSE demos ${PROJECT_SOURCE_DIR}/${PLATFORM}/*.cpp ${PROJECT_SOURCE_DIR}/${PLATFORM}/*.c)
 foreach(mainfile IN LISTS demos)
     # Get file name without directory
-    INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/${PLATFORM}/include/)
+    INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/../nce_alg/platform/${PLATFORM}/include/)
     INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/inc/)
     link_directories(${PROJECT_SOURCE_DIR}/${PLATFORM}/lib/)
     file(GLOB_RECURSE libs ${PROJECT_SOURCE_DIR}/${PLATFORM}/lib/*)
     get_filename_component(mainname ${mainfile} NAME_WE)
     add_executable(${mainname} ${mainfile})
-    target_link_libraries(${mainname} nce_alg ${libs})
+    target_link_libraries(${mainname} nce_alg ${libs} -lstdc++)
     add_dependencies(${mainname} nce_alg)
     install(TARGETS ${mainname} DESTINATION ${PROJECT_SOURCE_DIR})
 endforeach()

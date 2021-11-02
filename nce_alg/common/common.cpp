@@ -166,7 +166,7 @@ nce_planner2package::~nce_planner2package()
 {
     if (nullptr != tmp_buffer)
     {
-        delete tmp_buffer;
+        delete[] tmp_buffer;
         tmp_buffer = nullptr;
     }
     else
@@ -211,7 +211,7 @@ nce_package2planner::~nce_package2planner()
 {
     if (nullptr != tmp_buffer)
     {
-        delete tmp_buffer;
+        delete[] tmp_buffer;
         tmp_buffer = nullptr;
     }
     else

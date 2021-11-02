@@ -31,6 +31,7 @@
 #include <unordered_map>
 #include <list>
 #include <utility>
+#include <vector>
 
 template <class K, class V>
 class LinkedHashMap {

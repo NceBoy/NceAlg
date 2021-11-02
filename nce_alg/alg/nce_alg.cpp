@@ -52,7 +52,7 @@ nce_alg_machine::nce_alg_machine(taskcls alg_type, const platform engine_type)
 NCE_S32 nce_alg_machine::nce_alg_init(const param_info &st_param_info, vector<img_info> &st_img_infos)
 {
     NCE_S32 ret = NCE_FAILED;
-    printf("ImageInfo %x tmp_map %x\n",pPriv->ImageInfo,pPriv->tmp_map);
+
     ret         = pPriv->pAlg->alg_init(pPriv->ImageInfo, pPriv->tmp_map);
     ret         = pPriv->pEngine->engine_init(st_param_info, pPriv->ImageInfo, pPriv->tmp_map);
 
@@ -64,7 +64,7 @@ NCE_S32 nce_alg_machine::nce_alg_init(const param_info &st_param_info, vector<im
         tmp.u32channel = info.channel;
         tmp.order      = info.order;
         tmp.format     = info.format;
-        img_t tmp_img;
+        img_t tmp_img{0};
         tmp_img.image      = new NCE_U8[info.width * info.height * info.channel];
         printf("alg init %d %d %d\n",info.width,info.height,info.channel);
         pPriv->privImgs.push_back(tmp_img);

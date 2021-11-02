@@ -78,7 +78,7 @@ static NCE_S32 nce_alg_destroy_self(NCE_PTR pPriv)
     return ret;
 }
 
-NCE_S32 nce_alg_c_machine_int(nce_alg_c_machine *machine)
+NCE_S32 nce_alg_c_machine_init(nce_alg_c_machine *machine)
 {
 
     machine->init_func        = nce_alg_init_self;
@@ -90,7 +90,7 @@ NCE_S32 nce_alg_c_machine_int(nce_alg_c_machine *machine)
     machine->pPriv            = (NCE_PTR) new nce_alg_machine(machine->clstype, machine->platformtype);
     return NCE_SUCCESS;
 }
-NCE_S32 nce_alg_c_machine_destroy(nce_alg_c_machine *machine)
+NCE_S32 nce_alg_c_machine_deinit(nce_alg_c_machine *machine)
 {
 
     delete (nce_alg_machine *)machine->pPriv;
@@ -134,6 +134,7 @@ NCE_S32 nce_c_package2planner(img_t *input_img)
     
     nce_package2planner doo(package2planner);
     doo.forward(*input_img, *input_img);
+    return NCE_SUCCESS;
 }
 
 NCE_S32 nce_c_planner2package(img_t *input_img)
@@ -146,4 +147,5 @@ NCE_S32 nce_c_planner2package(img_t *input_img)
 
     nce_planner2package doo(planner2package);
     doo.forward(*input_img, *input_img);
+	return NCE_SUCCESS;
 }

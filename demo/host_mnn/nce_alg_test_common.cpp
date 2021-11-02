@@ -59,8 +59,8 @@ int main(int argc, char *argv[])
         ImageProcessParam resize_info;
         resize_info.type                         = PROC_RESIZE;
         resize_info.Info.resize_info.dst_channel = 3;
-        resize_info.Info.resize_info.dst_height  = 288;
-        resize_info.Info.resize_info.dst_width   = 512;
+        resize_info.Info.resize_info.dst_height  = 180;
+        resize_info.Info.resize_info.dst_width   = 320;
 
         nce_resize func_resize(resize_info);
         printf("before func_resize");
@@ -72,8 +72,8 @@ int main(int argc, char *argv[])
         img_t frame;
         frame.image                 = input_img.image;
         frame.image_attr.u32channel = 3;
-        frame.image_attr.u32Height  = 288;
-        frame.image_attr.u32Width   = 512;
+        frame.image_attr.u32Height  = 180;
+        frame.image_attr.u32Width   = 320;
         frame.image_attr.order      = RGB;
         frame.image_attr.format     = PACKAGE;
         

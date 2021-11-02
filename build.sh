@@ -79,7 +79,7 @@ function build_project()
     else
         rm -rf build
         echo "PLATFORM=$PLATFORM BUILDTYPE=$DEBUG"
-        cmake -Bbuild -DCMAKE_TOOLCHAIN_FILE=./cmake/$PLATFORM/${PLATFORM}_toolchain.cmake -DPLATFORM=$PLATFORM  -DCMAKE_BUILD_TYPE=$DEBUG
+        ../cmake/cmake-3.17.1/bin/cmake -Bbuild -DCMAKE_TOOLCHAIN_FILE=./cmake/$PLATFORM/${PLATFORM}_toolchain.cmake -DPLATFORM=$PLATFORM  -DCMAKE_BUILD_TYPE=$DEBUG
         cd build
         make
     fi

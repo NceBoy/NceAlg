@@ -1,5 +1,4 @@
 INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/platform/hisi3519av100/MNN/include)
-INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/platform/hisi3519av100/opencv/include/opencv4/)
 AUX_SOURCE_DIRECTORY(${PROJECT_SOURCE_DIR}/alg/engine_manager/engine_interface/MNN/ ENGINE_3519av100_SRC)
 
 #设置hisi3516dv300所需源文件
@@ -8,13 +7,11 @@ ${ENGINE_3519av100_SRC}
 ) 
 
 
-link_directories("${PROJECT_SOURCE_DIR}/platform/hisi3519av100/opencv/lib/")
-link_directories("${PROJECT_SOURCE_DIR}/platform/hisi3519av100/MNN/lib/")
+link_directories("${PROJECT_SOURCE_DIR}/platform/hisi3519av100/lib/")
 
 
 #设置hisi3516dv300所需库文件
 set(PLATFORM_LIB
--lgomp
 -lMNN
 -ldl
 -lpthread

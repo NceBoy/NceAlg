@@ -36,6 +36,8 @@ NCE_S32 centernet::alg_init(vector<input_tensor_info> &            st_tensor_inf
 {
     NCE_S32 ret           = NCE_FAILED;
     pPriv                 = shared_ptr<centernet_priv>(new centernet_priv());
+
+    printf("centernet need input name: hm pool wh off!\n");
     st_result_map.insert(std::make_pair("hm",tmp_map_result{ 0 }));
     st_result_map.insert(std::make_pair("pool",tmp_map_result{ 0 }));
     st_result_map.insert(std::make_pair("wh",tmp_map_result{ 0 }));

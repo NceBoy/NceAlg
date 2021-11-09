@@ -18,8 +18,8 @@ typedef struct tag_input_tensor_info
     NCE_S32      channel;
     image_order  order;
     image_format format;
-    NCE_S32      std[3];
-    NCE_S32      mean[3];
+    NCE_F32      std[3];
+    NCE_F32      mean[3];
     std::string  name;
 } input_tensor_info;
 typedef struct output_tensor

@@ -60,8 +60,8 @@ typedef struct nce_alg_c_machine
 
 } nce_alg_c_machine;
 
-NCE_S32 nce_alg_c_machine_init(nce_alg_c_machine *machine);
-NCE_S32 nce_alg_c_machine_deinit(nce_alg_c_machine *machine);
+NCE_PUBLIC NCE_S32 nce_alg_c_machine_init(nce_alg_c_machine *machine);
+NCE_PUBLIC NCE_S32 nce_alg_c_machine_deinit(nce_alg_c_machine *machine);
 
 
 //读进来的是package，操作都需要在pacakge上完成

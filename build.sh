@@ -72,10 +72,29 @@ function build_project()
         echo "build.sh -i host -b Debug"
         echo "build.sh -i host_mnn -b Debug"
         echo "build.sh -i host_mnn_windows -b Debug"
+		echo "build.sh -i qt845_android -b Debug"
     fi
 
     if [ "$PLATFORM" == "no" ];then
         echo "you should put -i for platform or -h for help"
+	elif [ "$PLATFORM" == "qt845_android" ];
+	then
+		echo "PLATFORM=$PLATFORM BUILDTYPE=$DEBUG"
+		rm -rf build
+		ANDROID_NDK=/home/video/user/yehc/sdk/android-ndk-r21/
+		NDK_PLATFORM=$ANDROID_NDK/platforms/android-24/arch-arm64
+		cmake -Bbuild																\
+			  -DCMAKE_TOOLCHAIN_FILE=/home/video/user/yehc/sdk/android-ndk-r21/build/cmake/android.toolchain.cmake      \
+			  -DCMAKE_BUILD_TYPE=Release                                            \
+			  -DANDROID_FORCE_ARM_BUILD=ON                                          \
+			  -DANDROID_NDK=${ANDROID_NDK}                                          \
+			  -DANDROID_SYSROOT=${NDK_PLATFORM}                                         \
+			  -DANDROID_ABI="arm64-v8a"                                 			\
+			  -DANDROID_TOOLCHAIN=clang												\
+			  -DANDROID_TOOLCHAIN_NAME="aarch64-linux-android-4.9"                  \
+			  -DANDROID_NATIVE_API_LEVEL=android-24                                 \
+			  -DANDROID_STL=c++_shared                                              \
+			  -DPLATFORM=qt845_android                                              
     else
         rm -rf build
         echo "PLATFORM=$PLATFORM BUILDTYPE=$DEBUG"

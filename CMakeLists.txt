@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.11)
+cmake_minimum_required(VERSION 3.5)
 
 if(CMAKE_BUILD_TYPE MATCHES "Release")
 SET(NCE_BUILD "Release")

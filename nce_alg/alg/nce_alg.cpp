@@ -43,9 +43,11 @@ private:
 nce_alg_machine::nce_alg_machine(taskcls alg_type, const platform engine_type)
 {
 
-    pPriv          = shared_ptr<dynamic_factory>(new nce_alg_machine::dynamic_factory());
-    auto map       = NceFactory<IAlg>::GetReigistMap();
-    pPriv->pAlg    = NceFactory<IAlg>::GetInstance()->CreateObject(alg_type);
+    pPriv    = shared_ptr<dynamic_factory>(new nce_alg_machine::dynamic_factory());
+    auto map = NceFactory<IAlg>::GetReigistMap();
+    printf("target alg is %d\n", alg_type);
+    pPriv->pAlg = NceFactory<IAlg>::GetInstance()->CreateObject(alg_type);
+    printf("target engine is %d\n", engine_type);
     pPriv->pEngine = NceFactory<IEngine>::GetInstance()->CreateObject(engine_type);
 }
 
@@ -53,9 +55,10 @@ NCE_S32 nce_alg_machine::nce_alg_init(const param_info &st_param_info, vector<im
 {
     NCE_S32 ret = NCE_FAILED;
 
-    ret         = pPriv->pAlg->alg_init(pPriv->ImageInfo, pPriv->tmp_map);
-    ret         = pPriv->pEngine->engine_init(st_param_info, pPriv->ImageInfo, pPriv->tmp_map);
+    ret = pPriv->pAlg->alg_init(pPriv->ImageInfo, pPriv->tmp_map);
+    ret = pPriv->pEngine->engine_init(st_param_info, pPriv->ImageInfo, pPriv->tmp_map);
 
+    NCE_S32 count = 0;
     for (auto info : pPriv->ImageInfo)
     {
         img_info tmp;
@@ -64,10 +67,17 @@ NCE_S32 nce_alg_machine::nce_alg_init(const param_info &st_param_info, vector<im
         tmp.u32channel = info.channel;
         tmp.order      = info.order;
         tmp.format     = info.format;
-        img_t tmp_img{0};
-        tmp_img.image      = new NCE_U8[info.width * info.height * info.channel];
-        printf("alg init %d %d %d\n",info.width,info.height,info.channel);
+        img_t tmp_img{ 0 };
+        tmp_img.image = new NCE_U8[info.width * info.height * info.channel];
+        printf("alg init %d %d %d\n", info.width, info.height, info.channel);
         pPriv->privImgs.push_back(tmp_img);
+
+        img_info tmp_img_info;
+        tmp_img_info.u32Height  = info.height;
+        tmp_img_info.u32Width   = info.width;
+        tmp_img_info.u32channel = info.channel;
+
+        st_img_infos.push_back(tmp_img_info);
     }
 
     return ret;
@@ -105,13 +115,13 @@ NCE_S32 nce_alg_machine::nce_alg_inference(vector<img_t> &pc_imgs)
     {
         for (int i = 0; i < pc_imgs.size(); i++)
         {
-            if(k == 0)
+            if (k == 0)
                 pPriv->img_pre_processes[k]->forward(pc_imgs[i], pPriv->privImgs[i]);
             else
                 pPriv->img_pre_processes[k]->forward(pPriv->privImgs[i], pPriv->privImgs[i]);
         }
     }
-    if (k > 0) 
+    if (k > 0)
     {
         for (NCE_U32 i = 0; i < pPriv->ImageInfo.size(); i++)
         {
@@ -139,7 +149,6 @@ NCE_S32 nce_alg_machine::nce_alg_inference(vector<img_t> &pc_imgs)
         }
 
         ret = pPriv->pEngine->engine_inference(pPriv->privImgs);
-
     }
     else
     {

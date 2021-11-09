@@ -33,6 +33,7 @@ typedef enum
     MNNPLATFORM,
     HOST,
     MAX_PLATFORM,
+    SNPE_PLATFORM
 } platform;
 
 typedef enum
@@ -165,6 +166,13 @@ typedef struct param_info
             char *pc_device_name;
 
         } MNN_param;
+
+        struct SNPE_param
+        {
+            char *device_name;
+            NCE_BOOL useUserSuppliedBuffers;
+            NCE_BOOL usingInitCaching;
+        }snpe_param;
         /* data */
     } st_engine_info;
     char *pc_model_path;
@@ -196,6 +204,13 @@ typedef struct task_config_info
         {
 
         } fk_config;
+
+        struct bd_config //body
+        {
+            NCE_F32 nms_thresh;
+            NCE_S32 num_cls;
+            NCE_S32 num_anchors;
+        } bd_config;
 
     } st_cfg;
 

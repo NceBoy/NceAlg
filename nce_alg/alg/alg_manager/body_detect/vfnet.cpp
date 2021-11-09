@@ -17,7 +17,6 @@
 #include <algorithm>
 #include <cmath>
 
-
 using namespace std;
 namespace nce_alg {
 typedef struct pos_score
@@ -113,14 +112,12 @@ NCE_S32 vfnet::alg_init(vector<input_tensor_info> &            st_tensor_infos,
     st_result_map.insert(make_pair("P5_bbox_reg", tmp_map_result{ 0 }));
     st_result_map.insert(make_pair("P6_bbox_reg", tmp_map_result{ 0 }));
     st_result_map.insert(make_pair("P7_bbox_reg", tmp_map_result{ 0 }));
-    
+
     st_result_map.insert(make_pair("P3_logits", tmp_map_result{ 0 }));
     st_result_map.insert(make_pair("P4_logits", tmp_map_result{ 0 }));
     st_result_map.insert(make_pair("P5_logits", tmp_map_result{ 0 }));
     st_result_map.insert(make_pair("P6_logits", tmp_map_result{ 0 }));
     st_result_map.insert(make_pair("P7_logits", tmp_map_result{ 0 }));
-
-
 
     input_tensor_info input0{ 0 };
     input0.order     = RGB;
@@ -140,9 +137,16 @@ NCE_S32 vfnet::alg_cfg_set(const task_config_info &st_task_config_info)
     NCE_S32 ret = NCE_FAILED;
 
     pPriv->alg_cfg.threshold                   = st_task_config_info.threshold;
-    pPriv->alg_cfg.st_cfg.hd_config.nms_thresh = st_task_config_info.st_cfg.hd_config.nms_thresh;
+    pPriv->alg_cfg.st_cfg.hd_config.nms_thresh = st_task_config_info.st_cfg.bd_config.nms_thresh;
     pPriv->alg_cfg.isLog                       = st_task_config_info.isLog;
+    pPriv->num_anchors                         = st_task_config_info.st_cfg.bd_config.num_anchors;
+    pPriv->num_cls                             = st_task_config_info.st_cfg.bd_config.num_cls;
     ret                                        = NCE_SUCCESS;
+
+    printf("alg score thresh: %f\n", pPriv->alg_cfg.threshold);
+    printf("alg nms thresh: %f\n", pPriv->alg_cfg.st_cfg.hd_config.nms_thresh);
+    printf("alg num anchor: %d\n", pPriv->num_anchors);
+    printf("alg num cls: %d\n", pPriv->num_cls);
     return ret;
 }
 
@@ -190,29 +194,33 @@ NCE_S32 vfnet::alg_get_result(alg_result_info &results, LinkedHashMap<string, tm
         auto logist_width_stride   = all_logits[i].tensor.width_stride;
         auto logist_channel_stride = all_logits[i].tensor.channel_stride;
 
-        auto reg_height_stride  = all_logits[i].tensor.height_stride;
-        auto reg_width_stride   = all_logits[i].tensor.width_stride;
-        auto reg_channel_stride = all_logits[i].tensor.channel_stride;
+        auto reg_height_stride  = all_reg[i].tensor.height_stride;
+        auto reg_width_stride   = all_reg[i].tensor.width_stride;
+        auto reg_channel_stride = all_reg[i].tensor.channel_stride;
 
         NCE_S32 feature_size = feat_width * feat_height;
         NCE_S32 cur_stride   = pow(2, i + 3);
 
-        for (NCE_S32 h=0; h < feat_height; h++)
+        for (NCE_S32 h = 0; h < feat_height; h++)
         {
-            for (NCE_S32 w=0; w < feat_width; w++)
+            for (NCE_S32 w = 0; w < feat_width; w++)
             {
                 for (NCE_S32 anchor_index = 0; anchor_index < pPriv->num_anchors; anchor_index++)
                 {
-                    NCE_U32 logits_index =
-                        h * logist_height_stride + w * logist_width_stride + anchor_index * logist_channel_stride * pPriv->num_cls;
-                    NCE_U32 reg_index = h * reg_height_stride + w * reg_width_stride
-                                        + anchor_index * logist_channel_stride * 4;
+                    NCE_U32 logits_index = h * logist_height_stride + w * logist_width_stride
+                                           + anchor_index * logist_channel_stride * pPriv->num_cls;
+                    NCE_U32 reg_index =
+                        h * reg_height_stride + w * reg_width_stride + anchor_index * logist_channel_stride * 4;
 
                     NCE_F32 score = logits[logits_index];
-                    score         = sqrt(score);
-                    //
+                    if (score < 0)
+                    {
+                        continue;
+                    };
+                    score = sqrt(score);
                     if (score < pPriv->alg_cfg.threshold)
                         continue;
+                        
                     NCE_F32 left   = bboxes[reg_index + 0 * reg_channel_stride];
                     NCE_F32 top    = bboxes[reg_index + 1 * reg_channel_stride];
                     NCE_F32 right  = bboxes[reg_index + 2 * reg_channel_stride];

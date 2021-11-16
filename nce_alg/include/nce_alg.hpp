@@ -1,8 +1,8 @@
 /*
  * @Author: your name
  * @Date: 2021-09-26 10:15:19
- * @LastEditTime: 2021-09-26 12:17:53
- * @LastEditors: your name
+ * @LastEditTime: 2021-11-16 13:26:50
+ * @LastEditors: Please set LastEditors
  * @Description: In User Settings Edit
  * @FilePath: \NceAlg\nce_alg\include\nce_alg.hpp
  */

@@ -168,6 +168,7 @@ typedef struct param_info
         /* data */
     } st_engine_info;
     char *pc_model_path;
+    char *priv_cfg_path;
 } param_info;
 
 typedef struct task_config_info

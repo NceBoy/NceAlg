@@ -3,8 +3,8 @@
  * @version:
  * @Author: Haochen Ye
  * @Date: 2021-08-24 20:13:03
- * @LastEditors: Haochen Ye
- * @LastEditTime: 2021-08-25 11:03:53
+ * @LastEditors: Please set LastEditors
+ * @LastEditTime: 2021-11-16 16:13:35
  */
 #ifndef __VFNET_HPP__
 #define __VFNET_HPP__
@@ -12,7 +12,7 @@
 #include <iostream>
 #include "alg_type.h"
 #include "IAlg.hpp"
-#include  "linkedhashmap.h"
+#include "linkedhashmap.h"
 #include "IEngine.hpp"
 #include <vector>
 #include <memory>
@@ -32,7 +32,7 @@ class vfnet_priv
 {
 public:
     task_config_info           alg_cfg;
-    vector<input_tensor_info>* input_tensor_infos;
+    vector<input_tensor_info> *input_tensor_infos;
     vector<detect_result>      detect_results;
     vector<alg_result>         tmp_result;
     NCE_F32 *                  score;
@@ -52,6 +52,10 @@ class vfnet : public IAlg, public NceCreator<vfnet, IAlg, VFNET>
 {
 public:
     NCE_S32 alg_init(vector<input_tensor_info> &st_tensor_infos, LinkedHashMap<string, tmp_map_result> &st_result_map);
+
+    NCE_S32 alg_init(vector<input_tensor_info> &            st_tensor_infos,
+                     LinkedHashMap<string, tmp_map_result> &st_result_map,
+                     YAML::Node &                           config);
 
     NCE_S32 alg_cfg_set(const task_config_info &st_task_config_info);
 

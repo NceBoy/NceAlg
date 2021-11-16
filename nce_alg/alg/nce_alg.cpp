@@ -6,7 +6,7 @@
 #include "nce_tensor.hpp"
 #include <map>
 #include <cstring>
-
+#include "yaml-cpp/yaml.h"
 /*祭奠一下宏定义拼接的实现方案*/
 /*#define __strcat_task_cls(ALG, ENGINE) ALG##_##ENGINE
 #define strcat_task_cls(ALG, ENGINE) __strcat_task_cls(ALG, ENGINE)
@@ -29,7 +29,7 @@ public:
         { PROC_RESIZE, nce_resize::create_instance },
     };
     std::vector<nce_base_process *> img_pre_processes;
-
+    YAML::Node config; 
     vector<input_tensor_info> ImageInfo;
     vector<img_t>             privImgs;
     dynamic_factory()
@@ -52,9 +52,19 @@ nce_alg_machine::nce_alg_machine(taskcls alg_type, const platform engine_type)
 NCE_S32 nce_alg_machine::nce_alg_init(const param_info &st_param_info, vector<img_info> &st_img_infos)
 {
     NCE_S32 ret = NCE_FAILED;
-
-    ret         = pPriv->pAlg->alg_init(pPriv->ImageInfo, pPriv->tmp_map);
-    ret         = pPriv->pEngine->engine_init(st_param_info, pPriv->ImageInfo, pPriv->tmp_map);
+    if (st_param_info.priv_cfg_path != NULL) 
+    {
+        pPriv->config = YAML::LoadFile(st_param_info.priv_cfg_path);
+        ret = pPriv->pAlg->alg_init(pPriv->ImageInfo, pPriv->tmp_map,pPriv->config);
+        //todo: add engine_init for yaml cfg
+        //st_param_info.pc_model_path = (char*)(pPriv->config["engine_config"]["model_path"].as<string>()).data();
+        ret = pPriv->pEngine->engine_init(st_param_info, pPriv->ImageInfo, pPriv->tmp_map);
+    }
+    else
+    {
+        ret = pPriv->pAlg->alg_init(pPriv->ImageInfo, pPriv->tmp_map);
+        ret = pPriv->pEngine->engine_init(st_param_info, pPriv->ImageInfo, pPriv->tmp_map);
+    }
 
     for (auto info : pPriv->ImageInfo)
     {
@@ -64,9 +74,9 @@ NCE_S32 nce_alg_machine::nce_alg_init(const param_info &st_param_info, vector<im
         tmp.u32channel = info.channel;
         tmp.order      = info.order;
         tmp.format     = info.format;
-        img_t tmp_img{0};
-        tmp_img.image      = new NCE_U8[info.width * info.height * info.channel];
-        printf("alg init %d %d %d\n",info.width,info.height,info.channel);
+        img_t tmp_img{ 0 };
+        tmp_img.image = new NCE_U8[info.width * info.height * info.channel];
+        printf("alg init %d %d %d\n", info.width, info.height, info.channel);
         pPriv->privImgs.push_back(tmp_img);
     }
 
@@ -105,13 +115,13 @@ NCE_S32 nce_alg_machine::nce_alg_inference(vector<img_t> &pc_imgs)
     {
         for (int i = 0; i < pc_imgs.size(); i++)
         {
-            if(k == 0)
+            if (k == 0)
                 pPriv->img_pre_processes[k]->forward(pc_imgs[i], pPriv->privImgs[i]);
             else
                 pPriv->img_pre_processes[k]->forward(pPriv->privImgs[i], pPriv->privImgs[i]);
         }
     }
-    if (k > 0) 
+    if (k > 0)
     {
         for (NCE_U32 i = 0; i < pPriv->ImageInfo.size(); i++)
         {
@@ -139,7 +149,6 @@ NCE_S32 nce_alg_machine::nce_alg_inference(vector<img_t> &pc_imgs)
         }
 
         ret = pPriv->pEngine->engine_inference(pPriv->privImgs);
-
     }
     else
     {

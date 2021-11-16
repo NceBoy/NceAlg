@@ -3,8 +3,8 @@
  * @version:
  * @Author: Haochen Ye
  * @Date: 2021-08-20 10:32:17
- * @LastEditors: Haochen Ye
- * @LastEditTime: 2021-09-06 18:00:40
+ * @LastEditors: Please set LastEditors
+ * @LastEditTime: 2021-11-16 17:44:02
  */
 #ifndef __IALG_HPP__
 #define __IALG_HPP__
@@ -12,8 +12,9 @@
 #include <iostream>
 #include <alg_type.h>
 #include "nce_tensor.hpp"
-#include  "linkedhashmap.h"
+#include "linkedhashmap.h"
 #include <vector>
+#include "yaml-cpp/yaml.h"
 #ifdef __cplusplus
 #if __cplusplus
 
@@ -28,6 +29,13 @@ class IAlg
 public:
     virtual NCE_S32 alg_init(vector<input_tensor_info> &            st_tensor_infos,
                              LinkedHashMap<string, tmp_map_result> &st_result_map)
+    {
+        return NCE_FAILED;
+    }
+
+    virtual NCE_S32 alg_init(vector<input_tensor_info> &            st_tensor_infos,
+                             LinkedHashMap<string, tmp_map_result> &st_result_map,
+                             YAML::Node &                           config)
     {
         return NCE_FAILED;
     }
@@ -53,9 +61,7 @@ public:
     }
 
     virtual ~IAlg()
-    {
-        
-    }
+    {}
 };
 } // namespace nce_alg
 

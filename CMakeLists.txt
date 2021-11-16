@@ -12,5 +12,6 @@ SET(LIBRARY_OUTPUT_PATH  ${PROJECT_BINARY_DIR}/lib/)
 SET(NCE_BUILD_PATH  ${CMAKE_CURRENT_SOURCE_DIR})
 add_definitions(-DPLATFORM=${PLATFORM})
 
+add_subdirectory("third-party")
 add_subdirectory("nce_alg")
 add_subdirectory("demo")

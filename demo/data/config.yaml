@@ -1,0 +1,11 @@
+alg_config:
+    topk: 100
+    num_anchors: 3
+    num_cls: 1
+    mean0: [127.5,127.5,127.5]
+    std0: [0.0078125,0.0078125,0.0078125]
+    output_names: ["P3_bbox_reg", "p4_bboxes_reg", "p5_bboxes_reg","P6_bbox_reg","P7_bbox_reg","P3_logits","P4_logits","P5_logits","P6_logits","P7_logits"]
+engine_config:
+    model_path: ./vfnet.wk
+    engine_type: nnie
+    engine_core: 0

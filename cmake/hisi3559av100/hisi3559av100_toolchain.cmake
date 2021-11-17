@@ -6,7 +6,7 @@ set(CMAKE_LINER         "aarch64-himix100-linux-g++")
 set(CMAKE_LD            "aarch64-himix100-linux-ld")
 
 set(CMAKE_CXX_FLAGS "-ffunction-sections -fdata-sections -mcpu=cortex-a73.cortex-a53 -ldl -fno-aggressive-loop-optimizations")
-set(CMAKE_CXX_FLAGS "-g -fPIC -O3  -std=c++11 -mcpu=cortex-a73.cortex-a53 -ldl -lrt   -lpthread ${CMAKE_CXX_FLAGS}")
+set(CMAKE_CXX_FLAGS "-fPIC -O2  -mcpu=cortex-a73.cortex-a53 -ldl -lrt   -lpthread ${CMAKE_CXX_FLAGS}")
 #set(CMAKE_SYSROOT /home/cjyvm2/3516rootfs/rootfs)
 # This crosstool doesn't define SO_REUSEPORT
 

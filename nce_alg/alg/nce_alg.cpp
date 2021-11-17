@@ -6,7 +6,7 @@
 #include "nce_tensor.hpp"
 #include <map>
 #include <cstring>
-
+#include "yaml-cpp/yaml.h"
 /*祭奠一下宏定义拼接的实现方案*/
 /*#define __strcat_task_cls(ALG, ENGINE) ALG##_##ENGINE
 #define strcat_task_cls(ALG, ENGINE) __strcat_task_cls(ALG, ENGINE)
@@ -29,7 +29,7 @@ public:
         { PROC_RESIZE, nce_resize::create_instance },
     };
     std::vector<nce_base_process *> img_pre_processes;
-
+    YAML::Node config; 
     vector<input_tensor_info> ImageInfo;
     vector<img_t>             privImgs;
     dynamic_factory()
@@ -55,8 +55,19 @@ NCE_S32 nce_alg_machine::nce_alg_init(const param_info &st_param_info, vector<im
 {
     NCE_S32 ret = NCE_FAILED;
 
-    ret = pPriv->pAlg->alg_init(pPriv->ImageInfo, pPriv->tmp_map);
-    ret = pPriv->pEngine->engine_init(st_param_info, pPriv->ImageInfo, pPriv->tmp_map);
+    if (st_param_info.priv_cfg_path != NULL) 
+    {
+        pPriv->config = YAML::LoadFile(st_param_info.priv_cfg_path);
+        ret = pPriv->pAlg->alg_init(pPriv->ImageInfo, pPriv->tmp_map,pPriv->config);
+        //todo: add engine_init for yaml cfg
+        //st_param_info.pc_model_path = (char*)(pPriv->config["engine_config"]["model_path"].as<string>()).data();
+        ret = pPriv->pEngine->engine_init(st_param_info, pPriv->ImageInfo, pPriv->tmp_map);
+    }
+    else
+    {
+        ret = pPriv->pAlg->alg_init(pPriv->ImageInfo, pPriv->tmp_map);
+        ret = pPriv->pEngine->engine_init(st_param_info, pPriv->ImageInfo, pPriv->tmp_map);
+    }
 
     NCE_S32 count = 0;
     for (auto info : pPriv->ImageInfo)

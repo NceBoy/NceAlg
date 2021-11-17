@@ -33,8 +33,8 @@ NCE_S32 hd_alg::alg_init(vector<input_tensor_info> &            st_tensor_infos,
     pPriv       = shared_ptr<hd_alg_priv>(new hd_alg_priv());
     // st_result_map.insert({0,pPriv->tag[0]});
     // st_result_map.insert({1,pPriv->tag[1]});
-    st_result_map.insert(std::make_pair("hm",tmp_map_result{ 0 }));
-    st_result_map.insert(std::make_pair("wh",tmp_map_result{ 0 }));
+    st_result_map.insert(std::make_pair("hm", tmp_map_result{ 0 }));
+    st_result_map.insert(std::make_pair("wh", tmp_map_result{ 0 }));
     st_result_map["hm"].tensor.name = "hm";
     st_result_map["wh"].tensor.name = "wh";
 
@@ -46,6 +46,40 @@ NCE_S32 hd_alg::alg_init(vector<input_tensor_info> &            st_tensor_infos,
     memcpy(input0.mean, mean0, sizeof(NCE_F32) * 3);
     memcpy(input0.std, std, sizeof(NCE_F32) * 3);
     st_tensor_infos.push_back(input0);
+    pPriv->input_tensor_infos = &st_tensor_infos;
+
+    if (NULL != pPriv)
+    {
+        ret = NCE_SUCCESS;
+    }
+    return ret;
+}
+
+NCE_S32 hd_alg::alg_init(vector<input_tensor_info> &            st_tensor_infos,
+                         LinkedHashMap<string, tmp_map_result> &st_result_map,
+                         YAML::Node &                           config)
+{
+    NCE_S32 ret = NCE_FAILED;
+    int     i   = 0;
+    pPriv       = shared_ptr<hd_alg_priv>(new hd_alg_priv());
+
+    const auto names = config["alg_config"]["output_names"];
+    for (auto &iter : names)
+    {
+        st_result_map.insert(make_pair(iter.as<string>(), tmp_map_result{ 0 }));
+    }
+
+    input_tensor_info input0{ 0 };
+    input0.order     = RGB;
+    const auto mean0 = config["alg_config"]["mean0"];
+    const auto std0  = config["alg_config"]["std0"];
+    for (i = 0; i < 3; i++)
+    {
+        input0.mean[i] = mean0[i].as<float>();
+        input0.std[i] = std0[i].as<float>();
+    }
+    st_tensor_infos.push_back(input0);
+
     pPriv->input_tensor_infos = &st_tensor_infos;
 
     if (NULL != pPriv)
@@ -102,11 +136,11 @@ NCE_S32 hd_alg::alg_get_result(alg_result_info &results, LinkedHashMap<string, t
     auto hm_width_stride   = hm.tensor.width_stride;
     auto hm_channel_stride = hm.tensor.channel_stride;
 
-    auto wh_height_stride  = wh.tensor.height_stride;
-    auto wh_width_stride   = wh.tensor.width_stride;
-    auto wh_channel_stride = wh.tensor.channel_stride;
-    NCE_F32 *hm_feat = (NCE_F32 *)hm.pu32Feat;
-    NCE_F32 *wh_feat = (NCE_F32 *)wh.pu32Feat;
+    auto     wh_height_stride  = wh.tensor.height_stride;
+    auto     wh_width_stride   = wh.tensor.width_stride;
+    auto     wh_channel_stride = wh.tensor.channel_stride;
+    NCE_F32 *hm_feat           = (NCE_F32 *)hm.pu32Feat;
+    NCE_F32 *wh_feat           = (NCE_F32 *)wh.pu32Feat;
     for (NCE_U32 y = 0; y < feat_height; y++)
     {
         for (NCE_U32 x = 0; x < feat_width; x++)

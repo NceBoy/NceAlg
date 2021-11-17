@@ -1,3 +1,11 @@
+/*
+ * @Author: your name
+ * @Date: 2021-09-26 10:14:43
+ * @LastEditTime: 2021-11-16 16:14:22
+ * @LastEditors: your name
+ * @Description: 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
+ * @FilePath: \NceAlg\nce_alg\alg\alg_manager\face_fake\fc_fk_alg.hpp
+ */
 #ifndef __FC_FK_ALG_HPP__
 #define __FC_FK_ALG_HPP__
 #include <iostream>
@@ -41,7 +49,10 @@ class fc_fk_alg : public IAlg, public NceCreator<fc_fk_alg, IAlg, FACE_FAKE>
 {
 public:
     NCE_S32 alg_init(const param_info &st_param_info, map<int, tmp_map_result> &st_result_map);
-
+    
+    NCE_S32 alg_init(vector<input_tensor_info> &            st_tensor_infos,
+                     LinkedHashMap<string, tmp_map_result> &st_result_map,
+                     YAML::Node &                           config);
     NCE_S32 alg_cfg_set(const task_config_info &st_task_config_info);
 
     NCE_S32 alg_inference(img_t &pc_img);

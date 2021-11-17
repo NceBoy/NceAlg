@@ -4,7 +4,7 @@
  * @Author: Haochen Ye
  * @Date: 2021-08-24 20:12:49
  * @LastEditors: Please set LastEditors
- * @LastEditTime: 2021-10-27 13:32:39
+ * @LastEditTime: 2021-11-16 17:52:10
  */
 #include <iostream>
 #include <string>
@@ -127,6 +127,39 @@ NCE_S32 vfnet::alg_init(vector<input_tensor_info> &            st_tensor_infos,
     memcpy(input0.mean, mean0, sizeof(NCE_F32) * 3);
     memcpy(input0.std, std, sizeof(NCE_F32) * 3);
     st_tensor_infos.push_back(input0);
+    pPriv->input_tensor_infos = &st_tensor_infos;
+    printf("finshed alg init\n!");
+    return ret;
+}
+
+NCE_S32 vfnet::alg_init(vector<input_tensor_info> &            st_tensor_infos,
+                        LinkedHashMap<string, tmp_map_result> &st_result_map,
+                        YAML::Node &                           config)
+{
+    NCE_S32 ret = NCE_FAILED;
+    pPriv       = shared_ptr<vfnet_priv>(new vfnet_priv());
+    int i = 0;
+
+    const auto names = config["alg_config"]["output_names"];
+    for (auto &iter : names)
+    {
+        st_result_map.insert(make_pair(iter.as<string>(), tmp_map_result{ 0 }));
+    }
+
+    input_tensor_info input0{ 0 };
+    input0.order     = RGB;
+    const auto mean0 = config["alg_config"]["mean0"];
+    const auto std0 = config["alg_config"]["std0"];
+    for(i = 0; i<3; i++)
+    {
+        input0.mean[i] = mean0[i].as<float>();
+        input0.std[i] = std0[i].as<float>();
+    }
+    st_tensor_infos.push_back(input0);
+
+    pPriv->topk             = config["alg_config"]["topk"].as<int>();
+    pPriv->num_anchors      = config["alg_config"]["num_anchors"].as<int>();
+    pPriv->num_cls          = config["alg_config"]["num_cls"].as<int>();
     pPriv->input_tensor_infos = &st_tensor_infos;
     printf("finshed alg init\n!");
     return ret;

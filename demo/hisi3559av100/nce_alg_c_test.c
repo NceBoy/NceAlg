@@ -38,7 +38,7 @@ int main(int argc, char *argv[])
     //根据类型，算法构造相应的引擎工厂
     machine.clstype = VFNET;
     machine.platformtype = HISI_3559AV100;
-    nce_alg_c_machine_int(&machine);
+    nce_alg_c_machine_init(&machine);
 
     //读图测试，实际运行不需要，实际hisi需要rgb，planner格式的图片
     nce_c_read_img(pcSrcFile, &frame);
@@ -48,6 +48,7 @@ int main(int argc, char *argv[])
     //初始化参数 IN
     param_info hisi3559_param;
     hisi3559_param.pc_model_path = pcModelName;
+    hisi3559_param.priv_cfg_path = "./config.yaml";
     //图片组信息 OUT
     nce_alg_c_img_infos img_infos;
     
@@ -100,7 +101,7 @@ int main(int argc, char *argv[])
 
     nce_c_write_img("result", &frame);
     nce_c_free_img(&frame);
-    nce_alg_c_machine_destroy(&machine);
+    nce_alg_c_machine_deinit(&machine);
 
     SAMPLE_COMM_SVP_CheckSysExit();
 

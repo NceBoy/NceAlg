@@ -10,7 +10,7 @@ SET(CMAKE_BUILD_TYPE_POSTFIX "d")
 endif()
 
 include(${PROJECT_SOURCE_DIR}/platform/${PLATFORM}/${PLATFORM}.cmake) 
-
+include(${PROJECT_SOURCE_DIR}/../third-party/modules.cmake) 
 
 INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/alg/)
 INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/alg/core/)
@@ -43,6 +43,9 @@ AUX_SOURCE_DIRECTORY(${PROJECT_SOURCE_DIR}/alg/alg_manager/util UTIL_SRC)
 AUX_SOURCE_DIRECTORY(${PROJECT_SOURCE_DIR}/StanfordCPPLib CPPLIB_SRC)
 AUX_SOURCE_DIRECTORY(${PROJECT_SOURCE_DIR}/common/ COMMON_SRC)
 
+#third-party
+INCLUDE_DIRECTORIES(${YAMLCPP_HEADER_DIR})
+link_directories(${YAMLCPP_LINK_DIR})
 #生成动态库  静态库则 STATIC
 ADD_LIBRARY(${PROJECT_NAME} SHARED 
 ${ALG_SRC}
@@ -65,17 +68,19 @@ ${PLATFORM_SRC}
 ${COMMON_SRC}
 ${CPPLIB_SRC})
 
-
+message( STATUS ${THIRD_PARTY_LIB})
 target_link_libraries(${PROJECT_NAME}
 -Wl,--start-group
 ${OPENCV_LIB}
 ${PLATFORM_LIB}
+${THIRD_PARTY_LIB}
 -Wl,--end-group)
 
 target_link_libraries(${PROJECT_NAME}-static
 -Wl,--start-group
 ${OPENCV_LIB}
 ${PLATFORM_LIB}
+${THIRD_PARTY_LIB}
 -Wl,--end-group)
 
 #给静态库重命名为hello，最后会生成libhello.a

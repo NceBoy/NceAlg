@@ -35,7 +35,7 @@ static HI_S32 SAMPLE_COMM_SVP_SysInit(HI_VOID)
     memset(&struVbConf,0,sizeof(VB_CONFIG_S));
 
     struVbConf.u32MaxPoolCnt             = 2;
-    struVbConf.astCommPool[1].u64BlkSize = 768*576*2;
+    struVbConf.astCommPool[1].u64BlkSize = 1920*1080*4;
     struVbConf.astCommPool[1].u32BlkCnt  = 1;
 
     s32Ret = HI_MPI_VB_SetConfig((const VB_CONFIG_S *)&struVbConf);

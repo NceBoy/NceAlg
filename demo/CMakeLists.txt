@@ -11,7 +11,7 @@ endif()
 
 link_directories(${LIBRARY_OUTPUT_PATH})
 link_directories(${LIBRARY_OUTPUT_PATH}/${CMAKE_BUILD_TYPE})
-
+link_directories(${YAMLCPP_LINK_DIR})
 execute_process(
     COMMAND mkdir -p ${PROJECT_SOURCE_DIR}/inc/
     COMMAND cp ${NCE_BUILD_PATH}/nce_alg/common/common.h    ${PROJECT_SOURCE_DIR}/inc/

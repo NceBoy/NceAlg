@@ -3,8 +3,8 @@
  * @version:
  * @Author: Haochen Ye
  * @Date: 2021-08-24 20:13:03
- * @LastEditors: Haochen Ye
- * @LastEditTime: 2021-08-25 11:03:53
+ * @LastEditors: Please set LastEditors
+ * @LastEditTime: 2021-11-16 16:14:38
  */
 #ifndef __CENTERNET_HPP__
 #define __CENTERNET_HPP__
@@ -12,7 +12,7 @@
 #include <iostream>
 #include "alg_type.h"
 #include "IAlg.hpp"
-#include  "linkedhashmap.h"
+#include "linkedhashmap.h"
 #include "IEngine.hpp"
 #include <vector>
 #include <memory>
@@ -24,8 +24,6 @@
 extern "C" {
 #endif
 #endif
-
-
 
 using namespace std;
 namespace nce_alg {
@@ -50,7 +48,10 @@ class centernet : public IAlg, public NceCreator<centernet, IAlg, CENTERNET>
 {
 public:
     NCE_S32 alg_init(vector<input_tensor_info> &st_tensor_infos, LinkedHashMap<string, tmp_map_result> &st_result_map);
-
+    
+    NCE_S32 alg_init(vector<input_tensor_info> &            st_tensor_infos,
+                     LinkedHashMap<string, tmp_map_result> &st_result_map,
+                     YAML::Node &                           config);
     NCE_S32 alg_cfg_set(const task_config_info &st_task_config_info);
 
     NCE_S32 alg_inference(vector<img_t> &pc_img);

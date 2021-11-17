@@ -134,6 +134,17 @@ NCE_F32 nce_var(NCE_S32 *img, NCE_S32 num_ele)
     var = var / num_ele;
 };
 
+NCE_F32 get_saturation(const img_t& img)
+{
+    if (img.image_attr.format != PACKAGE || img.image_attr.format != 3)
+    {
+        printf("get_saturation only support rgb img!!!");
+        assert(false);
+    }
+
+
+}
+
 NCE_S32 shadow_judge(const img_t &          frame,
                      vector<detect_result> &input_bboxes,
                      vector<detect_result>  output_bboxes,

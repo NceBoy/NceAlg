@@ -3,6 +3,7 @@
 #include <vector>
 #include <algorithm>
 #include <math.h>
+#include <assert.h>
 using namespace std;
 namespace nce_alg {
 NCE_S32 nms(vector<detect_result> input, vector<detect_result> &output, NCE_F32 threshold)
@@ -109,6 +110,59 @@ NCE_S32 softmax(NCE_U32 dim, NCE_F32 *score)
         score[i] = exp(score[i]) / sum;
     }
     return NCE_SUCCESS;
+}
+
+
+NCE_F32 nce_mean(NCE_S32* img, NCE_S32 num_ele)
+{;
+    NCE_F32 sum = 0;
+    for (NCE_S32 i = 0; i < num_ele; i++)
+    {
+        sum += img[i];
+    }
+    return sum / (NCE_F32)num_ele;
+}
+
+NCE_F32 nce_var(NCE_S32 *img, NCE_S32 num_ele)
+{
+    NCE_F32 var  = 0;
+    NCE_F32 mean = nce_mean(img, num_ele);
+    for (NCE_S32 i = 0; i < num_ele; i++)
+    {
+        var += pow(((NCE_F32)img[i] - mean), 2);
+    }
+    var = var / num_ele;
+};
+
+NCE_S32 shadow_judge(const img_t &          frame,
+                     vector<detect_result> &input_bboxes,
+                     vector<detect_result>  output_bboxes,
+                     NCE_F32                thresh)
+{
+    output_bboxes.clear();
+   
+    for (auto &box : input_bboxes)
+    {
+        if (box.score > thresh)
+        {
+            output_bboxes.push_back(box);
+        } 
+        else
+        {
+            NCE_S32 x1 = box.x1;
+            NCE_S32 y1 = box.y1;
+            NCE_S32 x2 = box.x2;
+            NCE_S32 y2 = box.y2;
+
+            for (NCE_S32 x = x1; x < x2; x++)
+            {
+                for (NCE_S32 y = y1; y < y2; y++)
+                {
+
+                }
+            }
+        }
+    }
 }
 
 } // namespace nce_alg

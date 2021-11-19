@@ -72,7 +72,6 @@ int main(int argc, char *argv[])
         //func_resize.forward(frame,frame);
         param_info hisi3516_param;
         hisi3516_param.pc_model_path = pcModelName;
-
         task_config_info task_config;
         task_config.threshold                   = 0.6;
         task_config.isLog                       = 0;
@@ -82,8 +81,9 @@ int main(int argc, char *argv[])
         vector<img_info> imgInfos;
         nce_alg_machine  hd_model(VFNET, HISI_3559AV100);
 
-        hd_model.nce_alg_init(hisi3516_param, imgInfos);
-        hd_model.nce_alg_cfg_set(task_config);
+        //hd_model.nce_alg_init(hisi3516_param, imgInfos);
+        hd_model.nce_alg_init("./config.yaml", imgInfos);
+        // hd_model.nce_alg_cfg_set(task_config);
         //hd_model.nce_alg_process_set(preprocesses);
 
 

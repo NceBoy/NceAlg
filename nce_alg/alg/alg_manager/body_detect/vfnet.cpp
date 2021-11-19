@@ -4,7 +4,7 @@
  * @Author: Haochen Ye
  * @Date: 2021-08-24 20:12:49
  * @LastEditors: Please set LastEditors
- * @LastEditTime: 2021-11-16 17:52:10
+ * @LastEditTime: 2021-11-19 17:17:33
  */
 #include <iostream>
 #include <string>
@@ -136,10 +136,10 @@ NCE_S32 vfnet::alg_init(vector<input_tensor_info> &            st_tensor_infos,
 {
     NCE_S32 ret = NCE_FAILED;
     pPriv       = shared_ptr<vfnet_priv>(new vfnet_priv());
-    int i = 0;
+    int i       = 0;
 
     const auto names = config["output_names"];
-    for (auto & iter : names)
+    for (auto &iter : names)
     {
         st_result_map.insert(make_pair(iter.as<string>(), tmp_map_result{ 0 }));
     }
@@ -147,17 +147,18 @@ NCE_S32 vfnet::alg_init(vector<input_tensor_info> &            st_tensor_infos,
     input_tensor_info input0{ 0 };
     input0.order     = RGB;
     const auto mean0 = config["mean0"];
-    const auto std0 = config["std0"];
-    for(i = 0; i<3; i++)
+    const auto std0  = config["std0"];
+    for (i = 0; i < 3; i++)
     {
         input0.mean[i] = mean0[i].as<float>();
-        input0.std[i] = std0[i].as<float>();
+        input0.std[i]  = std0[i].as<float>();
     }
     st_tensor_infos.push_back(input0);
 
-
-    pPriv->num_anchors      = config["num_anchors"].as<int>();
-    pPriv->num_cls          = config["num_cls"].as<int>();
+    pPriv->num_anchors        = config["num_anchors"].as<int>();
+    pPriv->num_cls            = config["num_cls"].as<int>();
+    pPriv->alg_cfg.threshold  = config["threshold"].as<float>();
+    pPriv->alg_cfg.st_cfg.hd_config.nms_thresh  = config["nms"].as<float>();
     pPriv->input_tensor_infos = &st_tensor_infos;
     printf("finshed alg init\n!");
     return ret;
@@ -251,7 +252,7 @@ NCE_S32 vfnet::alg_get_result(alg_result_info &results, LinkedHashMap<string, tm
                     score = sqrt(score);
                     if (score < pPriv->alg_cfg.threshold)
                         continue;
-                        
+
                     NCE_F32 left   = bboxes[reg_index + 0 * reg_channel_stride];
                     NCE_F32 top    = bboxes[reg_index + 1 * reg_channel_stride];
                     NCE_F32 right  = bboxes[reg_index + 2 * reg_channel_stride];

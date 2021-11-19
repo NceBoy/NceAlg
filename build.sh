@@ -2,7 +2,7 @@
 ###
  # @Author: your name
  # @Date: 2021-09-16 10:31:35
- # @LastEditTime: 2021-09-16 12:58:44
+ # @LastEditTime: 2021-11-19 16:37:34
  # @LastEditors: Please set LastEditors
  # @Description: In User Settings Edit
  # @FilePath: \NceAlg\build.sh
@@ -98,7 +98,7 @@ function build_project()
     else
         rm -rf build
         echo "PLATFORM=$PLATFORM BUILDTYPE=$DEBUG"
-        ../cmake/cmake-3.17.1/bin/cmake -Bbuild -DCMAKE_TOOLCHAIN_FILE=./cmake/$PLATFORM/${PLATFORM}_toolchain.cmake -DPLATFORM=$PLATFORM  -DCMAKE_BUILD_TYPE=$DEBUG
+        cmake -Bbuild -DCMAKE_TOOLCHAIN_FILE=./cmake/$PLATFORM/${PLATFORM}_toolchain.cmake -DPLATFORM=$PLATFORM  -DCMAKE_BUILD_TYPE=$DEBUG
         cd build
         make
     fi

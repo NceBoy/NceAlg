@@ -10,7 +10,7 @@ set(CMAKE_LINER         "arm-himix200-linux-g++")
 set(CMAKE_LD            "arm-himix200-linux-ld")
 #set(CMAKE_SYSROOT /home/cjyvm2/3516rootfs/rootfs)
 # This crosstool doesn't define SO_REUSEPORT
-add_compile_options(-Wno-unused-function)
+add_compile_options(-Wno-unused-function -fPIC)
 #add_compile_options(-std=c++11)
 # This chip provides the floating-point operation unit and NEON.
 # The libraries in the file system are compiled with hard floating point and neon compatible with the soft floating point call interface.

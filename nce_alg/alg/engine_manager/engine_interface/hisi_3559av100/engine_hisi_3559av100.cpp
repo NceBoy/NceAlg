@@ -63,7 +63,7 @@ public:
         }
         return NCE_SUCCESS;
     }
-    NCE_S32 engine_init(const char *&                          model_path,
+    NCE_S32 engine_init(char *                          model_path,
                         vector<input_tensor_info> &            st_tensor_infos,
                         LinkedHashMap<string, tmp_map_result> &st_result_map)
     {
@@ -393,7 +393,7 @@ NCE_S32 hisi_3559av100_engine::engine_init(const YAML::Node &                   
                                            vector<input_tensor_info> &            st_tensor_infos,
                                            LinkedHashMap<string, tmp_map_result> &st_result_map)
 {
-    pPriv->engine_init(config["model_path"].as<string>().c_str(), 
+    pPriv->engine_init((char *)config["model_path"].as<string>().c_str(), 
                        st_tensor_infos, 
                        st_result_map);
     return NCE_SUCCESS;

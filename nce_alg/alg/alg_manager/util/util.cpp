@@ -52,7 +52,7 @@ NCE_S32 nms(vector<detect_result> input, vector<detect_result> &output, NCE_F32 
 
             NCE_F32 area1 = h1 * w1;
 
-            NCE_F32 score        = inner_area / (area0 + area1 - inner_area);
+            NCE_F32 score = inner_area / (area0 + area1 - inner_area);
             if (score > threshold)
                 merged[j] = 1;
         }
@@ -112,9 +112,9 @@ NCE_S32 softmax(NCE_U32 dim, NCE_F32 *score)
     return NCE_SUCCESS;
 }
 
-
-NCE_F32 nce_mean(NCE_S32* img, NCE_S32 num_ele)
-{;
+NCE_F32 nce_mean(NCE_U8 *img, NCE_S32 num_ele)
+{
+    ;
     NCE_F32 sum = 0;
     for (NCE_S32 i = 0; i < num_ele; i++)
     {
@@ -123,7 +123,7 @@ NCE_F32 nce_mean(NCE_S32* img, NCE_S32 num_ele)
     return sum / (NCE_F32)num_ele;
 }
 
-NCE_F32 nce_var(NCE_S32 *img, NCE_S32 num_ele)
+std::pair<NCE_F32, NCE_F32> nce_mean_var(NCE_U8 *img, NCE_S32 num_ele)
 {
     NCE_F32 var  = 0;
     NCE_F32 mean = nce_mean(img, num_ele);
@@ -132,48 +132,138 @@ NCE_F32 nce_var(NCE_S32 *img, NCE_S32 num_ele)
         var += pow(((NCE_F32)img[i] - mean), 2);
     }
     var = var / num_ele;
+    return std::pair<NCE_F32, NCE_F32>(mean, var);
 };
 
-NCE_F32 get_saturation(const img_t& img)
+NCE_S32 get_saturation(const img_t &img, detect_result Bbox, NCE_U8 *output_sat)
 {
-    if (img.image_attr.format != PACKAGE || img.image_attr.format != 3)
+    if (img.image_attr.u32channel != 3)
     {
-        printf("get_saturation only support rgb img!!!");
+        printf("get_saturation only support rgb package img!!!");
+        assert(false);
+    }
+    NCE_S32 crop_width  = Bbox.x2 - Bbox.x1;
+    NCE_S32 crop_height = Bbox.y2 - Bbox.y1;
+    NCE_S32 img_width   = img.image_attr.u32Width;
+    NCE_S32 img_height  = img.image_attr.u32Height;
+
+    NCE_U8 *img_data         = img.image;
+    NCE_S32 img_width_stride = 0, img_height_stride = 0, img_channel_stride = 0;
+
+    if (img.image_attr.format == PACKAGE)
+    {
+        img_channel_stride = 1;
+        img_width_stride   = img.image_attr.u32channel;
+        img_height_stride  = img_width * img_width_stride;
+    }
+    else if (img.image_attr.format == PLANNER)
+    {
+        img_channel_stride = img.image_attr.u32Height * img.image_attr.u32Width;
+        img_width_stride   = 1;
+        img_height_stride  = img.image_attr.u32Width;
+    }
+    else
+    {
+        printf("only support package or planner rgb img!!!");
         assert(false);
     }
 
+    for (NCE_S32 h = 0; h < crop_height; h++)
+    {
+        for (NCE_S32 w = 0; w < crop_width; w++)
+        {
+            NCE_U8  channel_min  = 0;
+            NCE_U8  channel_max  = 255;
+            NCE_S32 global_x     = Bbox.x1 + w;
+            NCE_S32 global_y     = Bbox.y1 + h;
+            NCE_S32 global_index = global_x * img_width_stride + global_y * img_height_stride;
+            NCE_S32 local_index  = crop_width * h + w;
 
+            NCE_U8 one   = img_data[global_index + 0 * img_channel_stride];
+            NCE_U8 two   = img_data[global_index + 1 * img_channel_stride];
+            NCE_U8 three = img_data[global_index + 2 * img_channel_stride];
+
+            if (one > two)
+            {
+                if (one > three)
+                {
+                    channel_max = one;
+                    if (two > three)
+                    {
+                        channel_min = three;
+                    }
+                    else
+                    {
+                        channel_min = two;
+                    }
+                }
+                else
+                {
+                    channel_max = three;
+                    channel_min = two;
+                }
+            }
+            else
+            {
+                if (one < three)
+                {
+                    channel_min = one;
+                    if (two < three)
+                    {
+                        channel_max = three;
+                    }
+                    else
+                    {
+                        channel_max = two;
+                    }
+                }
+                else
+                {
+                    channel_min = three;
+                    channel_max = two;
+                }
+            }
+            NCE_U8 sat              = channel_max - channel_min;
+            output_sat[local_index] = sat;
+        }
+    }
+    return NCE_SUCCESS;
 }
 
-NCE_S32 shadow_judge(const img_t &          frame,
-                     vector<detect_result> &input_bboxes,
-                     vector<detect_result>  output_bboxes,
-                     NCE_F32                thresh)
+NCE_S32 refelction_judge(const img_t &          frame,
+                         alg_result_info        &results,
+                         NCE_F32                conf_thresh,
+                         NCE_F32                mean_thresh,
+                         NCE_F32                var_thresh)
 {
-    output_bboxes.clear();
-   
-    for (auto &box : input_bboxes)
+    static NCE_U8 sat_data[1000 * 1000];
+    assert(frame.image_attr.u32channel == 3);
+    for (NCE_S32 i = 0; i < results.num; i++) 
     {
-        if (box.score > thresh)
+        auto box = (detect_result *)(results.st_alg_results + i)->obj;
+        if (box->score < conf_thresh)
         {
-            output_bboxes.push_back(box);
-        } 
-        else
-        {
-            NCE_S32 x1 = box.x1;
-            NCE_S32 y1 = box.y1;
-            NCE_S32 x2 = box.x2;
-            NCE_S32 y2 = box.y2;
+            NCE_S32 x1      = box->x1;
+            NCE_S32 y1      = box->y1;
+            NCE_S32 x2      = box->x2;
+            NCE_S32 y2      = box->y2;
+            NCE_S32 h       = y2 - y1;
+            NCE_S32 w       = x2 - x1;
+            NCE_S32 num_ele = h * w;
 
-            for (NCE_S32 x = x1; x < x2; x++)
+            get_saturation(frame, *box, sat_data);
+            auto    mean_var = nce_mean_var(sat_data, num_ele);
+            NCE_F32 mean     = mean_var.first;
+            NCE_F32 var      = mean_var.second;
+
+            if (var < mean_thresh & mean < mean_thresh)
             {
-                for (NCE_S32 y = y1; y < y2; y++)
-                {
-
-                }
+                box->score = 0;
             }
         }
     }
+
+    return NCE_SUCCESS;
 }
 
 } // namespace nce_alg

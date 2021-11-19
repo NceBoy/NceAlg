@@ -32,10 +32,9 @@ public:
         return NCE_FAILED;
     }
 
-    virtual NCE_S32 engine_init(const param_info &                     st_param_info,
+    virtual NCE_S32 engine_init(const YAML::Node &                     config,
                                 vector<input_tensor_info> &            st_img_infos,
-                                LinkedHashMap<string, tmp_map_result> &st_result_map,
-                                YAML::Node &                           config)
+                                LinkedHashMap<string, tmp_map_result> &st_result_map)
     {
         return NCE_FAILED;
     }

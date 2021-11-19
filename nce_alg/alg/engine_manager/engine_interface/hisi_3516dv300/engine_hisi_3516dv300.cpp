@@ -69,6 +69,98 @@ public:
         return NCE_SUCCESS;
     }
 
+    NCE_S32 engine_init(const char* &                          model_path,
+                        vector<input_tensor_info> &            st_tensor_infos,
+                        LinkedHashMap<string, tmp_map_result> &st_result_map)
+    {
+        HI_S32 s32Ret = HI_SUCCESS;
+        /*Set configuration parameter*/
+        HI_U32 u32PicNum = 1;
+        HI_U32 i         = 0;
+        HI_U32 count     = 0;
+        /*Set configuration parameter*/
+        stNnieCfg.u32MaxInputNum   = u32PicNum; // max input image num in each batch
+        stNnieCfg.u32MaxRoiNum     = 0;
+        stNnieCfg.aenNnieCoreId[0] = SVP_NNIE_ID_0; // set NNIE core
+
+        /*Sys init*/
+        // SAMPLE_COMM_SVP_CheckSysInit();
+        /*CNN Load model*/
+        SAMPLE_SVP_TRACE_INFO("Cnn Load model!\n");
+        s32Ret = SAMPLE_COMM_SVP_NNIE_LoadModel(model_path, &stENnieModel);
+        SAMPLE_SVP_CHECK_EXPR_GOTO(HI_SUCCESS != s32Ret,
+                                   CNN_FAIL_0,
+                                   SAMPLE_SVP_ERR_LEVEL_ERROR,
+                                   "Error,SAMPLE_COMM_SVP_NNIE_LoadModel failed!\n");
+        /*CNN parameter initialization*/
+        /*Cnn software parameters are set in SAMPLE_SVP_NNIE_Cnn_SoftwareParaInit,
+        if user has changed net struct, please make sure the parameter settings in
+        SAMPLE_SVP_NNIE_Cnn_SoftwareParaInit function are correct*/
+        SAMPLE_SVP_TRACE_INFO("Cnn parameter initialization!\n");
+        stENnieParam.pstModel = &stENnieModel.stModel;
+        s32Ret                       = SAMPLE_SVP_NNIE_Cnn_ParamInit(&stNnieCfg, &stENnieParam);
+        SAMPLE_SVP_CHECK_EXPR_GOTO(HI_SUCCESS != s32Ret,
+                                   CNN_FAIL_0,
+                                   SAMPLE_SVP_ERR_LEVEL_ERROR,
+                                   "Error,SAMPLE_SVP_NNIE_Cnn_ParamInit failed!\n");
+        SAMPLE_SVP_TRACE_INFO("NNIE AddTskBuf!\n");
+        /*record tskBuf*/
+        s32Ret = HI_MPI_SVP_NNIE_AddTskBuf(&(stENnieParam.astForwardCtrl[0].stTskBuf));
+        SAMPLE_SVP_CHECK_EXPR_GOTO(
+            HI_SUCCESS != s32Ret, CNN_FAIL_0, SAMPLE_SVP_ERR_LEVEL_ERROR, "Error,HI_MPI_SVP_NNIE_AddTskBuf failed!\n");
+        SAMPLE_SVP_TRACE_INFO("NNIE AddTskBuf end!\n");
+
+        for (NCE_U32 i = 0; i < input_num; i++)
+        {
+            st_tensor_infos[i].format  = PLANNER;
+            st_tensor_infos[i].name    = to_string(i);
+            st_tensor_infos[i].channel = stENnieParam.astSegData[0].astSrc[i].unShape.stWhc.u32Chn;
+            st_tensor_infos[i].height  = stENnieParam.astSegData[0].astSrc[i].unShape.stWhc.u32Height;
+            st_tensor_infos[i].width   = stENnieParam.astSegData[0].astSrc[i].unShape.stWhc.u32Width;
+        }
+        // NCE强制要求RGB，给你脸了？
+
+        //目前不分段
+        for (auto &kv : st_result_map)
+        {
+            st_result_map[kv].tensor.u32ch = stENnieParam.astSegData[0].astDst[count].unShape.stWhc.u32Chn;
+            st_result_map[kv].tensor.u32FeatWidth =
+                stENnieParam.astSegData[0].astDst[count].unShape.stWhc.u32Width;
+            st_result_map[kv].tensor.u32FeatHeight =
+                stENnieParam.astSegData[0].astDst[count].unShape.stWhc.u32Height;
+            st_result_map[kv].tensor.width_stride = 1;
+            st_result_map[kv].tensor.height_stride =
+                stENnieParam.astSegData[0].astDst[count].u32Stride / sizeof(NCE_F32);
+            st_result_map[kv].tensor.channel_stride =
+                st_result_map[kv].tensor.height_stride * st_result_map[kv].tensor.u32FeatHeight;
+            st_result_map[kv].tensor.zp     = 0;
+            st_result_map[kv].tensor.fl     = 0;
+            st_result_map[kv].tensor.scale  = 4096;
+            st_result_map[kv].tensor.outfmt = PLANNER;
+            st_result_map[kv].feat_type     = FEAT_S32;
+            printf("stride w%d h %d c %d\n",
+                   st_result_map[kv].tensor.width_stride,
+                   st_result_map[kv].tensor.height_stride,
+                   st_result_map[kv].tensor.channel_stride);
+            count++;
+        }
+
+        return NCE_SUCCESS;
+
+    CNN_FAIL_1:
+        /*Remove TskBuf*/
+        s32Ret = HI_MPI_SVP_NNIE_RemoveTskBuf(&(stENnieParam.astForwardCtrl[0].stTskBuf));
+        SAMPLE_SVP_CHECK_EXPR_GOTO(HI_SUCCESS != s32Ret,
+                                   CNN_FAIL_0,
+                                   SAMPLE_SVP_ERR_LEVEL_ERROR,
+                                   "Error,HI_MPI_SVP_NNIE_RemoveTskBuf failed!\n");
+
+    CNN_FAIL_0:
+        SAMPLE_SVP_TRACE_INFO("Why \n");
+        SAMPLE_SVP_NNIE_Cnn_Deinit(&stENnieParam, &stENnieModel);
+        // SAMPLE_COMM_SVP_CheckSysExit();
+        return NCE_SUCCESS
+    }
     HI_S32 SAMPLE_SVP_NNIE_FillSrcData(SAMPLE_SVP_NNIE_PARAM_S *pstNnieParam, vector<img_t> &frames)
     {
 
@@ -353,81 +445,16 @@ NCE_S32 hisi_3516dv300_engine::engine_init(const param_info &                   
                                            vector<input_tensor_info> &            st_tensor_infos,
                                            LinkedHashMap<string, tmp_map_result> &st_result_map)
 {
-    HI_S32 s32Ret = HI_SUCCESS;
-    /*Set configuration parameter*/
-    HI_U32 u32PicNum = 1;
-    HI_U32 i         = 0;
-    HI_U32 count = 0;
-    /*Set configuration parameter*/
-    pPriv->stNnieCfg.u32MaxInputNum   = u32PicNum; // max input image num in each batch
-    pPriv->stNnieCfg.u32MaxRoiNum     = 0;
-    pPriv->stNnieCfg.aenNnieCoreId[0] = SVP_NNIE_ID_0; // set NNIE core
-
-    /*Sys init*/
-    // SAMPLE_COMM_SVP_CheckSysInit();
-    /*CNN Load model*/
-    SAMPLE_SVP_TRACE_INFO("Cnn Load model!\n");
-    s32Ret = SAMPLE_COMM_SVP_NNIE_LoadModel(st_param_info.pc_model_path, &pPriv->stENnieModel);
-    SAMPLE_SVP_CHECK_EXPR_GOTO(
-        HI_SUCCESS != s32Ret, CNN_FAIL_0, SAMPLE_SVP_ERR_LEVEL_ERROR, "Error,SAMPLE_COMM_SVP_NNIE_LoadModel failed!\n");
-    /*CNN parameter initialization*/
-    /*Cnn software parameters are set in SAMPLE_SVP_NNIE_Cnn_SoftwareParaInit,
-    if user has changed net struct, please make sure the parameter settings in
-    SAMPLE_SVP_NNIE_Cnn_SoftwareParaInit function are correct*/
-    SAMPLE_SVP_TRACE_INFO("Cnn parameter initialization!\n");
-    pPriv->stENnieParam.pstModel = &pPriv->stENnieModel.stModel;
-    s32Ret                       = pPriv->SAMPLE_SVP_NNIE_Cnn_ParamInit(&pPriv->stNnieCfg, &pPriv->stENnieParam);
-    SAMPLE_SVP_CHECK_EXPR_GOTO(
-        HI_SUCCESS != s32Ret, CNN_FAIL_0, SAMPLE_SVP_ERR_LEVEL_ERROR, "Error,SAMPLE_SVP_NNIE_Cnn_ParamInit failed!\n");
-    SAMPLE_SVP_TRACE_INFO("NNIE AddTskBuf!\n");
-    /*record tskBuf*/
-    s32Ret = HI_MPI_SVP_NNIE_AddTskBuf(&(pPriv->stENnieParam.astForwardCtrl[0].stTskBuf));
-    SAMPLE_SVP_CHECK_EXPR_GOTO(
-        HI_SUCCESS != s32Ret, CNN_FAIL_0, SAMPLE_SVP_ERR_LEVEL_ERROR, "Error,HI_MPI_SVP_NNIE_AddTskBuf failed!\n");
-    SAMPLE_SVP_TRACE_INFO("NNIE AddTskBuf end!\n");
-
-    for (NCE_U32 i = 0; i < pPriv->input_num; i++)
-    {
-        st_tensor_infos[i].format    = PLANNER;
-        st_tensor_infos[i].name      = to_string(i);
-        st_tensor_infos[i].channel   = pPriv->stENnieParam.astSegData[0].astSrc[i].unShape.stWhc.u32Chn;
-        st_tensor_infos[i].height    = pPriv->stENnieParam.astSegData[0].astSrc[i].unShape.stWhc.u32Height;
-        st_tensor_infos[i].width     = pPriv->stENnieParam.astSegData[0].astSrc[i].unShape.stWhc.u32Width;
-    }
-    // NCE强制要求RGB，给你脸了？
-
-    //目前不分段
-    for (auto &kv : st_result_map)
-    {
-        st_result_map[kv].tensor.u32ch          = pPriv->stENnieParam.astSegData[0].astDst[count].unShape.stWhc.u32Chn;
-        st_result_map[kv].tensor.u32FeatWidth   = pPriv->stENnieParam.astSegData[0].astDst[count].unShape.stWhc.u32Width;
-        st_result_map[kv].tensor.u32FeatHeight  = pPriv->stENnieParam.astSegData[0].astDst[count].unShape.stWhc.u32Height;
-        st_result_map[kv].tensor.width_stride   = 1;
-        st_result_map[kv].tensor.height_stride  = pPriv->stENnieParam.astSegData[0].astDst[count].u32Stride / sizeof(NCE_F32);
-        st_result_map[kv].tensor.channel_stride = st_result_map[kv].tensor.height_stride *st_result_map[kv].tensor.u32FeatHeight;
-        st_result_map[kv].tensor.zp             = 0;
-        st_result_map[kv].tensor.fl             = 0;
-        st_result_map[kv].tensor.scale          = 4096;
-        st_result_map[kv].tensor.outfmt         = PLANNER;
-        st_result_map[kv].feat_type             = FEAT_S32;
-        printf("stride w%d h %d c %d\n",st_result_map[kv].tensor.width_stride,
-        st_result_map[kv].tensor.height_stride,
-        st_result_map[kv].tensor.channel_stride);
-        count++;
-    }
-
+    pPriv->engine_init(st_param_info.pc_model_path, st_tensor_infos, st_result_map);
     return NCE_SUCCESS;
+}
 
-CNN_FAIL_1:
-    /*Remove TskBuf*/
-    s32Ret = HI_MPI_SVP_NNIE_RemoveTskBuf(&(pPriv->stENnieParam.astForwardCtrl[0].stTskBuf));
-    SAMPLE_SVP_CHECK_EXPR_GOTO(
-        HI_SUCCESS != s32Ret, CNN_FAIL_0, SAMPLE_SVP_ERR_LEVEL_ERROR, "Error,HI_MPI_SVP_NNIE_RemoveTskBuf failed!\n");
-
-CNN_FAIL_0:
-    SAMPLE_SVP_TRACE_INFO("Why \n");
-    pPriv->SAMPLE_SVP_NNIE_Cnn_Deinit(&pPriv->stENnieParam, &pPriv->stENnieModel);
-    // SAMPLE_COMM_SVP_CheckSysExit();
+NCE_S32 hisi_3516dv300_engine::engine_init(const YAML::Node&                      config,
+                                           vector<input_tensor_info> &            st_tensor_infos,
+                                           LinkedHashMap<string, tmp_map_result> &st_result_map)
+{
+    pPriv->engine_init(config["model_path"].as<string>().c_str(), st_tensor_infos, st_result_map);
+    return NCE_SUCCESS;
 }
 
 NCE_S32 hisi_3516dv300_engine::engine_inference(vector<img_t> &pc_imgs)

@@ -7,11 +7,18 @@
 #include <map>
 #include <cstring>
 #include "yaml-cpp/yaml.h"
+#include "hook.hpp"
 /*祭奠一下宏定义拼接的实现方案*/
 /*#define __strcat_task_cls(ALG, ENGINE) ALG##_##ENGINE
 #define strcat_task_cls(ALG, ENGINE) __strcat_task_cls(ALG, ENGINE)
 */
-
+#define HOOK_INVOKE(vechook, func_name, ...) \
+    {                                        \
+        for (auto &hook : vechook)           \
+        {                                    \
+            hook->func_name(__VA_ARGS__);    \
+        }                                    \
+    }
 using namespace std;
 namespace nce_alg {
 typedef nce_base_process *(*base_process_create)(ImageProcessParam param);
@@ -19,19 +26,40 @@ typedef nce_base_process *(*base_process_create)(ImageProcessParam param);
 class nce_alg_machine::dynamic_factory
 {
 public:
-    shared_ptr<IEngine>                   pEngine;
-    shared_ptr<IAlg>                      pAlg;
-    LinkedHashMap<string, tmp_map_result> tmp_map;
-    std::map<int, base_process_create>    img_process_map = {
-        { PROC_PACKAGE2PLANNER, nce_package2planner::create_instance },
-        { PROC_PLANNER2PACKAGE, nce_planner2package::create_instance },
-        { PROC_NORMALIZATION, nce_normalization::create_instance },
-        { PROC_RESIZE, nce_resize::create_instance },
-    };
+    shared_ptr<IEngine>                             pEngine;
+    shared_ptr<IAlg>                                pAlg;
+    std::map<std::string, vector<shared_ptr<Hook>>> hook_map;
+    LinkedHashMap<string, tmp_map_result>           tmp_map;
+
+    static std::map<NCE_S32, base_process_create> img_process_map;
+    static std::map<std::string, custom_hook>     hook_str2enum_map;
+
     std::vector<nce_base_process *> img_pre_processes;
-    YAML::Node config; 
-    vector<input_tensor_info> ImageInfo;
-    vector<img_t>             privImgs;
+    YAML::Node                      config;
+    vector<input_tensor_info>       ImageInfo;
+    vector<img_t>                   privImgs;
+
+    NCE_S32 dynamic_factory_init(YAML::Node & input_config)
+    {
+        auto hooks = input_config["custom_hook"];
+        for (auto i = hooks.begin(); i != hooks.end(); i++)
+        {
+            auto name      = i->first.as<std::string>();
+            auto hook = i->second;
+            std::string hook_name = hook["name"].as<std::string>();
+            custom_hook hook_type = hook_str2enum_map[hook_name];
+            auto        hook_ptr  = NceFactory<Hook>::GetInstance()->CreateObject(hook_type);
+            hook_ptr->hook_init(hooks);
+            hook_map["hook_init"].push_back(hook_ptr);
+            for (auto used_func : hook["used_func"])
+            {
+                std::string func_name = used_func.as<std::string>();
+                hook_map[func_name].push_back(hook_ptr);
+            }
+        }
+        config = input_config;
+        return NCE_SUCCESS;
+    }
     dynamic_factory()
     {}
     ~dynamic_factory()
@@ -39,35 +67,72 @@ public:
 
 private:
 };
+std::map<std::string, custom_hook>     nce_alg_machine::dynamic_factory::hook_str2enum_map = { { "reflection_filter_hook",
+                                                                                             REFLECTION_FILTER } };
+std::map<NCE_S32, base_process_create> nce_alg_machine::dynamic_factory::img_process_map   = {
+    { PROC_PACKAGE2PLANNER, nce_package2planner::create_instance },
+    { PROC_PLANNER2PACKAGE, nce_planner2package::create_instance },
+    { PROC_NORMALIZATION, nce_normalization::create_instance },
+    { PROC_RESIZE, nce_resize::create_instance },
+};
 
 nce_alg_machine::nce_alg_machine(taskcls alg_type, const platform engine_type)
 {
 
     pPriv    = shared_ptr<dynamic_factory>(new nce_alg_machine::dynamic_factory());
-    auto map = NceFactory<IAlg>::GetReigistMap();
     printf("target alg is %d\n", alg_type);
     pPriv->pAlg = NceFactory<IAlg>::GetInstance()->CreateObject(alg_type);
     printf("target engine is %d\n", engine_type);
     pPriv->pEngine = NceFactory<IEngine>::GetInstance()->CreateObject(engine_type);
 }
 
+NCE_S32 nce_alg_machine::nce_alg_init(const char *yaml_path, vector<img_info> &st_img_infos)
+{
+    auto config = YAML::LoadFile(yaml_path);
+    auto engine_config = config["engine_config"];
+    auto alg_config = config["alg_config"];
+    pPriv->dynamic_factory_init(config);
+    HOOK_INVOKE(pPriv->hook_map["before_alg_init"], before_alg_init, pPriv->ImageInfo, pPriv->tmp_map, config);
+    pPriv->pAlg->alg_init(pPriv->ImageInfo, pPriv->tmp_map, alg_config);
+    HOOK_INVOKE(pPriv->hook_map["after_alg_init"], after_alg_init, pPriv->ImageInfo, pPriv->tmp_map, config);
+    HOOK_INVOKE(
+        pPriv->hook_map["before_engine_init"], before_engine_init, config, pPriv->ImageInfo, pPriv->tmp_map);
+    pPriv->pEngine->engine_init(engine_config, pPriv->ImageInfo, pPriv->tmp_map);
+    HOOK_INVOKE(pPriv->hook_map["after_engine_init"], after_engine_init, config, pPriv->ImageInfo, pPriv->tmp_map);
+
+    NCE_S32 count = 0;
+    for (auto info : pPriv->ImageInfo)
+    {
+        img_info tmp;
+        tmp.u32Width   = info.width;
+        tmp.u32Height  = info.height;
+        tmp.u32channel = info.channel;
+        tmp.order      = info.order;
+        tmp.format     = info.format;
+        img_t tmp_img{ 0 };
+        tmp_img.image = new NCE_U8[info.width * info.height * info.channel];
+        printf("alg init %d %d %d\n", info.width, info.height, info.channel);
+        pPriv->privImgs.push_back(tmp_img);
+
+        img_info tmp_img_info;
+        tmp_img_info.u32Height  = info.height;
+        tmp_img_info.u32Width   = info.width;
+        tmp_img_info.u32channel = info.channel;
+
+        st_img_infos.push_back(tmp_img_info);
+    }
+
+    return NCE_SUCCESS;
+}
+
 NCE_S32 nce_alg_machine::nce_alg_init(const param_info &st_param_info, vector<img_info> &st_img_infos)
 {
     NCE_S32 ret = NCE_FAILED;
 
-    if (st_param_info.priv_cfg_path != NULL) 
-    {
-        pPriv->config = YAML::LoadFile(st_param_info.priv_cfg_path);
-        ret = pPriv->pAlg->alg_init(pPriv->ImageInfo, pPriv->tmp_map,pPriv->config);
-        //todo: add engine_init for yaml cfg
-        //st_param_info.pc_model_path = (char*)(pPriv->config["engine_config"]["model_path"].as<string>()).data();
-        ret = pPriv->pEngine->engine_init(st_param_info, pPriv->ImageInfo, pPriv->tmp_map);
-    }
-    else
-    {
-        ret = pPriv->pAlg->alg_init(pPriv->ImageInfo, pPriv->tmp_map);
-        ret = pPriv->pEngine->engine_init(st_param_info, pPriv->ImageInfo, pPriv->tmp_map);
-    }
+
+    ret = pPriv->pAlg->alg_init(pPriv->ImageInfo, pPriv->tmp_map);
+    ret = pPriv->pEngine->engine_init(st_param_info, pPriv->ImageInfo, pPriv->tmp_map);
+
 
     NCE_S32 count = 0;
     for (auto info : pPriv->ImageInfo)
@@ -115,6 +180,14 @@ NCE_S32 nce_alg_machine::nce_alg_process_set(std::vector<ImageProcessParam> &pre
 
 NCE_S32 nce_alg_machine::nce_alg_inference(vector<img_t> &pc_imgs)
 {
+    for (auto &img : pc_imgs)
+    {
+        if (img.image == nullptr)
+        {
+            printf("inference buffer is empty!!!\n");
+            return NCE_FAILED;
+        }
+    }
     int k = 0;
     if (pc_imgs.size() != pPriv->ImageInfo.size())
     {
@@ -158,8 +231,9 @@ NCE_S32 nce_alg_machine::nce_alg_inference(vector<img_t> &pc_imgs)
                 return NCE_FAILED;
             }
         }
-
+        HOOK_INVOKE(pPriv->hook_map["before_engine_inference"], before_engine_inference, pPriv->privImgs);
         ret = pPriv->pEngine->engine_inference(pPriv->privImgs);
+        HOOK_INVOKE(pPriv->hook_map["after_engine_inference"], before_engine_inference, pPriv->privImgs);
     }
     else
     {
@@ -187,8 +261,9 @@ NCE_S32 nce_alg_machine::nce_alg_inference(vector<img_t> &pc_imgs)
                 return NCE_FAILED;
             }
         }
-
+        HOOK_INVOKE(pPriv->hook_map["before_engine_inference"], before_engine_inference, pc_imgs);
         ret = pPriv->pEngine->engine_inference(pc_imgs);
+        HOOK_INVOKE(pPriv->hook_map["after_engine_inference"], before_engine_inference, pc_imgs);
     }
     return ret;
 }
@@ -196,8 +271,12 @@ NCE_S32 nce_alg_machine::nce_alg_inference(vector<img_t> &pc_imgs)
 NCE_S32 nce_alg_machine::nce_alg_get_result(alg_result_info &results)
 {
     NCE_S32 ret = NCE_FAILED;
-    ret         = pPriv->pEngine->engine_get_result(pPriv->tmp_map);
-    ret         = pPriv->pAlg->alg_get_result(results, pPriv->tmp_map);
+    HOOK_INVOKE(pPriv->hook_map["before_engine_get_result"], before_engine_get_result, pPriv->tmp_map);
+    ret = pPriv->pEngine->engine_get_result(pPriv->tmp_map);
+    HOOK_INVOKE(pPriv->hook_map["after_engine_get_result"], after_engine_get_result, pPriv->tmp_map);
+    HOOK_INVOKE(pPriv->hook_map["before_alg_get_result"], before_alg_get_result, results, pPriv->tmp_map);
+    ret = pPriv->pAlg->alg_get_result(results, pPriv->tmp_map);
+    HOOK_INVOKE(pPriv->hook_map["after_alg_get_result"], after_alg_get_result, results, pPriv->tmp_map);
 
     return ret;
 }

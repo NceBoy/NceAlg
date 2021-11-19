@@ -89,9 +89,7 @@ vfnet_priv::vfnet_priv()
     alg_cfg.threshold  = 0.3;
     alg_cfg.isLog      = false;
     input_tensor_infos = nullptr;
-    score              = new NCE_F32[3];
 
-    topk             = 100;
     num_anchors      = 3;
     num_cls          = 1;
     model_image_info = { 0 };
@@ -99,7 +97,7 @@ vfnet_priv::vfnet_priv()
 
 vfnet_priv::~vfnet_priv()
 {
-    delete score;
+    printf("vfnet deinit");
 }
 
 NCE_S32 vfnet::alg_init(vector<input_tensor_info> &            st_tensor_infos,
@@ -140,16 +138,16 @@ NCE_S32 vfnet::alg_init(vector<input_tensor_info> &            st_tensor_infos,
     pPriv       = shared_ptr<vfnet_priv>(new vfnet_priv());
     int i = 0;
 
-    const auto names = config["alg_config"]["output_names"];
-    for (auto &iter : names)
+    const auto names = config["output_names"];
+    for (auto & iter : names)
     {
         st_result_map.insert(make_pair(iter.as<string>(), tmp_map_result{ 0 }));
     }
 
     input_tensor_info input0{ 0 };
     input0.order     = RGB;
-    const auto mean0 = config["alg_config"]["mean0"];
-    const auto std0 = config["alg_config"]["std0"];
+    const auto mean0 = config["mean0"];
+    const auto std0 = config["std0"];
     for(i = 0; i<3; i++)
     {
         input0.mean[i] = mean0[i].as<float>();
@@ -157,9 +155,9 @@ NCE_S32 vfnet::alg_init(vector<input_tensor_info> &            st_tensor_infos,
     }
     st_tensor_infos.push_back(input0);
 
-    pPriv->topk             = config["alg_config"]["topk"].as<int>();
-    pPriv->num_anchors      = config["alg_config"]["num_anchors"].as<int>();
-    pPriv->num_cls          = config["alg_config"]["num_cls"].as<int>();
+
+    pPriv->num_anchors      = config["num_anchors"].as<int>();
+    pPriv->num_cls          = config["num_cls"].as<int>();
     pPriv->input_tensor_infos = &st_tensor_infos;
     printf("finshed alg init\n!");
     return ret;
@@ -264,8 +262,8 @@ NCE_S32 vfnet::alg_get_result(alg_result_info &results, LinkedHashMap<string, tm
 
                     NCE_U32 x1 = std::max((NCE_F32)0, x - left);
                     NCE_U32 y1 = std::max((NCE_F32)0, y - top);
-                    NCE_U32 x2 = std::min((NCE_F32)(*pPriv->input_tensor_infos)[0].width, x + right);
-                    NCE_U32 y2 = std::min((NCE_F32)(*pPriv->input_tensor_infos)[0].height, y + bottom);
+                    NCE_U32 x2 = std::min((NCE_F32)(*pPriv->input_tensor_infos)[0].width - 1, x + right);
+                    NCE_U32 y2 = std::min((NCE_F32)(*pPriv->input_tensor_infos)[0].height - 1, y + bottom);
 
                     pPriv->detect_results.push_back(detect_result{ x1, y1, x2, y2, score });
                 }

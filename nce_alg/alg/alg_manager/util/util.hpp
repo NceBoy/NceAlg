@@ -17,6 +17,11 @@ NCE_S32 nms(vector<detect_result> input, vector<detect_result> &output, float th
 NCE_S32 RB_REPLACE_PACKAGE(img_t &frame);
 NCE_S32 RB_REPLACE_PLANNER(img_t &frame);
 NCE_S32 softmax(NCE_U32 dim, NCE_F32 *score);
+NCE_S32 refelction_judge(const img_t &          frame,
+                         alg_result_info        &results,
+                         NCE_F32                conf_thresh,
+                         NCE_F32                mean_thresh,
+                         NCE_F32                var_thresh);
 } // namespace nce_alg
 
 #ifdef __cplusplus

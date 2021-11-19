@@ -23,12 +23,16 @@ namespace nce_alg {
 class SNPE_engine::engine_priv
 {
 public:
-    engine_priv()
+    engine_priv() : usingInitCaching(false), useUserSuppliedBuffers(false), device("DSP")
     {
         printf("snpe engine priv create!\n");
         _inputTensorMap  = std::unique_ptr<zdl::DlSystem::TensorMap>(new zdl::DlSystem::TensorMap);
         _outputTensorMap = std::unique_ptr<zdl::DlSystem::TensorMap>(new zdl::DlSystem::TensorMap);
     };
+
+    bool        usingInitCaching;
+    bool        useUserSuppliedBuffers;
+    std::string device;
 
     ~engine_priv()
     {
@@ -68,7 +72,7 @@ public:
         return container;
     }
 
-    NCE_S32 load_model(const param_info &                     st_param_info,
+    NCE_S32 load_model(const char *                           model_path,
                        vector<input_tensor_info> &            st_tensor_infos,
                        LinkedHashMap<string, tmp_map_result> &st_result_map)
     {
@@ -77,22 +81,20 @@ public:
         zdl::DlSystem::PlatformConfig platformConfig;
         zdl::DlSystem::RuntimeList    runtimeList;
 
-        _container                            = loadContainerFromFile(st_param_info.pc_model_path);
+        _container                            = loadContainerFromFile(model_path);
         zdl::DlSystem::UDLFactoryFunc udlFunc = UdlExample::MyUDLFactory;
         udlBundle.cookie                      = (void *)0xdeadbeaf;
         udlBundle.func                        = udlFunc; // 0xdeadbeaf to test cookie
-        bool useUserSuppliedBuffers           = st_param_info.st_engine_info.snpe_param.useUserSuppliedBuffers;
-        bool usingInitCaching                 = st_param_info.st_engine_info.snpe_param.usingInitCaching;
 
-        if (0 == strcmp("DSP", st_param_info.st_engine_info.snpe_param.device_name))
+        if (0 == strcmp("DSP", device.c_str()))
         {
             runtime = zdl::DlSystem::Runtime_t::DSP;
         }
-        else if (0 == strcmp("CPU", st_param_info.st_engine_info.snpe_param.device_name))
+        else if (0 == strcmp("CPU", device.c_str()))
         {
             runtime = zdl::DlSystem::Runtime_t::CPU;
         }
-        else if (0 == strcmp("GPU", st_param_info.st_engine_info.snpe_param.device_name))
+        else if (0 == strcmp("GPU", device.c_str()))
         {
             runtime = zdl::DlSystem::Runtime_t::GPU;
         }
@@ -297,7 +299,27 @@ NCE_S32 SNPE_engine::engine_init(const param_info &                     st_param
                                  vector<input_tensor_info> &            st_tensor_infos,
                                  LinkedHashMap<string, tmp_map_result> &st_result_map)
 {
-    if (NCE_SUCCESS != pPriv->load_model(st_param_info, st_tensor_infos, st_result_map))
+    pPriv->device                 = st_param_info.st_engine_info.snpe_param.device_name;
+    pPriv->useUserSuppliedBuffers = st_param_info.st_engine_info.snpe_param.useUserSuppliedBuffers;
+    pPriv->usingInitCaching       = st_param_info.st_engine_info.snpe_param.usingInitCaching;
+
+    if (NCE_SUCCESS != pPriv->load_model(st_param_info.pc_model_path, st_tensor_infos, st_result_map))
+    {
+        printf("engine load model failed!\n");
+        return NCE_FAILED;
+    };
+
+    return NCE_SUCCESS;
+};
+
+NCE_S32 SNPE_engine::engine_init(const YAML::Node &                     config,
+                                 vector<input_tensor_info> &            st_tensor_infos,
+                                 LinkedHashMap<string, tmp_map_result> &st_result_map)
+{
+    pPriv->device                 = config["device"].as<string>();
+    pPriv->useUserSuppliedBuffers = config["usingInitCaching"].as<bool>();
+    pPriv->usingInitCaching       = config["usingInitCaching"].as<bool>();
+    if (NCE_SUCCESS != pPriv->load_model(config["model_path"].as<string>().c_str(), st_tensor_infos, st_result_map))
     {
         printf("engine load model failed!\n");
         return NCE_FAILED;

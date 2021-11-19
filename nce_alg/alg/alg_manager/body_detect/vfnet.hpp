@@ -35,9 +35,7 @@ public:
     vector<input_tensor_info> *input_tensor_infos;
     vector<detect_result>      detect_results;
     vector<alg_result>         tmp_result;
-    NCE_F32 *                  score;
     img_info                   model_image_info;
-    NCE_U32                    topk;
     NCE_U32                    num_cls;
     NCE_U32                    num_anchors;
 

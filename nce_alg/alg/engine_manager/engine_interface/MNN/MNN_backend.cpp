@@ -133,7 +133,7 @@ public:
             else
             {
                 tmp_tensor.tensor.name           = name;
-                tmp_tensor.tensor.outfmt         = PLANNER;
+                tmp_tensor.tensor.outfmt         = PACKAGE;
                 tmp_tensor.tensor.scale          = 1;
                 tmp_tensor.tensor.u32ch          = shape[3];
                 tmp_tensor.tensor.u32FeatHeight  = shape[1];
@@ -199,6 +199,16 @@ MNN_engine::engine_init(const param_info &                     st_param_info,
     return NCE_SUCCESS;
 }
 
+NCE_S32
+MNN_engine::engine_init(const YAML::Node &                     config,
+                        vector<input_tensor_info> &            st_tensor_infos,
+                        LinkedHashMap<string, tmp_map_result> &st_result_map)
+{
+    // TODO support multi-image input, assert input and model dimension
+    pPriv->load_model(config["model_path"].as<string>().c_str(), st_result_map, st_tensor_infos);
+    return NCE_SUCCESS;
+}
+
 NCE_S32 MNN_engine::engine_inference(vector<img_t> &pc_img)
 {
     pPriv->inference(pc_img);
@@ -213,7 +223,7 @@ NCE_S32 MNN_engine::engine_get_result(LinkedHashMap<string, tmp_map_result> &st_
 
 NCE_S32 MNN_engine::engine_destroy()
 {
-    printf("successful engine destroy");
+    printf("successful engine destroy\n");
     return NCE_SUCCESS;
 }
 } // namespace nce_alg

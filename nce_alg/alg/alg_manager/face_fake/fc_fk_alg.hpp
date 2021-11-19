@@ -52,7 +52,10 @@ public:
     
     NCE_S32 alg_init(vector<input_tensor_info> &            st_tensor_infos,
                      LinkedHashMap<string, tmp_map_result> &st_result_map,
-                     YAML::Node &                           config);
+                     YAML::Node &                           config)
+    {
+        return NCE_SUCCESS;
+    }
     NCE_S32 alg_cfg_set(const task_config_info &st_task_config_info);
 
     NCE_S32 alg_inference(img_t &pc_img);

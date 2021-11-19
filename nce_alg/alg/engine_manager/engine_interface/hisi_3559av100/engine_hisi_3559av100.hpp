@@ -33,6 +33,10 @@ public:
                         vector<input_tensor_info> &            st_tensor_infos,
                         LinkedHashMap<string, tmp_map_result> &st_result_map);
 
+    NCE_S32 engine_init(const YAML::Node &                     config,
+                        vector<input_tensor_info> &            st_tensor_infos,
+                        LinkedHashMap<string, tmp_map_result> &st_result_map);
+
     NCE_S32 engine_inference(vector<img_t> &pc_img);
 
     NCE_S32 engine_get_result(LinkedHashMap<string, tmp_map_result> &st_engine_result);

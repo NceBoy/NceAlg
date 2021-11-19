@@ -51,6 +51,12 @@ typedef enum
 
 typedef enum
 {
+    REFLECTION_FILTER,
+    HOOK_MAX_NUM,
+} custom_hook;
+
+typedef enum
+{
     PACKAGE,
     PLANNER,
     YUV

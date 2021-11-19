@@ -23,6 +23,11 @@ public:
         return NCE_SUCCESS;
     };
 
+    NCE_S32 engine_init(const YAML::Node config, img_info &st_img_info, map<int, tmp_map_result> &st_result_map)
+    {
+        return NCE_SUCCESS;
+    };
+
     NCE_S32 engine_inference(img_t &pc_img)
     {
         return NCE_SUCCESS;

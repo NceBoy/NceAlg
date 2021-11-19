@@ -69,7 +69,7 @@ NCE_S32 centernet::alg_init(vector<input_tensor_info> &            st_tensor_inf
     NCE_S32 ret      = NCE_FAILED;
     int     i        = 0;
     pPriv            = shared_ptr<centernet_priv>(new centernet_priv());
-    const auto names = config["alg_config"]["output_names"];
+    const auto names = config["output_names"];
     for (auto &iter : names)
     {
         st_result_map.insert(make_pair(iter.as<string>(), tmp_map_result{ 0 }));
@@ -77,8 +77,8 @@ NCE_S32 centernet::alg_init(vector<input_tensor_info> &            st_tensor_inf
 
     input_tensor_info input0{ 0 };
     input0.order     = RGB;
-    const auto mean0 = config["alg_config"]["mean0"];
-    const auto std0  = config["alg_config"]["std0"];
+    const auto mean0 = config["mean0"];
+    const auto std0  = config["std0"];
     for (i = 0; i < 3; i++)
     {
         input0.mean[i] = mean0[i].as<float>();
@@ -86,8 +86,8 @@ NCE_S32 centernet::alg_init(vector<input_tensor_info> &            st_tensor_inf
     }
     st_tensor_infos.push_back(input0);
 
-    pPriv->topk          = config["alg_config"]["topk"].as<int>();
-    pPriv->output_stride = config["alg_config"]["out_stride"].as<int>();
+    pPriv->topk          = config["topk"].as<int>();
+    pPriv->output_stride = config["out_stride"].as<int>();
 
     pPriv->input_tensor_infos = &st_tensor_infos;
 

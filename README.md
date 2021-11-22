@@ -10,6 +10,7 @@
 - 跨平台：支持x64/hisi(nnie)/rk(npu)/ipu/dsp等不同网络推理单元。
 - 易扩展：添加平台和算法任务方便简洁
 - 接口简洁统一：无论算法任务和平台差异，对外的提供统一的c/c++接口调用
+- 高自由度：灵活的yaml配置方案，以及自定义钩子模块，能够让开发者在提高自由发挥的空间。
 ### 支持平台
 
 |                     | Windows CPU | Windows GPU | Linux CPU | Linux GPU | 加速单元(NNIE/IPUDSP) |
@@ -136,7 +137,7 @@ cd NceAlg
 ./build.sh -i host -b Debug
 make install
 ```
-- 对于支持的多平台可以通过 ./build.sh -h 查看
+- 对于支持的多平台可以通过 ./build.sh -h 查看，如果无法执行，可能是格式问题，重新建立一个build.sh并拷贝原来build.sh内容进入其内。
 - -i选择平台，-b选择Debug还是Release
 ### windows
 

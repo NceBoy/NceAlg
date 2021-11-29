@@ -137,7 +137,7 @@ cd NceAlg
 ./build.sh -i host -b Debug
 make install
 ```
-- 对于支持的多平台可以通过 ./build.sh -h 查看，如果无法执行，可能是格式问题，重新建立一个build.sh并拷贝原来build.sh内容进入其内。
+- 对于支持的多平台可以通过 ./build.sh -h 查看，如果无法执行，可能是格式问题. vi打开build.sh,输入：set ff=unix 并保存即可。
 - -i选择平台，-b选择Debug还是Release
 ### windows
 

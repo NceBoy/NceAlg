@@ -1,0 +1,3 @@
+[submodule "third-party/NceSimDb"]
+	path = third-party/NceSimDb
+	url = git@github.com:NceBoy/NceSimDb.git

@@ -3,7 +3,7 @@ INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/platform/hisi3559av100/include/)
 file(GLOB  PLATFORM_SRC ${PROJECT_SOURCE_DIR}/platform/hisi3559av100/drv/hisi_sdk_src/common/*.c
 						${PROJECT_SOURCE_DIR}/platform/hisi3559av100/drv/hisi_sdk_src/nnie/sample/*.c
 						${PROJECT_SOURCE_DIR}/platform/hisi3559av100/drv/hisi_sdk_src/nnie/sample_nnie_software/*.c
-						${PROJECT_SOURCE_DIR}/alg/engine_manager/engine_interface/hisi_3559av100/*.cpp
+						${PROJECT_SOURCE_DIR}/alg/engine_manager/hisi_3559av100/*.cpp
 						)
 					 
 message("${PLATFORM_SRC}")

@@ -1,0 +1,14 @@
+alg_config:
+    mean0: [127.5,127.5,127.5]
+    std0: [0.0078125,0.0078125,0.0078125]
+    conf_thresh: 0.45
+    output_names: [bbox_cls_1, bbox_reg_1, bbox_obj_1]
+    stride_num: [4]
+engine_config:
+    model_path: ./yolox_head.mnn
+custom_hook: 
+    body_nms_hook:
+        used_func: [after_alg_get_result]
+        nms_thresh: 0.6
+        small_thresh: 0.92
+        height_thresh: 0.9

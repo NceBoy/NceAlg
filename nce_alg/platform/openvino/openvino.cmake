@@ -3,7 +3,7 @@ add_definitions(-DPLATFORM=${PLATFORM})
 INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/platform/openvino/)
 INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/platform/openvino/common/)
 
-AUX_SOURCE_DIRECTORY(${PROJECT_SOURCE_DIR}/alg/engine_manager/engine_interface/openvino_backend/ OPENVINO_SRC)
+AUX_SOURCE_DIRECTORY(${PROJECT_SOURCE_DIR}/alg/engine_manager/openvino_backend/ OPENVINO_SRC)
 
 #设置hisi3516dv300所需源文件
 set(PLATFORM_SRC ${OPENVINO_SRC}) 

@@ -2,7 +2,7 @@
 ###
  # @Author: your name
  # @Date: 2021-09-16 10:31:35
- # @LastEditTime: 2021-11-19 16:37:34
+ # @LastEditTime: 2021-12-02 11:02:33
  # @LastEditors: Please set LastEditors
  # @Description: In User Settings Edit
  # @FilePath: \NceAlg\build.sh
@@ -77,24 +77,26 @@ function build_project()
 
     if [ "$PLATFORM" == "no" ];then
         echo "you should put -i for platform or -h for help"
-	elif [ "$PLATFORM" == "qt845_android" ];
-	then
-		echo "PLATFORM=$PLATFORM BUILDTYPE=$DEBUG"
-		rm -rf build
-		ANDROID_NDK=/home/video/user/yehc/sdk/android-ndk-r21/
-		NDK_PLATFORM=$ANDROID_NDK/platforms/android-24/arch-arm64
-		cmake -Bbuild																\
-			  -DCMAKE_TOOLCHAIN_FILE=/home/video/user/yehc/sdk/android-ndk-r21/build/cmake/android.toolchain.cmake      \
-			  -DCMAKE_BUILD_TYPE=Release                                            \
-			  -DANDROID_FORCE_ARM_BUILD=ON                                          \
-			  -DANDROID_NDK=${ANDROID_NDK}                                          \
-			  -DANDROID_SYSROOT=${NDK_PLATFORM}                                         \
-			  -DANDROID_ABI="arm64-v8a"                                 			\
-			  -DANDROID_TOOLCHAIN=clang												\
-			  -DANDROID_TOOLCHAIN_NAME="aarch64-linux-android-4.9"                  \
-			  -DANDROID_NATIVE_API_LEVEL=android-24                                 \
-			  -DANDROID_STL=c++_shared                                              \
-			  -DPLATFORM=qt845_android                                              
+	# elif [ "$PLATFORM" == "qt845_android" ];
+	# then
+	# 	echo "PLATFORM=$PLATFORM BUILDTYPE=$DEBUG"
+	# 	rm -rf build
+	# 	ANDROID_NDK=/home/video/user/yehc/sdk/android-ndk-r21/
+	# 	NDK_PLATFORM=${ANDROID_NDK}/platforms/android-24/arch-arm64
+	# 	cmake -Bbuild																\
+	# 		  -DCMAKE_TOOLCHAIN_FILE=/home/video/user/yehc/sdk/android-ndk-r21/build/cmake/android.toolchain.cmake      \
+	# 		  -DCMAKE_BUILD_TYPE=Release                                            \
+	# 		  -DANDROID_FORCE_ARM_BUILD=ON                                          \
+	# 		  -DANDROID_NDK=${ANDROID_NDK}                                          \
+	# 		  -DANDROID_SYSROOT=${NDK_PLATFORM}                                     \
+	# 		  -DANDROID_ABI="arm64-v8a"                                 			\
+	# 		  -DANDROID_TOOLCHAIN=clang												\
+	# 		  -DANDROID_TOOLCHAIN_NAME="aarch64-linux-android-4.9"                  \
+	# 		  -DANDROID_NATIVE_API_LEVEL=android-24                                 \
+	# 		  -DANDROID_STL=c++_shared                                              \
+	# 		  -DPLATFORM=qt845_android
+    #     cd build
+    #     make                                              
     else
         rm -rf build
         echo "PLATFORM=$PLATFORM BUILDTYPE=$DEBUG"

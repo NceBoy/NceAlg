@@ -45,6 +45,8 @@ typedef enum
     FACE_FAKE,
     CENTERNET,
     VFNET,
+    YOLOX,
+    OBJECT_RECOGNITION,
     MAX_CLS,
 
 } taskcls;
@@ -52,6 +54,8 @@ typedef enum
 typedef enum
 {
     REFLECTION_FILTER,
+    BODY_NMS,
+    SOFTMAX,
     HOOK_MAX_NUM,
 } custom_hook;
 
@@ -136,6 +140,22 @@ typedef struct tag_detect_result
 
 } detect_result;
 
+typedef enum tag_human_enum
+{
+    HUMANREC_BOTTLE,
+    HUMANREC_CHAIR,
+    HUMANREC_PERSON,
+    HUMANREC_SPPOT,
+    HUMANREC_MAXCLS
+} human_enum;
+
+typedef struct tag_humanbody_reco
+{
+    NCE_S32    label;    //can extract target score by score[label]
+    NCE_S32    dim;
+    NCE_F32    *score;
+} humanbody_reco;
+
 typedef struct alg_result
 {
     taskcls type;
@@ -218,6 +238,11 @@ typedef struct task_config_info
             NCE_S32 num_cls;
             NCE_S32 num_anchors;
         } bd_config;
+
+        struct ob_config // object_recog
+        {
+
+        } ob_config;
 
     } st_cfg;
 

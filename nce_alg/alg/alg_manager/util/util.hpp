@@ -4,12 +4,8 @@
 #include <iostream>
 #include "alg_type.h"
 #include <vector>
-#ifdef __cplusplus
-#if __cplusplus
-
-extern "C" {
-#endif
-#endif /* __cplusplus */
+#include <yaml-cpp/yaml.h>
+#include <assert.h>
 
 using namespace std;
 namespace nce_alg {
@@ -22,12 +18,31 @@ NCE_S32 refelction_judge(const img_t &          frame,
                          NCE_F32                conf_thresh,
                          NCE_F32                mean_thresh,
                          NCE_F32                var_thresh);
-} // namespace nce_alg
 
-#ifdef __cplusplus
-#if __cplusplus
+template <typename T>
+T get_yaml_default(const YAML::Node &config, std::string key, T value = -10000)
+{
+    auto sub_node = config[key];
+    bool is_defined = false;
+    try
+    {
+        is_defined = sub_node.IsDefined();
+    }
+    catch(...)
+    {
+    }
+    if (!is_defined)
+    {
+        if (-10000 == value)
+        {
+            printf("%s is not defined! and default value is NULL!!\n", key.c_str());
+            assert(false);
+        }
+        printf("%s is not defined! get default value\n", key.c_str());
+        return value;
+    }
+    return sub_node.as<T>();
 }
-#endif
-#endif /* __cplusplus */
+} // namespace nce_alg
 
 #endif /* __ENGINE_HISI3516_DV300_HPP__ */

@@ -1,11 +1,10 @@
 #include <iostream>
 #include <string>
 #include <vector>
-#include "fc_fk_alg.hpp"
+#include "face_fake/fc_fk_alg.hpp"
 #include <memory>
 #include "IEngine.hpp"
 #include <string.h>
-#include "util.hpp"
 
 using namespace std;
 namespace nce_alg {
@@ -88,7 +87,6 @@ NCE_S32 fc_fk_alg::alg_get_result(alg_result_info &results, map<int, tmp_map_res
     {
     }
 
-    softmax(3, pPriv->score);
     pPriv->head_info.push_back(person_head{ pPriv->score[0], { 0, 0, 0 } });
     pPriv->tmp_result.push_back(alg_result{PERSON_HEAD, &pPriv->head_info[0] });
     results.st_alg_results = &pPriv->tmp_result[0];

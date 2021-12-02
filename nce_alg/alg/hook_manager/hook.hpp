@@ -13,6 +13,8 @@
 #include "nce_tensor.hpp"
 #include <vector>
 #include "yaml-cpp/yaml.h"
+#include <cstring>
+#include "util/util.hpp"
 #ifdef __cplusplus
 #if __cplusplus
 extern "C" {

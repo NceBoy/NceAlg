@@ -39,18 +39,28 @@ public:
     vector<input_tensor_info>       ImageInfo;
     vector<img_t>                   privImgs;
 
-    NCE_S32 dynamic_factory_init(YAML::Node & input_config)
+    NCE_S32 dynamic_factory_init(YAML::Node &input_config)
     {
         auto hooks = input_config["custom_hook"];
         for (auto i = hooks.begin(); i != hooks.end(); i++)
         {
-            auto name      = i->first.as<std::string>();
+            auto name = i->first.as<std::string>();
             auto hook = i->second;
-            std::string hook_name = hook["name"].as<std::string>();
-            custom_hook hook_type = hook_str2enum_map[hook_name];
+            auto iter = hook_str2enum_map.find(name);
+            if (iter != hook_str2enum_map.end())
+                printf("hook: %s! registered!\n", name.c_str());
+            else
+            {
+                printf("hook: %s! not found!\n", name.c_str());
+                return NCE_FAILED;
+            }
+            custom_hook hook_type = hook_str2enum_map[name];
             auto        hook_ptr  = NceFactory<Hook>::GetInstance()->CreateObject(hook_type);
-            hook_ptr->hook_init(hooks);
-            hook_map["hook_init"].push_back(hook_ptr);
+            if (nullptr == hook_ptr)
+            {
+                printf("hook create failed! please check target hook: %s is registored\n", name.c_str());
+            }
+            hook_ptr->hook_init(hook);
             for (auto used_func : hook["used_func"])
             {
                 std::string func_name = used_func.as<std::string>();
@@ -67,9 +77,12 @@ public:
 
 private:
 };
-std::map<std::string, custom_hook>     nce_alg_machine::dynamic_factory::hook_str2enum_map = { { "reflection_filter_hook",
-                                                                                             REFLECTION_FILTER } };
-std::map<NCE_S32, base_process_create> nce_alg_machine::dynamic_factory::img_process_map   = {
+std::map<std::string, custom_hook> nce_alg_machine::dynamic_factory::hook_str2enum_map = {
+    { "reflection_filter_hook", REFLECTION_FILTER },
+    { "body_nms_hook", BODY_NMS },
+    { "softmax_hook", SOFTMAX }
+};
+std::map<NCE_S32, base_process_create> nce_alg_machine::dynamic_factory::img_process_map = {
     { PROC_PACKAGE2PLANNER, nce_package2planner::create_instance },
     { PROC_PLANNER2PACKAGE, nce_planner2package::create_instance },
     { PROC_NORMALIZATION, nce_normalization::create_instance },
@@ -79,24 +92,35 @@ std::map<NCE_S32, base_process_create> nce_alg_machine::dynamic_factory::img_pro
 nce_alg_machine::nce_alg_machine(taskcls alg_type, const platform engine_type)
 {
 
-    pPriv    = shared_ptr<dynamic_factory>(new nce_alg_machine::dynamic_factory());
+    pPriv = shared_ptr<dynamic_factory>(new nce_alg_machine::dynamic_factory());
     printf("target alg is %d\n", alg_type);
     pPriv->pAlg = NceFactory<IAlg>::GetInstance()->CreateObject(alg_type);
+    if (nullptr == pPriv->pAlg) 
+    {
+        printf("Alg create failed! please check alg type: %d in registered!\n", alg_type);
+    }
     printf("target engine is %d\n", engine_type);
     pPriv->pEngine = NceFactory<IEngine>::GetInstance()->CreateObject(engine_type);
+    if (nullptr == pPriv->pEngine)
+    {
+        printf("engine_type create failed! please check engine_type type: %d in registered!\n", engine_type);
+    }
 }
 
 NCE_S32 nce_alg_machine::nce_alg_init(const char *yaml_path, vector<img_info> &st_img_infos)
 {
-    auto config = YAML::LoadFile(yaml_path);
+    auto config        = YAML::LoadFile(yaml_path);
     auto engine_config = config["engine_config"];
-    auto alg_config = config["alg_config"];
-    pPriv->dynamic_factory_init(config);
+    auto alg_config    = config["alg_config"];
+    if (NCE_SUCCESS != pPriv->dynamic_factory_init(config))
+    {
+        printf("hook init error!\n");
+    }
+    printf("dynamic_factory_init success!\n");
     HOOK_INVOKE(pPriv->hook_map["before_alg_init"], before_alg_init, pPriv->ImageInfo, pPriv->tmp_map, config);
     pPriv->pAlg->alg_init(pPriv->ImageInfo, pPriv->tmp_map, alg_config);
     HOOK_INVOKE(pPriv->hook_map["after_alg_init"], after_alg_init, pPriv->ImageInfo, pPriv->tmp_map, config);
-    HOOK_INVOKE(
-        pPriv->hook_map["before_engine_init"], before_engine_init, config, pPriv->ImageInfo, pPriv->tmp_map);
+    HOOK_INVOKE(pPriv->hook_map["before_engine_init"], before_engine_init, config, pPriv->ImageInfo, pPriv->tmp_map);
     pPriv->pEngine->engine_init(engine_config, pPriv->ImageInfo, pPriv->tmp_map);
     HOOK_INVOKE(pPriv->hook_map["after_engine_init"], after_engine_init, config, pPriv->ImageInfo, pPriv->tmp_map);
 
@@ -129,10 +153,8 @@ NCE_S32 nce_alg_machine::nce_alg_init(const param_info &st_param_info, vector<im
 {
     NCE_S32 ret = NCE_FAILED;
 
-
     ret = pPriv->pAlg->alg_init(pPriv->ImageInfo, pPriv->tmp_map);
     ret = pPriv->pEngine->engine_init(st_param_info, pPriv->ImageInfo, pPriv->tmp_map);
-
 
     NCE_S32 count = 0;
     for (auto info : pPriv->ImageInfo)

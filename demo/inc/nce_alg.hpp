@@ -27,8 +27,8 @@ public:
     NCE_PUBLIC nce_alg_machine(taskcls alg_type, const platform engine_type);
 
     NCE_S32 NCE_PUBLIC nce_alg_init(const param_info &st_param_info, vector<img_info> &st_img_infos);
-	
-	NCE_S32 NCE_PUBLIC nce_alg_init(const char *yaml_path, vector<img_info> &st_img_infos);
+
+    NCE_S32 NCE_PUBLIC nce_alg_init(const char *yaml_path, vector<img_info> &st_img_infos);
 
     NCE_S32 NCE_PUBLIC nce_alg_cfg_set(const task_config_info &st_task_config_info);
 

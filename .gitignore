@@ -5,3 +5,5 @@
 .dll
 .txt
 *.[oa]
+nce_alg/alg/alg_manager/alg_closed_source
+nce_alg/alg/engine_manager/engine_closed_source

@@ -39,10 +39,10 @@ public:
         auto it                   = _create_function_map->find(alg_type);
         if (it == _create_function_map->end())
         {
-            printf("no match alg!\n");
+            printf("target registor not found %d !\n", alg_type);
             return NULL;
         }
-        printf("match alg!\n");
+        printf("match registor!\n");
         return it->second();
     }
 

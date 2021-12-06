@@ -1,3 +1,11 @@
+/*
+ * @Author: your name
+ * @Date: 2021-12-02 10:56:06
+ * @LastEditTime: 2021-12-06 15:23:24
+ * @LastEditors: your name
+ * @Description: 打开koroFileHeader查看配置 进行设置: https://github.com/OBKoro1/koro1FileHeader/wiki/%E9%85%8D%E7%BD%AE
+ * @FilePath: \NceAlg\nce_alg\alg\alg_manager\util\util.hpp
+ */
 #ifndef __UTIL_HPP__
 #define __UTIL_HPP__
 
@@ -20,7 +28,7 @@ NCE_S32 refelction_judge(const img_t &          frame,
                          NCE_F32                var_thresh);
 
 template <typename T>
-T get_yaml_default(const YAML::Node &config, std::string key, T value = -10000)
+T get_yaml_default(const YAML::Node &config, std::string key, T value )
 {
     auto sub_node = config[key];
     bool is_defined = false;
@@ -33,11 +41,6 @@ T get_yaml_default(const YAML::Node &config, std::string key, T value = -10000)
     }
     if (!is_defined)
     {
-        if (-10000 == value)
-        {
-            printf("%s is not defined! and default value is NULL!!\n", key.c_str());
-            assert(false);
-        }
         printf("%s is not defined! get default value\n", key.c_str());
         return value;
     }

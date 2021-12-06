@@ -170,7 +170,7 @@ NCE_S32 nce_alg_machine::nce_alg_init(const param_info &st_param_info, vector<im
         printf("alg init %d %d %d\n", info.width, info.height, info.channel);
         pPriv->privImgs.push_back(tmp_img);
 
-        img_info tmp_img_info;
+        img_info tmp_img_info = {0};
         tmp_img_info.u32Height  = info.height;
         tmp_img_info.u32Width   = info.width;
         tmp_img_info.u32channel = info.channel;

@@ -48,7 +48,7 @@ int main(int argc, char *argv[])
     //初始化参数 IN
     param_info hisi3559_param;
     hisi3559_param.pc_model_path = pcModelName;
-    hisi3559_param.priv_cfg_path = "./config.yaml";
+    hisi3559_param.priv_cfg_path = NULL;//"./config.yaml";
     //图片组信息 OUT
     nce_alg_c_img_infos img_infos;
     

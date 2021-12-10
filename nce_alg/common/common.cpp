@@ -47,19 +47,19 @@ NCE_S32 nce_write_img(const char *img_path, img_t &input_img)
     switch (f)
     {
         case 0:
-            sprintf(buff, "%s.jpg", img_path);
+            sprintf(buff, "%s", img_path);
             success = stbi_write_jpg(buff, width, height, channel, input_img.image, 80);
             break;
         case 1:
-            sprintf(buff, "%s.png", img_path);
+            sprintf(buff, "%s", img_path);
             success = stbi_write_png(buff, width, height, channel, input_img.image, width * channel);
             break;
         case 2:
-            sprintf(buff, "%s.tga", img_path);
+            sprintf(buff, "%s", img_path);
             success = stbi_write_tga(buff, width, height, channel, input_img.image);
             break;
         case 3:
-            sprintf(buff, "%s.bmp", img_path);
+            sprintf(buff, "%s", img_path);
             success = stbi_write_bmp(buff, width, height, channel, input_img.image);
             break;
         default:

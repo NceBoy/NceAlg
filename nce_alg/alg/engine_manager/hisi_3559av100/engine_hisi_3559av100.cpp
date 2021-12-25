@@ -80,7 +80,7 @@ public:
 
         char *model_path = (char *)config["model_path"].as<string>().c_str();
         /*Sys init*/
-        mmz_init = config["hisi_mmz_init"].as<bool>;
+        mmz_init = (NCE_BOOL)config["hisi_mmz_init"].as<bool>();
         if (mmz_init)
             SAMPLE_COMM_SVP_CheckSysInit();
         /*CNN Load model*/
@@ -386,7 +386,7 @@ NCE_S32 hisi_3559av100_engine::engine_init(const YAML::Node &                   
                                            vector<input_tensor_info> &            st_tensor_infos,
                                            LinkedHashMap<string, tmp_map_result> &st_result_map)
 {
-    pPriv->engine_init((char *)config["model_path"].as<string>().c_str(), st_tensor_infos, st_result_map);
+    pPriv->engine_init(config, st_tensor_infos, st_result_map);
     return NCE_SUCCESS;
     // SAMPLE_COMM_SVP_CheckSysExit();
 }

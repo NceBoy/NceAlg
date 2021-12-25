@@ -2,6 +2,8 @@ alg_config:
     topk: 100
     num_anchors: 3
     num_cls: 1
+    conf_thresh: 0.5
+    stride_num: 5
     mean0: [127.5,127.5,127.5]
     std0: [0.0078125,0.0078125,0.0078125]
     output_names: ["P3_bbox_reg", "p4_bboxes_reg", "p5_bboxes_reg","P6_bbox_reg","P7_bbox_reg","P3_logits","P4_logits","P5_logits","P6_logits","P7_logits"]
@@ -9,3 +11,11 @@ engine_config:
     model_path: ./vfnet.wk
     engine_type: nnie
     engine_core: 0
+    hisi_mmz_init: true
+custom_hook: 
+    body_nms_hook:
+        used_func: [after_alg_get_result]
+        nms_thresh: 0.3
+        small_thresh: 0.92
+        height_thresh: 0.9
+        is_body: true

@@ -75,11 +75,11 @@ int main(int argc, char *argv[])
     machine.init_func(machine.pPriv,&hisi3559_param,&img_infos);
 
     //设置算法运行时参数
-    task_config_info task_config;
+    /*task_config_info task_config;
     task_config.threshold                   = 0.3;
     task_config.isLog                       = 0;
     task_config.st_cfg.hd_config.nms_thresh = 0.6;
-    machine.cfg_set_func(machine.pPriv,&task_config);
+    machine.cfg_set_func(machine.pPriv,&task_config);*/
     
     
     clock_gettime(0, &start);

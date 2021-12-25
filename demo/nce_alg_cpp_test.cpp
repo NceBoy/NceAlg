@@ -4,7 +4,7 @@
  * @Author: Haochen Ye
  * @Date: 2021-08-23 10:12:26
  * @LastEditors: Please set LastEditors
- * @LastEditTime: 2021-12-25 14:08:09
+ * @LastEditTime: 2021-12-25 20:29:51
  */
 
 #include <iostream>
@@ -116,12 +116,12 @@ int main(int argc, char *argv[])
         resize_info.type                         = PROC_RESIZE;
         resize_info.Info.resize_info.dst_channel = model_input.u32channel;
         resize_info.Info.resize_info.dst_height  = model_input.u32Height;
-        resize_info.Info.resize_info.dst_width   = model_input.u32Width;*/
+        resize_info.Info.resize_info.dst_width   = model_input.u32Width;
 
         nce_resize func_resize(resize_info);
         printf("before func_resize\n");
         func_resize.forward(input_img, input_img);
-        printf("after func_resize\n");
+        printf("after func_resize\n");*/
 
 
 

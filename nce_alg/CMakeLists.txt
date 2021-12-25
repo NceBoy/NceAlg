@@ -9,8 +9,10 @@ if(CMAKE_BUILD_TYPE MATCHES "Debug")
 SET(CMAKE_BUILD_TYPE_POSTFIX "d")
 endif()
 
+
 include(${PROJECT_SOURCE_DIR}/platform/${PLATFORM}/${PLATFORM}.cmake) 
 include(${PROJECT_SOURCE_DIR}/../third-party/modules.cmake) 
+
 
 INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/alg/)
 INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/alg/core/)
@@ -37,9 +39,10 @@ file(GLOB_RECURSE  ALG_SRC ${PROJECT_SOURCE_DIR}/alg/alg_manager/*.c
 file(GLOB_RECURSE  HOOK_SRC ${PROJECT_SOURCE_DIR}/alg/hook_manager/*.c
                               ${PROJECT_SOURCE_DIR}/alg/hook_manager/*.cpp)
 
+
 #third-party
-INCLUDE_DIRECTORIES(${YAMLCPP_HEADER_DIR})
-link_directories(${YAMLCPP_LINK_DIR})
+#INCLUDE_DIRECTORIES(${YAMLCPP_HEADER_DIR})
+#link_directories(${YAMLCPP_LINK_DIR})
 #生成动态库  静态库则 STATIC
 ADD_LIBRARY(${PROJECT_NAME} SHARED 
 ${LIB_SRC}
@@ -58,6 +61,8 @@ ${COMMON_SRC}
 ${CPPLIB_SRC})
 
 message( STATUS ${THIRD_PARTY_LIB})
+
+
 target_link_libraries(${PROJECT_NAME}
 -Wl,--start-group
 ${OPENCV_LIB}
@@ -72,6 +77,8 @@ ${PLATFORM_LIB}
 ${THIRD_PARTY_LIB}
 -Wl,--end-group)
 
+add_dependencies(${PROJECT_NAME} ${THIRD_PARTY_NEED})
+add_dependencies(${PROJECT_NAME}-static ${THIRD_PARTY_NEED})
 #给静态库重命名为hello，最后会生成libhello.a
 SET_TARGET_PROPERTIES(${PROJECT_NAME}-static PROPERTIES OUTPUT_NAME ${PROJECT_NAME})
 

@@ -102,7 +102,7 @@ function build_project()
         echo "PLATFORM=$PLATFORM BUILDTYPE=$DEBUG"
         cmake -Bbuild -DCMAKE_TOOLCHAIN_FILE=./cmake/$PLATFORM/${PLATFORM}_toolchain.cmake -DPLATFORM=$PLATFORM  -DCMAKE_INSTALL_PREFIX=./install/ -DCMAKE_BUILD_TYPE=$DEBUG
         cd build
-        make
+        make -j 4
         make install
     fi
 }

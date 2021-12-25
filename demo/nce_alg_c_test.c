@@ -106,7 +106,7 @@ int main(int argc, char *argv[])
     
     //绘图接口需要在package下完成
     nce_c_planner2package(&frame);
-    Bbox box;
+    Bbox box = {0};
     for (int i = 0; i < results.num; i++)
     {
         result = (detect_result *)((results.st_alg_results + i)->obj);

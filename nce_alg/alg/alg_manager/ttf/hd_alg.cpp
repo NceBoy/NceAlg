@@ -4,7 +4,7 @@
 #include <memory>
 #include <string.h>
 #include "ttf/hd_alg.hpp"
-
+#include "util/util.hpp"
 #ifndef HISI_4096
 #define HISI_4096 1.0f
 #endif
@@ -26,35 +26,6 @@ hd_alg::hd_alg()
 {}
 
 NCE_S32 hd_alg::alg_init(vector<input_tensor_info> &            st_tensor_infos,
-                         LinkedHashMap<string, tmp_map_result> &st_result_map)
-{
-    NCE_S32 ret = NCE_FAILED;
-    pPriv       = shared_ptr<hd_alg_priv>(new hd_alg_priv());
-    // st_result_map.insert({0,pPriv->tag[0]});
-    // st_result_map.insert({1,pPriv->tag[1]});
-    st_result_map.insert(std::make_pair("hm", tmp_map_result{ 0 }));
-    st_result_map.insert(std::make_pair("wh", tmp_map_result{ 0 }));
-    st_result_map["hm"].tensor.name = "hm";
-    st_result_map["wh"].tensor.name = "wh";
-
-    input_tensor_info input0{ 0 };
-    input0.order     = RGB;
-    NCE_F32 mean0[3] = { 127.5f, 127.5f, 127.5f };
-    NCE_F32 std[3]   = { 0.0078125f, 0.0078125f, 0.0078125f };
-
-    memcpy(input0.mean, mean0, sizeof(NCE_F32) * 3);
-    memcpy(input0.std, std, sizeof(NCE_F32) * 3);
-    st_tensor_infos.push_back(input0);
-    pPriv->input_tensor_infos = &st_tensor_infos;
-
-    if (NULL != pPriv)
-    {
-        ret = NCE_SUCCESS;
-    }
-    return ret;
-}
-
-NCE_S32 hd_alg::alg_init(vector<input_tensor_info> &            st_tensor_infos,
                          LinkedHashMap<string, tmp_map_result> &st_result_map,
                          YAML::Node &                           config)
 {
@@ -62,7 +33,7 @@ NCE_S32 hd_alg::alg_init(vector<input_tensor_info> &            st_tensor_infos,
     int     i   = 0;
     pPriv       = shared_ptr<hd_alg_priv>(new hd_alg_priv());
 
-    const auto names = config["alg_config"]["output_names"];
+    const auto names = config["output_names"];
     for (auto &iter : names)
     {
         st_result_map.insert(make_pair(iter.as<string>(), tmp_map_result{ 0 }));
@@ -70,8 +41,8 @@ NCE_S32 hd_alg::alg_init(vector<input_tensor_info> &            st_tensor_infos,
 
     input_tensor_info input0{ 0 };
     input0.order     = RGB;
-    const auto mean0 = config["alg_config"]["mean0"];
-    const auto std0  = config["alg_config"]["std0"];
+    const auto mean0 = config["mean0"];
+    const auto std0  = config["std0"];
     for (i = 0; i < 3; i++)
     {
         input0.mean[i] = mean0[i].as<float>();
@@ -140,6 +111,7 @@ NCE_S32 hd_alg::alg_get_result(alg_result_info &results, LinkedHashMap<string, t
     auto     wh_channel_stride = wh.tensor.channel_stride;
     NCE_F32 *hm_feat           = (NCE_F32 *)hm.pu32Feat;
     NCE_F32 *wh_feat           = (NCE_F32 *)wh.pu32Feat;
+                        printf("score :%f\n",pPriv->alg_cfg.threshold);
     for (NCE_U32 y = 0; y < feat_height; y++)
     {
         for (NCE_U32 x = 0; x < feat_width; x++)
@@ -148,8 +120,10 @@ NCE_S32 hd_alg::alg_get_result(alg_result_info &results, LinkedHashMap<string, t
             NCE_U32 wh_index = x * wh_width_stride + y * wh_height_stride;
 
             NCE_F32 score = hm_feat[hm_index];
+
             if (score < pPriv->alg_cfg.threshold)
                 continue;
+  
             NCE_F32 left  = wh_feat[wh_index + 0 * wh_channel_stride];
             NCE_F32 top   = wh_feat[wh_index + 1 * wh_channel_stride];
             NCE_F32 right = wh_feat[wh_index + 2 * wh_channel_stride];

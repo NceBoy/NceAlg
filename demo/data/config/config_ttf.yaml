@@ -1,0 +1,18 @@
+alg_config:
+    topk: 100
+    num_anchors: 3
+    num_cls: 1
+    mean0: [127.5,127.5,127.5]
+    std0: [0.0078125,0.0078125,0.0078125]
+    output_names: ["hm", "wh"]
+engine_config:
+    model_path: ./ttf_725_pre_br.rknn
+    engine_type: npu
+    engine_core: 0
+custom_hook: 
+    body_nms_hook:
+        used_func: [after_alg_get_result]
+        nms_thresh: 0.3
+        small_thresh: 0.92
+        height_thresh: 0.9
+        is_body: true

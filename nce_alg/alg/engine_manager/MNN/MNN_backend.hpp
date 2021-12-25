@@ -11,7 +11,7 @@
 
 #include <alg_type.h>
 #include <IEngine.hpp>
-#include  "linkedhashmap.h"
+#include "linkedhashmap.h"
 #include <memory>
 #include "factory.hpp"
 #include <vector>
@@ -29,15 +29,9 @@ class MNN_engine : public IEngine, public NceCreator<MNN_engine, IEngine, MNNPLA
 public:
     MNN_engine();
 
-    NCE_S32
-    engine_init(const param_info &                     st_param_info,
-                vector<input_tensor_info> &            st_tensor_infos,
-                LinkedHashMap<string, tmp_map_result> &st_result_map);
-
-    NCE_S32
-    engine_init(const YAML::Node &                     config,
-                vector<input_tensor_info> &            st_tensor_infos,
-                LinkedHashMap<string, tmp_map_result> &st_result_map);
+    NCE_S32 engine_init(const YAML::Node &                     config,
+                        vector<input_tensor_info> &            st_tensor_infos,
+                        LinkedHashMap<string, tmp_map_result> &st_result_map);
 
     NCE_S32 engine_inference(vector<img_t> &pc_imgs);
 

@@ -30,10 +30,6 @@ class hisi_3516dv300_engine : public IEngine, public NceCreator<hisi_3516dv300_e
 public:
     hisi_3516dv300_engine();
 
-    NCE_S32 engine_init(const param_info &                     st_param_info,
-                        vector<input_tensor_info> &            st_tensor_infos,
-                        LinkedHashMap<string, tmp_map_result> &st_result_map);
-
     NCE_S32 engine_init(const YAML::Node &                     config,
                         vector<input_tensor_info> &            st_tensor_infos,
                         LinkedHashMap<string, tmp_map_result> &st_result_map);

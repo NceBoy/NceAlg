@@ -48,25 +48,43 @@ using namespace nce_alg;
 /******************************************************************************
  * function : show usage
  ******************************************************************************/
-void Show_Usage(char *pchPrgName)
+void Show_Usage()
 {
-    printf("Usage : %s <index> \n", pchPrgName);
-    printf("index:\n");
-    printf("\t 4) Cnn(Read File).\n");
+    printf("the 1th param is yampath\n"
+           "the 2th param is picturepath\n"
+           "the 3th param is alg type\n"
+            "----HISI_3516DV300------0\n"
+            "----HISI_3559AV100------1\n"
+            "----RK_1808-------------2\n"
+            "----RV_1126-------------3\n"
+            "----RV_1109-------------4\n"
+            "----OPENVINO------------5\n"
+            "----MNNPLATFORM---------6\n"
+            "----SNPE_PLATFORM-------7\n"
+            "----HOST----------------8\n"
+            "the 4th param is alg type\n"
+            "----PERSON_HEAD---------0\n"
+            "----FACE_DETECT---------1\n"
+            "----FACE_PRNET----------2\n"
+            "----FACE_RECOGNIZE------3\n"
+            "----FACE_FAKE-----------4\n"
+            "----CENTERNET-----------5\n"
+            "----VFNET---------------6\n"
+            "----YOLOX---------------7\n"
+            "----OBJECT_RECOGNITION--8\n");
 }
-
 int main(int argc, char *argv[])
 {
     // return 0;
 #if 1
-    if (argc < 3 || argc > 3)
+    if (argc < 5 || argc > 5)
     {
-        Show_Usage(argv[0]);
+        Show_Usage();
         return -1;
     }
     try
     {
-        char *pcModelName = argv[1];
+        char *pcYamlName = argv[1];
         char *pcSrcFile   = argv[2];
 
         // opencv读进来 是hwc 也就是 pakcage
@@ -86,8 +104,8 @@ int main(int argc, char *argv[])
         }
 
         vector<img_info> imgInfo;
-        nce_alg_machine  hd_model(YOLOX, MNNPLATFORM);
-        hd_model.nce_alg_init(pcModelName, imgInfo);
+        nce_alg_machine  hd_model(taskcls(atoi(argv[4])), platform(atoi(argv[3])));
+        hd_model.nce_alg_init(pcYamlName, imgInfo);
         auto model_input = imgInfo[0];
         printf("input img dim is width: %d, height: %d, channel: %d",
                model_input.u32Width,

@@ -33,7 +33,8 @@ public:
     SAMPLE_SVP_NNIE_PARAM_S stENnieParam;
     SAMPLE_SVP_NNIE_CFG_S   stNnieCfg;
 
-    NCE_U32 input_num;
+    NCE_U32  input_num;
+    NCE_BOOL mmz_init;
     // NCE_U32 u32Stride;
     // NCE_U32 u32Ch;
     // NCE_U32 u32Height;
@@ -63,7 +64,7 @@ public:
         }
         return NCE_SUCCESS;
     }
-    NCE_S32 engine_init(char *                          model_path,
+    NCE_S32 engine_init(const YAML::Node &                     config,
                         vector<input_tensor_info> &            st_tensor_infos,
                         LinkedHashMap<string, tmp_map_result> &st_result_map)
     {
@@ -77,8 +78,11 @@ public:
         stNnieCfg.u32MaxRoiNum     = 0;
         stNnieCfg.aenNnieCoreId[0] = SVP_NNIE_ID_0; // set NNIE core
 
+        char *model_path = (char *)config["model_path"].as<string>().c_str();
         /*Sys init*/
-        // SAMPLE_COMM_SVP_CheckSysInit();
+        mmz_init = config["hisi_mmz_init"].as<bool>;
+        if (mmz_init)
+            SAMPLE_COMM_SVP_CheckSysInit();
         /*CNN Load model*/
         SAMPLE_SVP_TRACE_INFO("Cnn Load model!\n");
         s32Ret = SAMPLE_COMM_SVP_NNIE_LoadModel(model_path, &stENnieModel);
@@ -129,7 +133,6 @@ public:
 
     CNN_FAIL_0:
         SAMPLE_SVP_NNIE_Cnn_Deinit(&stENnieParam, &stENnieModel);
-
     }
 
     HI_S32 SAMPLE_SVP_NNIE_FillSrcData(SAMPLE_SVP_NNIE_PARAM_S *pstNnieParam, vector<img_t> &frames)
@@ -379,23 +382,11 @@ hisi_3559av100_engine::hisi_3559av100_engine()
     pPriv = shared_ptr<engine_priv>(new hisi_3559av100_engine::engine_priv());
 };
 
-NCE_S32 hisi_3559av100_engine::engine_init(const param_info &                     st_param_info,
-                                           vector<input_tensor_info> &            st_tensor_infos,
-                                           LinkedHashMap<string, tmp_map_result> &st_result_map){
-    pPriv->engine_init(st_param_info.pc_model_path,
-                       st_tensor_infos,
-                       st_result_map);
-    return NCE_SUCCESS;
-    // SAMPLE_COMM_SVP_CheckSysExit();
-}
-
 NCE_S32 hisi_3559av100_engine::engine_init(const YAML::Node &                     config,
                                            vector<input_tensor_info> &            st_tensor_infos,
                                            LinkedHashMap<string, tmp_map_result> &st_result_map)
 {
-    pPriv->engine_init((char *)config["model_path"].as<string>().c_str(), 
-                       st_tensor_infos, 
-                       st_result_map);
+    pPriv->engine_init((char *)config["model_path"].as<string>().c_str(), st_tensor_infos, st_result_map);
     return NCE_SUCCESS;
     // SAMPLE_COMM_SVP_CheckSysExit();
 }
@@ -469,14 +460,12 @@ NCE_S32 hisi_3559av100_engine::engine_destroy()
     HI_S32 s32Ret = HI_SUCCESS;
     /*hardware para deinit*/
     if (&pPriv->stENnieParam != NULL)
-    {
         s32Ret = SAMPLE_COMM_SVP_NNIE_ParamDeinit(&pPriv->stENnieParam);
-    }
     /*model deinit*/
     if (&pPriv->stENnieModel != NULL)
-    {
         s32Ret = SAMPLE_COMM_SVP_NNIE_UnloadModel(&pPriv->stENnieModel);
-    }
+    if (pPriv->mmz_init)
+        SAMPLE_COMM_SVP_CheckSysExit();
     return s32Ret;
 }
 } // namespace nce_alg

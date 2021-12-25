@@ -19,8 +19,9 @@ namespace nce_alg {
 class openvino_engine : public IEngine, public NceEngineCreator<openvino_engine, IEngine, OPENVINO>
 {
 public:
-    NCE_S32
-    engine_init(const param_info &st_param_info, img_info &st_img_info, map<int, tmp_map_result> &st_result_map);
+    NCE_S32 engine_init(const YAML::Node &                     config,
+                        vector<input_tensor_info> &            st_tensor_infos,
+                        LinkedHashMap<string, tmp_map_result> &st_result_map);
 
     NCE_S32 engine_inference(img_t &pc_img);
 

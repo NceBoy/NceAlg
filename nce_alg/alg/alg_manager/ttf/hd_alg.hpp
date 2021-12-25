@@ -57,8 +57,6 @@ class hd_alg : public IAlg, public NceCreator<hd_alg, IAlg, PERSON_HEAD>
 public:
     hd_alg();
 
-    NCE_S32 alg_init(vector<input_tensor_info> &st_tensor_infos, LinkedHashMap<string, tmp_map_result> &st_result_map);
-
     NCE_S32 alg_init(vector<input_tensor_info> &            st_tensor_infos,
                      LinkedHashMap<string, tmp_map_result> &st_result_map,
                      YAML::Node &                           config);

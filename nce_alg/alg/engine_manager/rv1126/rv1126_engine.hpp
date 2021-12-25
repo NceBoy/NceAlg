@@ -29,10 +29,6 @@ class rv1126_engine : public IEngine, public NceCreator<rv1126_engine, IEngine, 
 public:
     rv1126_engine();
 
-    NCE_S32 engine_init(const param_info &                     st_param_info,
-                        vector<input_tensor_info> &            st_tensor_infos,
-                        LinkedHashMap<string, tmp_map_result> &st_result_map);
-
     NCE_S32 engine_init(const YAML::Node &                     config,
                         vector<input_tensor_info> &            st_tensor_infos,
                         LinkedHashMap<string, tmp_map_result> &st_result_map);

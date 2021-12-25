@@ -1,29 +1,50 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include "alg_type.h"
 #include "nce_alg_c.h"
-#include "hi_comm_svp.h"
-#include "sample_comm_svp.h"
 #include <time.h>
 
 
 /******************************************************************************
  * function : show usage
  ******************************************************************************/
-void Show_Usage(char *pchPrgName)
+void Show_Usage()
 {
-    printf("Usage : %s <index> \n", pchPrgName);
-    printf("index:\n");
-    printf("\t 4) Cnn(Read File).\n");
+    printf("the 1th param is yampath\n"
+           "the 2th param is picturepath\n"
+           "the 3th param is alg type\n"
+            "----HISI_3516DV300------0\n"
+            "----HISI_3559AV100------1\n"
+            "----RK_1808-------------2\n"
+            "----RV_1126-------------3\n"
+            "----RV_1109-------------4\n"
+            "----OPENVINO------------5\n"
+            "----MNNPLATFORM---------6\n"
+            "----SNPE_PLATFORM-------7\n"
+            "----HOST----------------8\n"
+            "the 4th param is alg type\n"
+            "----PERSON_HEAD---------0\n"
+            "----FACE_DETECT---------1\n"
+            "----FACE_PRNET----------2\n"
+            "----FACE_RECOGNIZE------3\n"
+            "----FACE_FAKE-----------4\n"
+            "----CENTERNET-----------5\n"
+            "----VFNET---------------6\n"
+            "----YOLOX---------------7\n"
+            "----OBJECT_RECOGNITION--8\n");
 }
 
 int main(int argc, char *argv[])
 {
-    if (argc < 3 || argc > 3)
-        Show_Usage(argv[0]);
+    if (argc < 5 || argc > 5)
+    {
+        Show_Usage();
+        return -1;
+    }    
 
     //注意 该接口如果在编码模块已经调用，则无需再次调用
-    SAMPLE_COMM_SVP_CheckSysInit();
-    char *pcModelName = argv[1];
+    //SAMPLE_COMM_SVP_CheckSysInit();
+    char *pcYamlName = argv[1];
     char *pcSrcFile   = argv[2];
 
     // 读进来 是hwc 也就是 pakcage
@@ -36,8 +57,8 @@ int main(int argc, char *argv[])
 
 
     //根据类型，算法构造相应的引擎工厂
-    machine.clstype = VFNET;
-    machine.platformtype = HISI_3559AV100;
+    machine.clstype = atoi(argv[4]);//VFNET;
+    machine.platformtype = atoi(argv[3]);//HISI_3559AV100;
     nce_alg_c_machine_init(&machine);
 
     //读图测试，实际运行不需要，实际hisi需要rgb，planner格式的图片
@@ -47,8 +68,7 @@ int main(int argc, char *argv[])
     //初始化
     //初始化参数 IN
     param_info hisi3559_param;
-    hisi3559_param.pc_model_path = pcModelName;
-    hisi3559_param.priv_cfg_path = NULL;//"./config.yaml";
+    hisi3559_param.yaml_cfg_path = pcYamlName;//"./config.yaml";
     //图片组信息 OUT
     nce_alg_c_img_infos img_infos;
     
@@ -56,7 +76,7 @@ int main(int argc, char *argv[])
 
     //设置算法运行时参数
     task_config_info task_config;
-    task_config.threshold                   = 0.6;
+    task_config.threshold                   = 0.3;
     task_config.isLog                       = 0;
     task_config.st_cfg.hd_config.nms_thresh = 0.6;
     machine.cfg_set_func(machine.pPriv,&task_config);
@@ -75,7 +95,7 @@ int main(int argc, char *argv[])
 
     clock_gettime(0, &end);
     spend = (end.tv_sec - start.tv_sec) * 1000 + (end.tv_nsec - start.tv_nsec) / 1000000;
-    printf("\n[for hisi]===== TIME SPEND: %ld ms =====\n", spend);
+    printf("\n[for inference]===== TIME SPEND: %ld ms =====\n", spend);
     
 
     //注意！！！！由于alg_result_info中的 st_alg_results指针
@@ -89,8 +109,8 @@ int main(int argc, char *argv[])
     Bbox box;
     for (int i = 0; i < results.num; i++)
     {
-
-        result = ((detect_result *)results.st_alg_results->obj) + i;
+        result = (detect_result *)((results.st_alg_results + i)->obj);
+        //result = ((detect_result *)results.st_alg_results->obj) + i;
         box.x1 = result->x1;
         box.y1 = result->y1;
         box.x2 = result->x2;
@@ -103,6 +123,6 @@ int main(int argc, char *argv[])
     nce_c_free_img(&frame);
     nce_alg_c_machine_deinit(&machine);
 
-    SAMPLE_COMM_SVP_CheckSysExit();
+    //SAMPLE_COMM_SVP_CheckSysExit();
 
 }

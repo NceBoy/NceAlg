@@ -48,14 +48,10 @@ public:
 class fc_fk_alg : public IAlg, public NceCreator<fc_fk_alg, IAlg, FACE_FAKE>
 {
 public:
-    NCE_S32 alg_init(const param_info &st_param_info, map<int, tmp_map_result> &st_result_map);
     
     NCE_S32 alg_init(vector<input_tensor_info> &            st_tensor_infos,
                      LinkedHashMap<string, tmp_map_result> &st_result_map,
-                     YAML::Node &                           config)
-    {
-        return NCE_SUCCESS;
-    }
+                     YAML::Node &                           config);
     NCE_S32 alg_cfg_set(const task_config_info &st_task_config_info);
 
     NCE_S32 alg_inference(img_t &pc_img);

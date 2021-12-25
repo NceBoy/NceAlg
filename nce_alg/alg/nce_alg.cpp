@@ -11,7 +11,10 @@
 /*祭奠一下宏定义拼接的实现方案*/
 /*#define __strcat_task_cls(ALG, ENGINE) ALG##_##ENGINE
 #define strcat_task_cls(ALG, ENGINE) __strcat_task_cls(ALG, ENGINE)
+那是逝去的青春~~~
 */
+
+/*新欢hook扭着迷人的腰肢她来了*/
 #define HOOK_INVOKE(vechook, func_name, ...) \
     {                                        \
         for (auto &hook : vechook)           \
@@ -107,9 +110,9 @@ nce_alg_machine::nce_alg_machine(taskcls alg_type, const platform engine_type)
     }
 }
 
-NCE_S32 nce_alg_machine::nce_alg_init(const char *yaml_path, vector<img_info> &st_img_infos)
+NCE_S32 nce_alg_machine::nce_alg_init(const char *yaml_cfg_path, vector<img_info> &st_img_infos)
 {
-    auto config        = YAML::LoadFile(yaml_path);
+    auto config        = YAML::LoadFile(yaml_cfg_path);
     auto engine_config = config["engine_config"];
     auto alg_config    = config["alg_config"];
     if (NCE_SUCCESS != pPriv->dynamic_factory_init(config))
@@ -147,38 +150,6 @@ NCE_S32 nce_alg_machine::nce_alg_init(const char *yaml_path, vector<img_info> &s
     }
 
     return NCE_SUCCESS;
-}
-
-NCE_S32 nce_alg_machine::nce_alg_init(const param_info &st_param_info, vector<img_info> &st_img_infos)
-{
-    NCE_S32 ret = NCE_FAILED;
-
-    ret = pPriv->pAlg->alg_init(pPriv->ImageInfo, pPriv->tmp_map);
-    ret = pPriv->pEngine->engine_init(st_param_info, pPriv->ImageInfo, pPriv->tmp_map);
-
-    NCE_S32 count = 0;
-    for (auto info : pPriv->ImageInfo)
-    {
-        img_info tmp;
-        tmp.u32Width   = info.width;
-        tmp.u32Height  = info.height;
-        tmp.u32channel = info.channel;
-        tmp.order      = info.order;
-        tmp.format     = info.format;
-        img_t tmp_img{ 0 };
-        tmp_img.image = new NCE_U8[info.width * info.height * info.channel];
-        printf("alg init %d %d %d\n", info.width, info.height, info.channel);
-        pPriv->privImgs.push_back(tmp_img);
-
-        img_info tmp_img_info = {0};
-        tmp_img_info.u32Height  = info.height;
-        tmp_img_info.u32Width   = info.width;
-        tmp_img_info.u32channel = info.channel;
-
-        st_img_infos.push_back(tmp_img_info);
-    }
-
-    return ret;
 }
 
 NCE_S32 nce_alg_machine::nce_alg_cfg_set(const task_config_info &st_task_config_info)

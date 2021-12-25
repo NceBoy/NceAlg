@@ -274,13 +274,6 @@ rv1126_engine::rv1126_engine()
     pPriv = shared_ptr<engine_priv>(new rv1126_engine::engine_priv());
 };
 
-NCE_S32 rv1126_engine::engine_init(const param_info &                     st_param_info,
-                                   vector<input_tensor_info> &            st_tensor_infos,
-                                   LinkedHashMap<string, tmp_map_result> &st_result_map)
-{
-    pPriv->engine_init(st_param_info.pc_model_path, st_tensor_infos, st_result_map);
-    return NCE_SUCCESS;
-}
 
 NCE_S32 rv1126_engine::engine_init(const YAML::Node &                     config,
                                    vector<input_tensor_info> &            st_tensor_infos,

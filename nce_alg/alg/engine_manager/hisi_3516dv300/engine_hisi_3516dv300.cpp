@@ -38,7 +38,8 @@ public:
     SAMPLE_SVP_NNIE_PARAM_S stENnieParam;
     SAMPLE_SVP_NNIE_CFG_S   stNnieCfg;
 
-    NCE_U32 input_num;
+    NCE_U32  input_num;
+    NCE_BOOL mmz_init;
     // NCE_U32 u32Stride;
     // NCE_U32 u32Ch;
     // NCE_U32 u32Height;
@@ -69,7 +70,7 @@ public:
         return NCE_SUCCESS;
     }
 
-    NCE_S32 engine_init( char*                           model_path,
+    NCE_S32 engine_init(const YAML::Node &                     config,
                         vector<input_tensor_info> &            st_tensor_infos,
                         LinkedHashMap<string, tmp_map_result> &st_result_map)
     {
@@ -84,7 +85,9 @@ public:
         stNnieCfg.aenNnieCoreId[0] = SVP_NNIE_ID_0; // set NNIE core
 
         /*Sys init*/
-        // SAMPLE_COMM_SVP_CheckSysInit();
+        mmz_init = config["hisi_mmz_init"].as<bool>;
+        if (mmz_init)
+            SAMPLE_COMM_SVP_CheckSysInit();
         /*CNN Load model*/
         SAMPLE_SVP_TRACE_INFO("Cnn Load model!\n");
         s32Ret = SAMPLE_COMM_SVP_NNIE_LoadModel(model_path, &stENnieModel);
@@ -98,7 +101,7 @@ public:
         SAMPLE_SVP_NNIE_Cnn_SoftwareParaInit function are correct*/
         SAMPLE_SVP_TRACE_INFO("Cnn parameter initialization!\n");
         stENnieParam.pstModel = &stENnieModel.stModel;
-        s32Ret                       = SAMPLE_SVP_NNIE_Cnn_ParamInit(&stNnieCfg, &stENnieParam);
+        s32Ret                = SAMPLE_SVP_NNIE_Cnn_ParamInit(&stNnieCfg, &stENnieParam);
         SAMPLE_SVP_CHECK_EXPR_GOTO(HI_SUCCESS != s32Ret,
                                    CNN_FAIL_0,
                                    SAMPLE_SVP_ERR_LEVEL_ERROR,
@@ -123,12 +126,10 @@ public:
         //目前不分段
         for (auto &kv : st_result_map)
         {
-            st_result_map[kv].tensor.u32ch = stENnieParam.astSegData[0].astDst[count].unShape.stWhc.u32Chn;
-            st_result_map[kv].tensor.u32FeatWidth =
-                stENnieParam.astSegData[0].astDst[count].unShape.stWhc.u32Width;
-            st_result_map[kv].tensor.u32FeatHeight =
-                stENnieParam.astSegData[0].astDst[count].unShape.stWhc.u32Height;
-            st_result_map[kv].tensor.width_stride = 1;
+            st_result_map[kv].tensor.u32ch         = stENnieParam.astSegData[0].astDst[count].unShape.stWhc.u32Chn;
+            st_result_map[kv].tensor.u32FeatWidth  = stENnieParam.astSegData[0].astDst[count].unShape.stWhc.u32Width;
+            st_result_map[kv].tensor.u32FeatHeight = stENnieParam.astSegData[0].astDst[count].unShape.stWhc.u32Height;
+            st_result_map[kv].tensor.width_stride  = 1;
             st_result_map[kv].tensor.height_stride =
                 stENnieParam.astSegData[0].astDst[count].u32Stride / sizeof(NCE_F32);
             st_result_map[kv].tensor.channel_stride =
@@ -439,21 +440,13 @@ private:
 hisi_3516dv300_engine::hisi_3516dv300_engine()
 {
     pPriv = shared_ptr<engine_priv>(new hisi_3516dv300_engine::engine_priv());
-};
-
-NCE_S32 hisi_3516dv300_engine::engine_init(const param_info &                     st_param_info,
-                                           vector<input_tensor_info> &            st_tensor_infos,
-                                           LinkedHashMap<string, tmp_map_result> &st_result_map)
-{
-    pPriv->engine_init(st_param_info.pc_model_path, st_tensor_infos, st_result_map);
-    return NCE_SUCCESS;
 }
 
-NCE_S32 hisi_3516dv300_engine::engine_init(const YAML::Node&                      config,
+NCE_S32 hisi_3516dv300_engine::engine_init(const YAML::Node &                     config,
                                            vector<input_tensor_info> &            st_tensor_infos,
                                            LinkedHashMap<string, tmp_map_result> &st_result_map)
 {
-    pPriv->engine_init((char *)config["model_path"].as<string>().c_str(), st_tensor_infos, st_result_map);
+    pPriv->engine_init(config, st_tensor_infos, st_result_map);
     return NCE_SUCCESS;
 }
 
@@ -515,14 +508,10 @@ NCE_S32 hisi_3516dv300_engine::engine_get_result(LinkedHashMap<string, tmp_map_r
         NCE_S32 height  = st_engine_result[kv].tensor.u32FeatHeight;
         NCE_S32 channel = st_engine_result[kv].tensor.u32ch;
         NCE_S32 num     = width * height * channel;
-        printf("%s %d %d %d \n",st_engine_result[kv].tensor.name.c_str(),
-        width,
-        height,
-        channel
-        );
+        printf("%s %d %d %d \n", st_engine_result[kv].tensor.name.c_str(), width, height, channel);
         for (int i = 0; i < num; i++)
         {
-            *(tmp_feat_f32 + i) = ((NCE_F32)(*(tmp_feat + i)))/4096.f;
+            *(tmp_feat_f32 + i) = ((NCE_F32)(*(tmp_feat + i))) / 4096.f;
         }
 
         st_engine_result[kv].pu32Feat = (NCE_S32 *)tmp_feat;
@@ -549,6 +538,8 @@ NCE_S32 hisi_3516dv300_engine::engine_destroy()
         SAMPLE_SVP_CHECK_EXPR_TRACE(
             HI_SUCCESS != s32Ret, SAMPLE_SVP_ERR_LEVEL_ERROR, "Error,SAMPLE_COMM_SVP_NNIE_UnloadModel failed!\n");
     }
+    if (pPriv->mmz_init)
+        SAMPLE_COMM_SVP_CheckSysExit();
     return s32Ret;
 }
 } // namespace nce_alg

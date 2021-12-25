@@ -28,12 +28,6 @@ class IAlg
 {
 public:
     virtual NCE_S32 alg_init(vector<input_tensor_info> &            st_tensor_infos,
-                             LinkedHashMap<string, tmp_map_result> &st_result_map)
-    {
-        return NCE_FAILED;
-    }
-
-    virtual NCE_S32 alg_init(vector<input_tensor_info> &            st_tensor_infos,
                              LinkedHashMap<string, tmp_map_result> &st_result_map,
                              YAML::Node &                           config)
     {

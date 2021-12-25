@@ -23,7 +23,9 @@ fc_fk_alg_priv::~fc_fk_alg_priv()
     delete score;
 }
 
-NCE_S32 fc_fk_alg::alg_init(const param_info &st_param_info, map<int, tmp_map_result> &st_result_map)
+NCE_S32 fc_fk_alg::alg_init(vector<input_tensor_info> &            st_tensor_infos,
+                            LinkedHashMap<string, tmp_map_result> &st_result_map,
+                            YAML::Node &                           config)
 {
     NCE_S32 ret                  = NCE_FAILED;
     pPriv                        = shared_ptr<fc_fk_alg_priv>(new fc_fk_alg_priv());
@@ -68,7 +70,7 @@ NCE_S32 fc_fk_alg::alg_get_result(alg_result_info &results, map<int, tmp_map_res
     NCE_U32  stride = st_result_map[0].tensor.u32FeatWidth;
 
     NCE_F32 xi = st_result_map[0].tensor.scale;
-   if (st_result_map[0].tensor.outfmt == PLANNER)
+    if (st_result_map[0].tensor.outfmt == PLANNER)
     {
         if (xi == 1.0f)
         {
@@ -88,7 +90,7 @@ NCE_S32 fc_fk_alg::alg_get_result(alg_result_info &results, map<int, tmp_map_res
     }
 
     pPriv->head_info.push_back(person_head{ pPriv->score[0], { 0, 0, 0 } });
-    pPriv->tmp_result.push_back(alg_result{PERSON_HEAD, &pPriv->head_info[0] });
+    pPriv->tmp_result.push_back(alg_result{ PERSON_HEAD, &pPriv->head_info[0] });
     results.st_alg_results = &pPriv->tmp_result[0];
 
     return ret;

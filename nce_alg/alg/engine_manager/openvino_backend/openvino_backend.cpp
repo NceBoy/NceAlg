@@ -53,13 +53,13 @@ public:
     }
 };
 
-NCE_S32 openvino_engine::engine_init(const param_info &        st_param_info,
-                                     img_info &                st_img_info,
-                                     map<int, tmp_map_result> &st_result_map)
+NCE_S32 openvino_engine::engine_init(const YAML::Node &                     config,
+                        vector<input_tensor_info> &            st_tensor_infos,
+                        LinkedHashMap<string, tmp_map_result> &st_result_ma)
 {
     std::map<int, tmp_map_result>::iterator iter;
-    char *                                  pc_device = st_param_info.st_engine_info.st_openvino_param.pc_device_name;
-    char *                                  pc_model_path = st_param_info.pc_model_path;
+    char *                                  pc_device = "abaababa";
+    char *                                  pc_model_path = "you r abandon";
 
     pPriv          = shared_ptr<openvino_engine::engine_priv>(new openvino_engine::engine_priv());
     pPriv->network = pPriv->ie.ReadNetwork(pc_model_path);

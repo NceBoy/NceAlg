@@ -189,18 +189,8 @@ MNN_engine::MNN_engine()
     pPriv = shared_ptr<engine_priv>(new engine_priv());
 }
 
-NCE_S32
-MNN_engine::engine_init(const param_info &                     st_param_info,
-                        vector<input_tensor_info> &            st_tensor_infos,
-                        LinkedHashMap<string, tmp_map_result> &st_result_map)
-{
-    // TODO support multi-image input, assert input and model dimension
-    pPriv->load_model(st_param_info.pc_model_path, st_result_map, st_tensor_infos);
-    return NCE_SUCCESS;
-}
 
-NCE_S32
-MNN_engine::engine_init(const YAML::Node &                     config,
+NCE_S32 MNN_engine::engine_init(const YAML::Node &                     config,
                         vector<input_tensor_info> &            st_tensor_infos,
                         LinkedHashMap<string, tmp_map_result> &st_result_map)
 {

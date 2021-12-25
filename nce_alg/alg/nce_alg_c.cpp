@@ -17,10 +17,8 @@ static NCE_S32 nce_alg_init_self(NCE_PTR pPriv, param_info *st_param_info, nce_a
     NCE_S32               ret  = NCE_FAILED;
     nce_alg_machine *     self = (nce_alg_machine *)pPriv;
     std::vector<img_info> img_infos;
-    if(st_param_info->priv_cfg_path != NULL)
-        ret                       = self->nce_alg_init(st_param_info->priv_cfg_path, img_infos);
-    else
-        ret                       = self->nce_alg_init(*st_param_info, img_infos);
+
+    ret  = self->nce_alg_init(st_param_info->yaml_cfg_path, img_infos);
     st_img_info->img_info_num = img_infos.size();
     memcpy(&st_img_info->infos[0], &img_infos[0], sizeof(img_info) * st_img_info->img_info_num);
     return ret;

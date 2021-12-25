@@ -18,11 +18,6 @@ namespace nce_alg {
 class host_engine : public IEngine
 {
 public:
-    NCE_S32 engine_init(const param_info &st_param_info, img_info &st_img_info, map<int, tmp_map_result> &st_result_map)
-    {
-        return NCE_SUCCESS;
-    };
-
     NCE_S32 engine_init(const YAML::Node config, img_info &st_img_info, map<int, tmp_map_result> &st_result_map)
     {
         return NCE_SUCCESS;

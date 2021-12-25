@@ -34,7 +34,7 @@ foreach(mainfile IN LISTS demos)
     add_executable(${mainname} ${mainfile})
     target_link_libraries(${mainname} nce_alg ${libs} -lstdc++)
     add_dependencies(${mainname} nce_alg)
-    install(TARGETS ${mainname} DESTINATION ${PROJECT_SOURCE_DIR})
+    install(TARGETS ${mainname} DESTINATION  ${CMAKE_INSTALL_PREFIX}/bin/)
 endforeach()
 
 

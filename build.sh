@@ -100,9 +100,10 @@ function build_project()
     else
         rm -rf build
         echo "PLATFORM=$PLATFORM BUILDTYPE=$DEBUG"
-        cmake -Bbuild -DCMAKE_TOOLCHAIN_FILE=./cmake/$PLATFORM/${PLATFORM}_toolchain.cmake -DPLATFORM=$PLATFORM  -DCMAKE_BUILD_TYPE=$DEBUG
+        cmake -Bbuild -DCMAKE_TOOLCHAIN_FILE=./cmake/$PLATFORM/${PLATFORM}_toolchain.cmake -DPLATFORM=$PLATFORM  -DCMAKE_INSTALL_PREFIX=./install/ -DCMAKE_BUILD_TYPE=$DEBUG
         cd build
         make
+        make install
     fi
 }
 function build_output()
@@ -111,11 +112,13 @@ function build_output()
 if [ ! -d output_$PLATFORM ]; then
     mkdir output_$PLATFORM
 fi
-    cp $HOME_PATH/build/lib/* output_$PLATFORM
-    cp $HOME_PATH/build/bin/* output_$PLATFORM
+    cp $HOME_PATH/install/lib/* output_$PLATFORM
+    cp $HOME_PATH/install/bin/* output_$PLATFORM
+    cp $HOME_PATH/install/include/* output_$PLATFORM
 
 }
 process_param $*
 #prepare_env
 build_project
 build_output
+

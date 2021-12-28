@@ -21,7 +21,6 @@
 |     **RV1126**      |    **/**    |    **/**    |   **/**   |   **/**   |         **✔️**         |
 |    **openvino**     |    **✔️**    |    **?**    |   **/**   |   **/**   |         **/**         |
 |       **MNN**       |    **✔️**    |    **/**    |   **✔️**   |   **/**   |         **/**         |
-
 # 目录结构说明:
 ```
 .
@@ -31,93 +30,111 @@
 │   ├── hisi3559av100
 │   ├── host
 │   ├── host_mnn
+│   ├── host_mnn_windows
 │   ├── openvino
 │   └── rv1126
 ├── demo
-│   ├── data
-│   │   ├── image
-│   │   │   └── head_detect
-│   │   └── model
-│   │       ├── hisi3516_dv300
-│   │       ├── openvino
-│   │       └── rv_1126
-│   ├── hisi3516dv300
-│   │   └── include
-│   ├── hisi3519av100
-│   ├── hisi3559av100
-│   ├── host
-│   ├── host_mnn
-│   ├── host_mnn_windows
-│   ├── inc
-│   ├── openvino
-│   └── rv1126
-└── nce_alg
-    ├── alg
-    │   ├── alg_manager
-    │   │   ├── body_detect
-    │   │   ├── face_fake
-    │   │   ├── hd_alg
-    │   │   └── util
-    │   └── engine_manager
-    │       └── engine_interface
-    │           ├── hisi_3516dv300
-    │           ├── hisi_3559av100
-    │           ├── host
-    │           ├── MNN
-    │           ├── openvino_backend
-    │           └── rv1126
-    ├── common
-    └── platform
-        ├── hisi3516dv300
-        │   ├── audio
-        │   ├── common
-        │   ├── common_sys
-        │   ├── include
-        │   ├── lib
-        │   ├── rtsp-v2
-        │   ├── sample_nnie_software
-        │   └── tools
-        ├── hisi3519av100
-        │   └── MNN
-        │       └── include
-        │           └── MNN
-        │               ├── expr
-        │               └── plugin
-        ├── hisi3559av100
-        │   └── drv
-        │       ├── hisi_sdk_inc
-        │       └── hisi_sdk_src
-        │           ├── common
-        │           └── nnie
-        │               ├── sample
-        │               └── sample_nnie_software
-        ├── host
-        ├── host_mnn
-        │   └── MNN
-        │       └── include
-        │           └── MNN
-        │               ├── expr
-        │               └── plugin
-        ├── host_mnn_windows
-        ├── openvino
-        │   ├── builders
-        │   ├── c_api
-        │   ├── cldnn
-        │   ├── cpp
-        │   ├── details
-        │   │   └── os
-        │   ├── gna
-        │   ├── gpu
-        │   │   └── details
-        │   ├── hetero
-        │   ├── multi-device
-        │   ├── os
-        │   │   └── windows
-        │   ├── samples
-        │   └── vpu
-        └── rv1126
-            ├── include
-            └── lib
+│   └── data
+│       ├── config
+│       ├── image
+│       │   └── head_detect
+│       └── model
+│           ├── hisi3516_dv300
+│           ├── hisi3559av100
+│           ├── openvino
+│           └── rv_1126
+├── install
+│   ├── bin
+│   ├── include
+│   └── lib
+├── nce_alg
+│   ├── alg
+│   │   ├── alg_manager
+│   │   │   ├── centernet
+│   │   │   ├── face_fake
+│   │   │   ├── ttf
+│   │   │   ├── util
+│   │   │   └── vfnet
+│   │   ├── core
+│   │   ├── engine_manager
+│   │   │   ├── engine_closed_source
+│   │   │   ├── hisi_3516dv300
+│   │   │   ├── hisi_3559av100
+│   │   │   ├── host
+│   │   │   ├── MNN
+│   │   │   ├── openvino_backend
+│   │   │   └── rv1126
+│   │   └── hook_manager
+│   │       ├── keep_upper_bbox
+│   │       ├── nms_hook
+│   │       ├── reflection_filter_hook
+│   │       └── softmax_hook
+│   ├── common
+│   ├── include
+│   ├── platform
+│   │   ├── hisi3516dv300
+│   │   │   ├── audio
+│   │   │   ├── common
+│   │   │   ├── common_sys
+│   │   │   ├── include
+│   │   │   ├── lib
+│   │   │   ├── rtsp-v2
+│   │   │   ├── sample_nnie_software
+│   │   │   └── tools
+│   │   ├── hisi3519av100
+│   │   │   └── MNN
+│   │   │       └── include
+│   │   │           └── MNN
+│   │   │               ├── expr
+│   │   │               └── plugin
+│   │   ├── hisi3559av100
+│   │   │   ├── drv
+│   │   │   │   └── hisi_sdk_src
+│   │   │   │       ├── common
+│   │   │   │       └── nnie
+│   │   │   │           ├── sample
+│   │   │   │           └── sample_nnie_software
+│   │   │   ├── include
+│   │   │   └── lib
+│   │   ├── host
+│   │   ├── host_mnn
+│   │   │   └── MNN
+│   │   │       └── include
+│   │   │           └── MNN
+│   │   │               ├── expr
+│   │   │               └── plugin
+│   │   ├── host_mnn_windows
+│   │   │   └── MNN
+│   │   │       ├── include
+│   │   │       │   └── MNN
+│   │   │       │       ├── expr
+│   │   │       │       └── plugin
+│   │   │       └── lib
+│   │   ├── openvino
+│   │   │   ├── builders
+│   │   │   ├── c_api
+│   │   │   ├── cldnn
+│   │   │   ├── cpp
+│   │   │   ├── details
+│   │   │   │   └── os
+│   │   │   ├── gna
+│   │   │   ├── gpu
+│   │   │   │   └── details
+│   │   │   ├── hetero
+│   │   │   ├── multi-device
+│   │   │   ├── os
+│   │   │   │   └── windows
+│   │   │   ├── samples
+│   │   │   └── vpu
+│   │   └── rv1126
+│   │       ├── include
+│   │       └── lib
+│   └── StanfordCPPLib
+└── third-party
+    ├── modules
+    └── yaml
+
+112 directories
 ```
 # 编译运行步骤:
 

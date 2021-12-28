@@ -11,6 +11,7 @@ endif()
 
 link_directories(${LIBRARY_OUTPUT_PATH})
 link_directories(${LIBRARY_OUTPUT_PATH}/${CMAKE_BUILD_TYPE})
+#third party
 link_directories(${YAMLCPP_LINK_DIR})
 #execute_process(
 #    COMMAND mkdir -p ${PROJECT_SOURCE_DIR}/inc/
@@ -29,10 +30,10 @@ foreach(mainfile IN LISTS demos)
     INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/../nce_alg/include/)
     INCLUDE_DIRECTORIES(${PROJECT_SOURCE_DIR}/../nce_alg/common/)
     link_directories(${PROJECT_SOURCE_DIR}/../nce_alg/platform/${PLATFORM}/lib/)
-    file(GLOB_RECURSE libs ${PROJECT_SOURCE_DIR}/../nce_alg/platform/${PLATFORM}/lib/*)
+    #file(GLOB_RECURSE libs ${PROJECT_SOURCE_DIR}/../nce_alg/platform/${PLATFORM}/lib/*)
     get_filename_component(mainname ${mainfile} NAME_WE)
     add_executable(${mainname} ${mainfile})
-    target_link_libraries(${mainname} nce_alg ${libs} -lstdc++)
+    target_link_libraries(${mainname} nce_alg ${libs} stdc++)
     add_dependencies(${mainname} nce_alg)
     install(TARGETS ${mainname} DESTINATION  ${CMAKE_INSTALL_PREFIX}/bin/)
 endforeach()

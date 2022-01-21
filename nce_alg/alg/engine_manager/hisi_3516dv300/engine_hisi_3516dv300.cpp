@@ -83,7 +83,8 @@ public:
         stNnieCfg.u32MaxInputNum   = u32PicNum; // max input image num in each batch
         stNnieCfg.u32MaxRoiNum     = 0;
         stNnieCfg.aenNnieCoreId[0] = SVP_NNIE_ID_0; // set NNIE core
-
+        
+        char *model_path = (char *)config["model_path"].as<string>().c_str();
         /*Sys init*/
         mmz_init = config["hisi_mmz_init"].as<bool>;
         if (mmz_init)

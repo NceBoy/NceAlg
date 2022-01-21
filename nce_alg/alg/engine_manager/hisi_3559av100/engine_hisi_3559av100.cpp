@@ -77,15 +77,13 @@ public:
         stNnieCfg.u32MaxInputNum   = u32PicNum; // max input image num in each batch
         stNnieCfg.u32MaxRoiNum     = 0;
         stNnieCfg.aenNnieCoreId[0] = SVP_NNIE_ID_0; // set NNIE core
-
-        char *model_path = (char *)config["model_path"].as<string>().c_str();
         /*Sys init*/
         mmz_init = (NCE_BOOL)config["hisi_mmz_init"].as<bool>();
         if (mmz_init)
             SAMPLE_COMM_SVP_CheckSysInit();
         /*CNN Load model*/
-        SAMPLE_SVP_TRACE_INFO("Cnn Load model!\n");
-        s32Ret = SAMPLE_COMM_SVP_NNIE_LoadModel(model_path, &stENnieModel);
+        SAMPLE_SVP_TRACE_INFO("Cnn Load model! %s\n",config["model_path"].as<string>().c_str());
+        s32Ret = SAMPLE_COMM_SVP_NNIE_LoadModel((char *)config["model_path"].as<string>().c_str(), &stENnieModel);
         /*CNN parameter initialization*/
         /*Cnn software parameters are set in SAMPLE_SVP_NNIE_Cnn_SoftwareParaInit,
         if user has changed net struct, please make sure the parameter settings in

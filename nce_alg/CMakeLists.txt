@@ -9,6 +9,8 @@ if(CMAKE_BUILD_TYPE MATCHES "Debug")
 SET(CMAKE_BUILD_TYPE_POSTFIX "d")
 endif()
 
+option(NCE_BUILD_SHARED "Build ncealg shared library" ON)
+
 
 include(${PROJECT_SOURCE_DIR}/platform/${PLATFORM}/${PLATFORM}.cmake) 
 include(${PROJECT_SOURCE_DIR}/../third-party/modules.cmake) 
@@ -41,9 +43,14 @@ file(GLOB_RECURSE  HOOK_SRC ${PROJECT_SOURCE_DIR}/alg/hook_manager/*.c
 
 
 #third-party
+message( STATUS ${THIRD_PARTY_LIB})
+
+
+
 #INCLUDE_DIRECTORIES(${YAMLCPP_HEADER_DIR})
 #link_directories(${YAMLCPP_LINK_DIR})
 #生成动态库  静态库则 STATIC
+if(NCE_BUILD_SHARED)
 ADD_LIBRARY(${PROJECT_NAME} SHARED 
 ${LIB_SRC}
 ${ALG_SRC}
@@ -51,17 +58,6 @@ ${HOOK_SRC}
 ${PLATFORM_SRC}
 ${COMMON_SRC}
 ${CPPLIB_SRC})
-#静态库不能写为同名，否则会被动态库覆盖
-ADD_LIBRARY(${PROJECT_NAME}-static STATIC
-${LIB_SRC}
-${ALG_SRC}
-${HOOK_SRC}
-${PLATFORM_SRC}
-${COMMON_SRC}
-${CPPLIB_SRC})
-
-message( STATUS ${THIRD_PARTY_LIB})
-
 
 target_link_libraries(${PROJECT_NAME}
 -Wl,--start-group
@@ -70,7 +66,22 @@ ${PLATFORM_LIB}
 ${THIRD_PARTY_LIB}
 -Wl,--end-group)
 
-target_link_libraries(${PROJECT_NAME}-static
+add_dependencies(${PROJECT_NAME} ${THIRD_PARTY_NEED})
+# VERSION指代动态库版本，SOVERSION指代API版本。
+SET_TARGET_PROPERTIES (${PROJECT_NAME} PROPERTIES VERSION 1.2 SOVERSION 1)
+
+else()
+
+#静态库不能写为同名，否则会被动态库覆盖
+ADD_LIBRARY(${PROJECT_NAME} STATIC
+${LIB_SRC}
+${ALG_SRC}
+${HOOK_SRC}
+${PLATFORM_SRC}
+${COMMON_SRC}
+${CPPLIB_SRC})
+
+target_link_libraries(${PROJECT_NAME}
 -Wl,--start-group
 ${OPENCV_LIB}
 ${PLATFORM_LIB}
@@ -78,14 +89,14 @@ ${THIRD_PARTY_LIB}
 -Wl,--end-group)
 
 add_dependencies(${PROJECT_NAME} ${THIRD_PARTY_NEED})
-add_dependencies(${PROJECT_NAME}-static ${THIRD_PARTY_NEED})
-#给静态库重命名为hello，最后会生成libhello.a
-SET_TARGET_PROPERTIES(${PROJECT_NAME}-static PROPERTIES OUTPUT_NAME ${PROJECT_NAME})
 
-# VERSION指代动态库版本，SOVERSION指代API版本。
-SET_TARGET_PROPERTIES (${PROJECT_NAME} PROPERTIES VERSION 1.2 SOVERSION 1)
+SET_TARGET_PROPERTIES(${PROJECT_NAME} PROPERTIES OUTPUT_NAME ${PROJECT_NAME})
+endif()
 
-install(TARGETS ${PROJECT_NAME} ${PROJECT_NAME}-static DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/)
+
+file(GLOB_RECURSE PLATFORM_LIB  ${PROJECT_SOURCE_DIR}/platform/${PLATFORM}/lib/*)
+install(TARGETS ${PROJECT_NAME}  DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/)
+install(FILES ${PLATFORM_LIB} DESTINATION ${CMAKE_INSTALL_PREFIX}/lib/)
 # 安装头文件
 INSTALL(FILES ${PROJECT_SOURCE_DIR}/include/nce_alg_c.h
 ${PROJECT_SOURCE_DIR}/include/nce_alg.hpp

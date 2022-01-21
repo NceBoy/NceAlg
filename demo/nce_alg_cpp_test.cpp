@@ -4,7 +4,7 @@
  * @Author: Haochen Ye
  * @Date: 2021-08-23 10:12:26
  * @LastEditors: Please set LastEditors
- * @LastEditTime: 2021-12-25 20:29:51
+ * @LastEditTime: 2022-01-21 13:39:25
  */
 
 #include <iostream>
@@ -112,18 +112,27 @@ int main(int argc, char *argv[])
                model_input.u32Height,
                model_input.u32channel);
 
-        /*ImageProcessParam resize_info;
-        resize_info.type                         = PROC_RESIZE;
-        resize_info.Info.resize_info.dst_channel = model_input.u32channel;
-        resize_info.Info.resize_info.dst_height  = model_input.u32Height;
-        resize_info.Info.resize_info.dst_width   = model_input.u32Width;
+        /*ImageProcessParam pkg2pln;
+        pkg2pln.type                         = PROC_PACKAGE2PLANNER;
+        pkg2pln.Info.package2planner_info.channel = model_input.u32channel;
+        pkg2pln.Info.package2planner_info.height  = model_input.u32Height;
+        pkg2pln.Info.package2planner_info.width   = model_input.u32Width;
 
-        nce_resize func_resize(resize_info);
+        nce_package2planner doo(pkg2pln);
         printf("before func_resize\n");
-        func_resize.forward(input_img, input_img);
+        doo.forward(input_img, input_img);
         printf("after func_resize\n");*/
 
+        ImageProcessParam resized;
+        resized.type                         = PROC_RESIZE;
+        resized.Info.resize_info.dst_channel = model_input.u32channel;
+        resized.Info.resize_info.dst_height  = model_input.u32Height;
+        resized.Info.resize_info.dst_width   = model_input.u32Width;
 
+        nce_resize dooresize(resized);
+        printf("before func_resize\n");
+        dooresize.forward(input_img, input_img);
+        printf("after func_resize\n");
 
         alg_result_info results;
         OSA_DEBUG_DEFINE_TIME
@@ -139,6 +148,17 @@ int main(int argc, char *argv[])
         }
         detect_result *result = NULL;
         printf("model detect %d results\n", results.num);
+
+        /*ImageProcessParam pln2pkg;
+        pln2pkg.type                         = PROC_PLANNER2PACKAGE;
+        pln2pkg.Info.planner2package_info.channel = pkg2pln.Info.package2planner_info.channel;
+        pln2pkg.Info.planner2package_info.height  = pkg2pln.Info.package2planner_info.height;
+        pln2pkg.Info.planner2package_info.width   = pkg2pln.Info.package2planner_info.width;
+
+        nce_planner2package doo2(pln2pkg);
+        printf("before func_resize\n");
+        doo2.forward(input_img, input_img);
+        printf("after func_resize\n");*/
         NCE_S32 color[3] = { 255, 0, 0 };
         for (int i = 0; i < results.num; i++)
         {

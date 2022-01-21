@@ -2,7 +2,7 @@
 ###
  # @Author: your name
  # @Date: 2021-09-16 10:31:35
- # @LastEditTime: 2021-12-02 11:02:33
+ # @LastEditTime: 2022-01-20 11:28:54
  # @LastEditors: Please set LastEditors
  # @Description: In User Settings Edit
  # @FilePath: \NceAlg\build.sh
@@ -96,7 +96,9 @@ function build_project()
 	# 		  -DANDROID_STL=c++_shared                                              \
 	# 		  -DPLATFORM=qt845_android
     #     cd build
-    #     make                                              
+    #     make    
+    #cmake -G "Visual Studio 19 2016 " -A x64 -Bbuild -DCMAKE_TOOLCHAIN_FILE=./cmake/host_mnn_windows/host_mnn_windows.cmake -DPLATFORM=host_mnn_windows  -DCMAKE_INSTALL_PREFIX=./install/ -DCMAKE_BUILD_TYPE=Debug              
+    #cmake -Bbuild -DCMAKE_TOOLCHAIN_FILE=./cmake/host_mnn_windows/host_mnn_windows.cmake -DPLATFORM=host_mnn_windows  -DCMAKE_INSTALL_PREFIX=./install/ -DCMAKE_BUILD_TYPE=Debug                            
     else
         rm -rf build
         echo "PLATFORM=$PLATFORM BUILDTYPE=$DEBUG"

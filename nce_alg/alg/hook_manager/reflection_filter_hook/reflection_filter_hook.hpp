@@ -3,8 +3,8 @@
  * @version:
  * @Author: Haochen Ye
  * @Date: 2021-08-20 10:32:17
- * @LastEditors: Haochen Ye
- * @LastEditTime: 2021-09-06 18:35:37
+ * @LastEditors: Please set LastEditors
+ * @LastEditTime: 2022-01-20 19:48:03
  */
 #ifndef __REFLECTION_FILTER_HOOK_HPP__
 #define __REFLECTION_FILTER_HOOK_HPP__
@@ -39,7 +39,8 @@ private:
     NCE_F32     mean_thresh;
     NCE_F32     var_thresh;
     NCE_F32     conf_thresh;
-    img_t *     pcur_img;
+    //todo async for pingpongbuffer
+    img_t       pcur_img;
     YAML::Node *pconfig;
 };
 } // namespace nce_alg

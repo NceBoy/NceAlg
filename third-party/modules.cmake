@@ -6,7 +6,7 @@ include(module_yaml)
 
 #for target link
 set(THIRD_PARTY_LIB
-   yaml-cpp
+  ${YAML_LIB}
 )
 
 set(THIRD_PARTY_NEED

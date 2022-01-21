@@ -2,8 +2,34 @@
 #include <stdlib.h>
 #include "alg_type.h"
 #include "nce_alg_c.h"
+#if (defined WIN32)
 #include <time.h>
+#define OSA_DEBUG_DEFINE_TIME \
+    clock_t start;            \
+    clock_t end;
+#else
+#include <sys/time.h>
+#include <time.h>
+#define OSA_DEBUG_DEFINE_TIME \
+    struct timespec start;    \
+    struct timespec end;
+#endif
 
+#if (defined WIN32)
+#define OSA_DEBUG_START_TIME start = clock();
+#else
+#define OSA_DEBUG_START_TIME clock_gettime(CLOCK_REALTIME, &start);
+#endif
+
+#if (defined WIN32)
+#define OSA_DEBUG_END_TIME(S) \
+    end = clock();            \
+    printf("%s %ld ms\n", #S, end - start);
+#else
+#define OSA_DEBUG_END_TIME(S)            \
+    clock_gettime(CLOCK_REALTIME, &end); \
+    printf("%s %ld ms\n", #S, 1000 * (end.tv_sec - start.tv_sec) + (end.tv_nsec - start.tv_nsec) / 1000000);
+#endif
 
 /******************************************************************************
  * function : show usage
@@ -52,10 +78,8 @@ int main(int argc, char *argv[])
     int                            ret;
     nce_alg_c_machine              machine;
     long            spend;
-    struct timespec start, next, end;
 
-
-
+    OSA_DEBUG_DEFINE_TIME
     //根据类型，算法构造相应的引擎工厂
     machine.clstype = atoi(argv[4]);//VFNET;
     machine.platformtype = atoi(argv[3]);//HISI_3559AV100;
@@ -71,7 +95,7 @@ int main(int argc, char *argv[])
     hisi3559_param.yaml_cfg_path = pcYamlName;//"./config.yaml";
     //图片组信息 OUT
     nce_alg_c_img_infos img_infos;
-    
+
     machine.init_func(machine.pPriv,&hisi3559_param,&img_infos);
 
     //设置算法运行时参数
@@ -80,9 +104,9 @@ int main(int argc, char *argv[])
     task_config.isLog                       = 0;
     task_config.st_cfg.hd_config.nms_thresh = 0.6;
     machine.cfg_set_func(machine.pPriv,&task_config);*/
+
     
-    
-    clock_gettime(0, &start);
+    OSA_DEBUG_START_TIME
     //推理
     img_t *pimg = &frame;
     img_t **ppimg = &pimg; 
@@ -93,16 +117,15 @@ int main(int argc, char *argv[])
     alg_result_info results;
     machine.getResult_func(machine.pPriv,&results);
 
-    clock_gettime(0, &end);
-    spend = (end.tv_sec - start.tv_sec) * 1000 + (end.tv_nsec - start.tv_nsec) / 1000000;
-    printf("\n[for inference]===== TIME SPEND: %ld ms =====\n", spend);
+    OSA_DEBUG_END_TIME(detec time is)
+
     
 
     //注意！！！！由于alg_result_info中的 st_alg_results指针
     // 以及st_alg_results指针中的 obj 都由算法分配
     // 所以如果把推理和取结果两个接口做异步，必须在得到结果后立马拷贝出来，防止被覆盖！
 
-        detect_result *result   = NULL; 
+    detect_result *result   = NULL; 
     
     //绘图接口需要在package下完成
     nce_c_planner2package(&frame);
@@ -122,7 +145,7 @@ int main(int argc, char *argv[])
     nce_c_write_img("result", &frame);
     nce_c_free_img(&frame);
     nce_alg_c_machine_deinit(&machine);
-
+    return 0;
     //SAMPLE_COMM_SVP_CheckSysExit();
 
 }

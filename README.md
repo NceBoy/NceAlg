@@ -7,7 +7,7 @@
 
 # 介绍:
 这是一套跨平台的异构算法框架
-- 跨平台：支持x64、armcpu(MNN)/hisi(nnie)/rk(npu)/ipu/dsp等不同网络推理单元。
+- 跨平台：支持x64、cpu(MNN)/hisi(nnie)/rk(npu)/ipu/dsp/gpu等不同网络推理单元。
 - 易扩展：添加平台和算法任务方便简洁
 - 接口简洁统一：无论算法任务和平台差异，对外的提供统一的c/c++接口调用
 - 高自由度：灵活的yaml配置方案，以及自定义钩子模块，能够让开发者提高自由发挥的空间。
@@ -17,10 +17,12 @@
 | :-----------------: | :---------: | :---------: | :-------: | :-------: | :-------------------: |
 | **hisi3516dv300** |    **/**    |    **/**    |   **/**   |   **/**   |         **✔️**         |
 | **hisi3559av100**  |    **/**    |    **/**    |   **/**   |   **/**   |         **✔️**         |
-| **hisi3519av100**  |    **/**    |    **/**    |   **/**   |   **/**   |         **✔️**         |
+| **hisi3519av100**  |    **✔️**    |    **/**    |   **/**   |   **/**   |         **/**         |
 |     **RV1126**      |    **/**    |    **/**    |   **/**   |   **/**   |         **✔️**         |
 |    **openvino**     |    **✔️**    |    **?**    |   **/**   |   **/**   |         **/**         |
 |       **MNN**       |    **✔️**    |    **/**    |   **✔️**   |   **/**   |         **/**         |
+| **TensorRT** | **/** | **todo** | **/** | **todo** | **/** |
+| **openppl** | **todo** | **todo** | **todo** | **todo** | **/** |
 # 目录结构说明:
 ```
 .
@@ -140,9 +142,7 @@
 
 ## 依赖下载：
 
-### HISI_3516dv300
 
-### openvino
 
 
 ## 编译+运行步骤
@@ -158,27 +158,12 @@ make install
 - -i选择平台，-b选择Debug还是Release
 ### windows
 
-### 生成openvinoVS工程
+### 生成VS2019工程
 
+- MNN平台
 ```bash
-cd NceAlg
-mkdir build
-cmake ..
-cmake .. -G "Visual Studio 14 2015 Win64" -DPLATFORM=openvino -DOPENCVOPTION=ON -DEXE_TEST=ON -DCMAKE_BUILD_TYPE=Debug#或者release
+cmake -G "Visual Studio 16 2019" -A x64 -Bbuild -DCMAKE_TOOLCHAIN_FILE=./cmake/host_mnn_windows/host_mnn_windows.cmake -DPLATFORM=host_mnn_windows  -DCMAKE_INSTALL_PREFIX=./install/ -DCMAKE_BUILD_TYPE=Debug -DNCE_BUILD_SHARED=ON
 ```
-
-### 运行
-
-将以下openvino的动态库路径配置到windows环境变量中
-
-```bash
-${工程路径}/NceAlg_cjy/NceAlg/platform/openvino/lib/openvino_2020_3/lib/x64/Debug
-${工程路径}/NceAlg_cjy/NceAlg/platform/openvino/lib/openvino_2020_3/lib/x64/Release
-${工程路径}/NceAlg_cjy/NceAlg/platform/opencv_340/bin
-```
-
-本地有opencv的话可以使用本地opencv。配置环境在VS工程中完成编译，并传参运行。
-
 
 
 

@@ -47,6 +47,7 @@ typedef enum
     VFNET,
     YOLOX,
     OBJECT_RECOGNITION,
+    RETINAFACE,
     MAX_CLS,
 
 } taskcls;
@@ -138,7 +139,7 @@ typedef struct tag_detect_result
     NCE_U32 x2;
     NCE_U32 y2;
     NCE_F32 score;
-
+    NCE_U32 landmark[10];
 } detect_result;
 
 typedef enum tag_human_enum

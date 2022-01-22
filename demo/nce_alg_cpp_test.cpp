@@ -71,7 +71,8 @@ void Show_Usage()
             "----CENTERNET-----------5\n"
             "----VFNET---------------6\n"
             "----YOLOX---------------7\n"
-            "----OBJECT_RECOGNITION--8\n");
+            "----OBJECT_RECOGNITION--8\n"
+            "----RETINAFACE---------------9\n");
 }
 int main(int argc, char *argv[])
 {
@@ -136,7 +137,7 @@ int main(int argc, char *argv[])
 
         alg_result_info results;
         OSA_DEBUG_DEFINE_TIME
-        for (int i = 0; i < 20; i++)
+        for (int i = 0; i < 1; i++)
         {
             vector<img_t> frames;
             frames.clear();
@@ -168,6 +169,14 @@ int main(int argc, char *argv[])
             box.y1 = result->y1;
             box.x2 = result->x2;
             box.y2 = result->y2;
+            box.score = result->score;
+
+            for (int j = 0; j < 5; j++) 
+            {
+                int x = result->landmark[2 * j + 0];
+                int y = result->landmark[2 * j + 1];
+                nce_draw_bbox(input_img, {x, y, x+1, y+1}, 2, color);
+            }
             printf("x1: %d y1: %d x2:%d y2: %d\n", box.x1, box.y1, box.x2, box.y2);
             nce_draw_bbox(input_img, box, 2, color);
         }

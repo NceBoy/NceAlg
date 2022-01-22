@@ -1,0 +1,22 @@
+alg_config:
+    mean0: [127.5,127.5,127.5]
+    std0: [0.0078125,0.0078125,0.0078125]
+    conf_thresh: 0.6
+    num_anchors: 2
+    num_cls: 1
+    stride_num: 5
+    output_names: [logits_1, logits_2, logits_3, bboxes_1, bboxes_2, bboxes_3, landmaeks_1, landmaeks_2, landmaeks_3]
+engine_config:
+    model_path: D:/ccode/deeplearning/inference/NceAlg/build/out/Debug/retinaface.mnn
+custom_hook: 
+    body_nms_hook:
+        used_func: [after_alg_get_result]
+        nms_thresh: 0.3
+        small_thresh: 0.92
+        height_thresh: 0.9
+        is_body: true
+    # reflection_filter_hook:
+        # used_func: [after_alg_get_result, before_engine_inference]
+        # mean_thresh: 10
+        # var_thresh: 10
+        # conf_thresh: 0.7

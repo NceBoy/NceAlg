@@ -113,7 +113,7 @@ int main(int argc, char *argv[])
                model_input.u32Height,
                model_input.u32channel);
 
-        /*ImageProcessParam pkg2pln;
+        ImageProcessParam pkg2pln;
         pkg2pln.type                         = PROC_PACKAGE2PLANNER;
         pkg2pln.Info.package2planner_info.channel = model_input.u32channel;
         pkg2pln.Info.package2planner_info.height  = model_input.u32Height;
@@ -122,7 +122,7 @@ int main(int argc, char *argv[])
         nce_package2planner doo(pkg2pln);
         printf("before func_resize\n");
         doo.forward(input_img, input_img);
-        printf("after func_resize\n");*/
+        printf("after func_resize\n");
 
         ImageProcessParam resized;
         resized.type                         = PROC_RESIZE;
@@ -150,7 +150,7 @@ int main(int argc, char *argv[])
         detect_result *result = NULL;
         printf("model detect %d results\n", results.num);
 
-        /*ImageProcessParam pln2pkg;
+        ImageProcessParam pln2pkg;
         pln2pkg.type                         = PROC_PLANNER2PACKAGE;
         pln2pkg.Info.planner2package_info.channel = pkg2pln.Info.package2planner_info.channel;
         pln2pkg.Info.planner2package_info.height  = pkg2pln.Info.package2planner_info.height;
@@ -159,7 +159,7 @@ int main(int argc, char *argv[])
         nce_planner2package doo2(pln2pkg);
         printf("before func_resize\n");
         doo2.forward(input_img, input_img);
-        printf("after func_resize\n");*/
+        printf("after func_resize\n");
         NCE_S32 color[3] = { 255, 0, 0 };
         for (int i = 0; i < results.num; i++)
         {

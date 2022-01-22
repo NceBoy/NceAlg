@@ -151,23 +151,22 @@ NCE_S32 retinaface::alg_get_result(alg_result_info &results, LinkedHashMap<strin
         NCE_F32 *bboxes = (NCE_F32 *)all_reg[i].pu32Feat;
         NCE_F32 *landms = (NCE_F32 *)all_landmarks[i].pu32Feat;
 
-        auto feat_width  = all_logits[i].tensor.u32FeatWidth;
-        auto feat_height = all_logits[i].tensor.u32FeatHeight;
+        const auto feat_width  = all_logits[i].tensor.u32FeatWidth;
+        const auto feat_height = all_logits[i].tensor.u32FeatHeight;
 
-        auto logist_height_stride  = all_logits[i].tensor.height_stride;
-        auto logist_width_stride   = all_logits[i].tensor.width_stride;
-        auto logist_channel_stride = all_logits[i].tensor.channel_stride;
+        const auto logist_height_stride  = all_logits[i].tensor.height_stride;
+        const auto logist_width_stride   = all_logits[i].tensor.width_stride;
+        const auto logist_channel_stride = all_logits[i].tensor.channel_stride;
 
-        auto reg_height_stride  = all_reg[i].tensor.height_stride;
-        auto reg_width_stride   = all_reg[i].tensor.width_stride;
-        auto reg_channel_stride = all_reg[i].tensor.channel_stride;
+        const auto reg_height_stride  = all_reg[i].tensor.height_stride;
+        const auto reg_width_stride   = all_reg[i].tensor.width_stride;
+        const auto reg_channel_stride = all_reg[i].tensor.channel_stride;
 
-        auto landms_height_stride  = all_landmarks[i].tensor.height_stride;
-        auto landms_width_stride   = all_landmarks[i].tensor.width_stride;
-        auto landms_channel_stride = all_landmarks[i].tensor.channel_stride;
+        const auto landms_height_stride  = all_landmarks[i].tensor.height_stride;
+        const auto landms_width_stride   = all_landmarks[i].tensor.width_stride;
+        const auto landms_channel_stride = all_landmarks[i].tensor.channel_stride;
 
         NCE_S32 feature_size = feat_width * feat_height;
-        NCE_S32 cur_stride   = pow(2, i + 3);
 
         for (NCE_S32 h = 0; h < feat_height; h++)
         {
@@ -208,16 +207,14 @@ NCE_S32 retinaface::alg_get_result(alg_result_info &results, LinkedHashMap<strin
                     bbox_width  = prior[2] * exp(bbox_width * 0.2);
                     bbox_height = prior[3] * exp(bbox_height * 0.2);
 
-                    NCE_U32 y = h * cur_stride;
-
                     NCE_U32 tmp_landms[10];
 
                     for (NCE_U8 j = 0; j < 5; j++) 
                     {
                         tmp_landms[2 * j + 0] =
-                            (prior[0] + landms[landms_index + j * landms_channel_stride] * 0.1 * prior[2]) * img_width;
+                            (prior[0] + landms[landms_index + 2 * j * landms_channel_stride] * 0.1 * prior[2]) * img_width;
                         tmp_landms[2 * j + 1] =
-                            (prior[1] + landms[landms_index + (j+1) * landms_channel_stride] * 0.1 * prior[3]) * img_height;
+                            (prior[1] + landms[landms_index + (2 * j + 1) * landms_channel_stride] * 0.1 * prior[3]) * img_height;
                     }
 
                     NCE_U32 x1 = std::max((NCE_F32)0, ctx - 0.5f * bbox_width) * img_width;

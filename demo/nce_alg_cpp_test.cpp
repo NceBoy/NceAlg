@@ -4,7 +4,7 @@
  * @Author: Haochen Ye
  * @Date: 2021-08-23 10:12:26
  * @LastEditors: Please set LastEditors
- * @LastEditTime: 2022-01-21 13:39:25
+ * @LastEditTime: 2022-01-24 11:43:56
  */
 
 #include <iostream>
@@ -72,7 +72,7 @@ void Show_Usage()
             "----VFNET---------------6\n"
             "----YOLOX---------------7\n"
             "----OBJECT_RECOGNITION--8\n"
-            "----RETINAFACE---------------9\n");
+            "----RETINAFACE----------9\n");
 }
 int main(int argc, char *argv[])
 {
@@ -113,7 +113,7 @@ int main(int argc, char *argv[])
                model_input.u32Height,
                model_input.u32channel);
 
-        ImageProcessParam pkg2pln;
+        /*ImageProcessParam pkg2pln;
         pkg2pln.type                         = PROC_PACKAGE2PLANNER;
         pkg2pln.Info.package2planner_info.channel = model_input.u32channel;
         pkg2pln.Info.package2planner_info.height  = model_input.u32Height;
@@ -122,7 +122,7 @@ int main(int argc, char *argv[])
         nce_package2planner doo(pkg2pln);
         printf("before func_resize\n");
         doo.forward(input_img, input_img);
-        printf("after func_resize\n");
+        printf("after func_resize\n");*/
 
         ImageProcessParam resized;
         resized.type                         = PROC_RESIZE;
@@ -150,7 +150,7 @@ int main(int argc, char *argv[])
         detect_result *result = NULL;
         printf("model detect %d results\n", results.num);
 
-        ImageProcessParam pln2pkg;
+        /*ImageProcessParam pln2pkg;
         pln2pkg.type                         = PROC_PLANNER2PACKAGE;
         pln2pkg.Info.planner2package_info.channel = pkg2pln.Info.package2planner_info.channel;
         pln2pkg.Info.planner2package_info.height  = pkg2pln.Info.package2planner_info.height;
@@ -159,7 +159,7 @@ int main(int argc, char *argv[])
         nce_planner2package doo2(pln2pkg);
         printf("before func_resize\n");
         doo2.forward(input_img, input_img);
-        printf("after func_resize\n");
+        printf("after func_resize\n");*/
         NCE_S32 color[3] = { 255, 0, 0 };
         for (int i = 0; i < results.num; i++)
         {
@@ -171,12 +171,12 @@ int main(int argc, char *argv[])
             box.y2 = result->y2;
             box.score = result->score;
 
-            for (int j = 0; j < 5; j++) 
+            /*for (int j = 0; j < 5; j++) 
             {
                 int x = result->landmark[2 * j + 0];
                 int y = result->landmark[2 * j + 1];
                 nce_draw_bbox(input_img, {x, y, x+1, y+1}, 2, color);
-            }
+            }*/
             printf("x1: %d y1: %d x2:%d y2: %d\n", box.x1, box.y1, box.x2, box.y2);
             nce_draw_bbox(input_img, box, 2, color);
         }

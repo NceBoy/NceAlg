@@ -4,7 +4,7 @@
  * @Author: Haochen Ye
  * @Date: 2021-08-24 20:12:49
  * @LastEditors: Please set LastEditors
- * @LastEditTime: 2021-12-02 12:27:36
+ * @LastEditTime: 2022-01-24 11:37:52
  */
 #include <iostream>
 #include <string>
@@ -30,7 +30,7 @@ retinaface_priv::retinaface_priv()
     _m_num_anchors = 2;
     _m_num_strides = 3;
     _m_num_cls     = 1;
-
+    
     _m_anchor_priors[0][0] = 16;
     _m_anchor_priors[0][1] = 32;
     _m_anchor_priors[1][0] = 64;
@@ -41,6 +41,8 @@ retinaface_priv::retinaface_priv()
     _m_strides[0] = 8;
     _m_strides[1] = 16;
     _m_strides[2] = 32;
+
+    memset(&_model_image_info,0,sizeof(img_info));
 }
 NCE_S32 retinaface_priv::alg_priv_get_anchor(NCE_S32  cur_h,
                                              NCE_S32  cur_w,

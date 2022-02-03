@@ -99,8 +99,7 @@ NCE_S32 nce_alg_c_machine_deinit(nce_alg_c_machine *machine)
 }
 
 
-//读进来的是package，操作都需要在pacakge上完成
-NCE_S32  nce_c_read_img(const char *img_path, img_t *input_img)
+NCE_S32 nce_c_read_img(const char *img_path, img_t *input_img)
 {
     nce_read_img(img_path, *input_img);
     return 0;

@@ -68,37 +68,30 @@ int main(int argc, char *argv[])
         return -1;
     }    
 
-    //注意 该接口如果在编码模块已经调用，则无需再次调用
-    //SAMPLE_COMM_SVP_CheckSysInit();
     char *pcYamlName = argv[1];
     char *pcSrcFile   = argv[2];
 
-    // 读进来 是hwc 也就是 pakcage
     img_t frame;
     int                            ret;
     nce_alg_c_machine              machine;
     long            spend;
 
     OSA_DEBUG_DEFINE_TIME
-    //根据类型，算法构造相应的引擎工厂
-    machine.clstype = atoi(argv[4]);//VFNET;
-    machine.platformtype = atoi(argv[3]);//HISI_3559AV100;
+
+    machine.clstype = atoi(argv[4]);
+    machine.platformtype = atoi(argv[3]);
     nce_alg_c_machine_init(&machine);
 
-    //读图测试，实际运行不需要，实际hisi需要rgb，planner格式的图片
+
     nce_c_read_img(pcSrcFile, &frame);
     nce_c_package2planner(&frame);
 
-    //初始化
-    //初始化参数 IN
     param_info hisi3559_param;
     hisi3559_param.yaml_cfg_path = pcYamlName;//"./config.yaml";
-    //图片组信息 OUT
     nce_alg_c_img_infos img_infos;
 
     machine.init_func(machine.pPriv,&hisi3559_param,&img_infos);
 
-    //设置算法运行时参数
     /*task_config_info task_config;
     task_config.threshold                   = 0.3;
     task_config.isLog                       = 0;
@@ -107,27 +100,18 @@ int main(int argc, char *argv[])
 
     
     OSA_DEBUG_START_TIME
-    //推理
     img_t *pimg = &frame;
     img_t **ppimg = &pimg; 
 
     machine.inference_func(machine.pPriv,ppimg,1);
 
-    //取结果
     alg_result_info results;
     machine.getResult_func(machine.pPriv,&results);
 
     OSA_DEBUG_END_TIME(detec time is)
 
-    
-
-    //注意！！！！由于alg_result_info中的 st_alg_results指针
-    // 以及st_alg_results指针中的 obj 都由算法分配
-    // 所以如果把推理和取结果两个接口做异步，必须在得到结果后立马拷贝出来，防止被覆盖！
-
     detect_result *result   = NULL; 
     
-    //绘图接口需要在package下完成
     nce_c_planner2package(&frame);
     Bbox box = {0};
     for (int i = 0; i < results.num; i++)

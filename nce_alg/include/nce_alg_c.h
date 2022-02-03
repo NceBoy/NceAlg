@@ -34,7 +34,7 @@ typedef struct nce_alg_c_img_infos
     img_info          infos[IMG_NUM_MAX];
 } nce_alg_c_img_infos;  
 
-typedef NCE_S32 (*nce_alg_c_init)(NCE_PTR pPriv, param_info *st_param_info, nce_alg_c_img_infos *st_img_info);
+typedef NCE_S32  (*nce_alg_c_init)(NCE_PTR pPriv, param_info *st_param_info, nce_alg_c_img_infos *st_img_info);
 
 typedef NCE_S32 (*nce_alg_c_cfg_set)(NCE_PTR pPriv, task_config_info *st_task_config_info);
 
@@ -64,18 +64,17 @@ NCE_PUBLIC NCE_S32 nce_alg_c_machine_init(nce_alg_c_machine *machine);
 NCE_PUBLIC NCE_S32 nce_alg_c_machine_deinit(nce_alg_c_machine *machine);
 
 
-//读进来的是package，操作都需要在pacakge上完成
-NCE_S32 NCE_PUBLIC nce_c_read_img(const char *img_path, img_t *input_img);
+NCE_PUBLIC NCE_S32 nce_c_read_img(const char *img_path, img_t *input_img);
 
-NCE_S32 NCE_PUBLIC nce_c_write_img(const char *img_path, img_t *input_img);
+NCE_PUBLIC NCE_S32 nce_c_write_img(const char *img_path, img_t *input_img);
 
-NCE_S32 NCE_PUBLIC nce_c_free_img(img_t *input_img);
+NCE_PUBLIC NCE_S32 nce_c_free_img(img_t *input_img);
 
-NCE_S32 NCE_PUBLIC nce_c_draw_bbox(img_t *input_img, Bbox box);
+NCE_PUBLIC NCE_S32 nce_c_draw_bbox(img_t *input_img, Bbox box);
 
-NCE_S32 NCE_PUBLIC nce_c_package2planner(img_t *input_img);
+NCE_PUBLIC NCE_S32 nce_c_package2planner(img_t *input_img);
 
-NCE_S32 NCE_PUBLIC nce_c_planner2package(img_t *input_img);
+NCE_PUBLIC NCE_S32 nce_c_planner2package(img_t *input_img);
 #ifdef __cplusplus
 #if __cplusplus
 }

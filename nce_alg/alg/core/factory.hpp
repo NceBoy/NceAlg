@@ -31,7 +31,7 @@ public:
     shared_ptr<base> CreateObject(int alg_type)
     {
 
-        if (alg_type < 0 || alg_type >= 10)
+        if (alg_type < 0 || alg_type >= 9999)
         {
             return NULL;
         }

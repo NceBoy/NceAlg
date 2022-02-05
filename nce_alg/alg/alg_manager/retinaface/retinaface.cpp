@@ -221,10 +221,11 @@ NCE_S32 retinaface::alg_get_result(alg_result_info &results, LinkedHashMap<strin
 
                     NCE_U32 x1 = std::max((NCE_F32)0, ctx - 0.5f * bbox_width) * img_width;
                     NCE_U32 y1 = std::max((NCE_F32)0, cty - 0.5f * bbox_height) * img_height;
-                    NCE_U32 x2 = std::min((NCE_F32)(*pPriv->input_tensor_infos)[0].width - 1, ctx + 0.5f * bbox_width)
-                                 * img_width;
-                    NCE_U32 y2 = std::min((NCE_F32)(*pPriv->input_tensor_infos)[0].height - 1, cty + 0.5f * bbox_height)
-                                 * img_height;
+                    NCE_U32 x2 = std::min((NCE_F32)(*pPriv->input_tensor_infos)[0].width - 1,
+                                          (ctx + 0.5f * bbox_width) * img_width);
+                    NCE_U32 y2 = std::min((NCE_F32)(*pPriv->input_tensor_infos)[0].height - 1,
+                                          (cty + 0.5f * bbox_height) * img_height)
+                                 ;
          
                     detect_result tmp_result = { x1, y1, x2, y2, score };
                     memcpy(tmp_result.landmark, tmp_landms, sizeof(NCE_U32) * 10);

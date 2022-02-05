@@ -1,0 +1,11 @@
+alg_config:
+    mean0: [127.5,127.5,127.5]
+    std0: [0.0078125,0.0078125,0.0078125]
+    output_names: [vertices]
+    face_mean: face_mean.raw
+    face_std: face_std.raw
+    face_exp: face_exp.raw
+    face_shp: face_shp.raw
+    face_base: face_base.raw
+engine_config:
+    model_path: ./3DDFA_sim.mnn

@@ -120,14 +120,19 @@ public:
             {
                 tmp_tensor.tensor.name                               = name;
                 tmp_tensor.tensor.outfmt                             = PLANNER;
+                if (shape.size() == 4) 
+                {
+                    tmp_tensor.tensor.u32ch          = shape[1];
+                    tmp_tensor.tensor.u32FeatHeight  = shape[2];
+                    tmp_tensor.tensor.u32FeatWidth   = shape[3];
+                    tmp_tensor.tensor.width_stride   = 1;
+                    tmp_tensor.tensor.height_stride  = shape[3];
+                    tmp_tensor.tensor.channel_stride = shape[2] * shape[3];
+                }
                 tmp_tensor.tensor.scale                              = 1;
-                tmp_tensor.tensor.u32ch                              = shape[1];
-                tmp_tensor.tensor.u32FeatHeight                      = shape[2];
-                tmp_tensor.tensor.u32FeatWidth                       = shape[3];
-                tmp_tensor.tensor.width_stride                       = 1;
-                tmp_tensor.tensor.height_stride                      = shape[3];
-                tmp_tensor.tensor.channel_stride                     = shape[2] * shape[3];
                 tmp_tensor.tensor.zp                                 = 0;
+
+
 
             }
             else
@@ -135,14 +140,16 @@ public:
                 tmp_tensor.tensor.name           = name;
                 tmp_tensor.tensor.outfmt         = PACKAGE;
                 tmp_tensor.tensor.scale          = 1;
-                tmp_tensor.tensor.u32ch          = shape[3];
-                tmp_tensor.tensor.u32FeatHeight  = shape[1];
-                tmp_tensor.tensor.u32FeatWidth   = shape[2];
-                tmp_tensor.tensor.width_stride   = shape[3];
-                tmp_tensor.tensor.height_stride  = shape[2] * shape[3];
-                tmp_tensor.tensor.channel_stride = 1;
                 tmp_tensor.tensor.zp             = 0;
-
+                if (shape.size() == 4) 
+                {
+                    tmp_tensor.tensor.u32ch          = shape[3];
+                    tmp_tensor.tensor.u32FeatHeight  = shape[1];
+                    tmp_tensor.tensor.u32FeatWidth   = shape[2];
+                    tmp_tensor.tensor.width_stride   = shape[3];
+                    tmp_tensor.tensor.height_stride  = shape[2] * shape[3];
+                    tmp_tensor.tensor.channel_stride = 1;
+                }
             }
             st_result_map.insert(make_pair(name, tmp_tensor));
             count++;

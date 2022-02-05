@@ -48,6 +48,7 @@ typedef enum
     YOLOX,
     OBJECT_RECOGNITION,
     RETINAFACE,
+    THREE_DDFA,
     MAX_CLS,
 
 } taskcls;
@@ -132,6 +133,19 @@ typedef struct person_head
     NCE_S32 angle[3];
 } person_head;
 
+typedef struct point
+{
+    NCE_S32 x;
+    NCE_S32 y;
+    NCE_S32 z;
+} point;
+
+typedef struct landmarks
+{
+    NCE_S32 dims;
+    point* points;
+}landmarks;
+
 typedef struct tag_detect_result
 {
     NCE_U32 x1;
@@ -169,6 +183,7 @@ typedef struct alg_result_info
     NCE_S16 num;
     alg_result* st_alg_results;
 } alg_result_info;
+
 
 typedef struct param_info
 {

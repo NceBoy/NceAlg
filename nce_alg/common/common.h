@@ -113,4 +113,6 @@ private:
     img_t tmp_img;
 };
 
+NCE_PUBLIC NCE_S32 get_inv_affine_matrix(point point1[2], point point2[2], NCE_F32 affine_matrix[9]);
+NCE_PUBLIC NCE_S32 inv_warp_affine(img_t src, img_t dst, NCE_F32 affine_matrix[9]);
 #endif

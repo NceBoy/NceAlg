@@ -49,6 +49,7 @@ typedef enum
     OBJECT_RECOGNITION,
     RETINAFACE,
     THREE_DDFA,
+    ARC_FACE,
     MAX_CLS,
 
 } taskcls;
@@ -133,11 +134,17 @@ typedef struct person_head
     NCE_S32 angle[3];
 } person_head;
 
+typedef struct FaceID
+{
+    NCE_S32  dims;
+    NCE_F32* face_id;
+}FaceID;
+
 typedef struct point
 {
-    NCE_S32 x;
-    NCE_S32 y;
-    NCE_S32 z;
+    NCE_F32 x;
+    NCE_F32 y;
+    NCE_F32 z;
 } point;
 
 typedef struct landmarks

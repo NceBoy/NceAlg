@@ -230,15 +230,15 @@ NCE_S32 get_saturation(const img_t &img, detect_result Bbox, NCE_U8 *output_sat)
     return NCE_SUCCESS;
 }
 
-NCE_S32 refelction_judge(const img_t &          frame,
-                         alg_result_info        &results,
-                         NCE_F32                conf_thresh,
-                         NCE_F32                mean_thresh,
-                         NCE_F32                var_thresh)
+NCE_S32 refelction_judge(const img_t &    frame,
+                         alg_result_info &results,
+                         NCE_F32          conf_thresh,
+                         NCE_F32          mean_thresh,
+                         NCE_F32          var_thresh)
 {
     static NCE_U8 sat_data[1000 * 1000];
     assert(frame.image_attr.u32channel == 3);
-    for (NCE_S32 i = 0; i < results.num; i++) 
+    for (NCE_S32 i = 0; i < results.num; i++)
     {
         auto box = (detect_result *)(results.st_alg_results + i)->obj;
         if (box->score < conf_thresh)
@@ -266,4 +266,110 @@ NCE_S32 refelction_judge(const img_t &          frame,
     return NCE_SUCCESS;
 }
 
+NCE_S32 get_inv_affine_matrix(point point1[2], point point2[2], NCE_F32 affine_matrix[9])
+{
+    NCE_F32 x1 = point1[0].x;
+    NCE_F32 y1 = point1[0].y;
+    NCE_F32 x2 = point1[1].x;
+    NCE_F32 y2 = point1[1].y;
+
+    NCE_F32 x1_ = point2[0].x;
+    NCE_F32 y1_ = point2[0].y;
+    NCE_F32 x2_ = point2[1].x;
+    NCE_F32 y2_ = point2[1].y;
+
+    NCE_F32 theta;
+    NCE_F32 a;
+    if ((x1 - x2) * (x1_ - x2_) + (y1 - y2) * (y1_ - y2_) == 0)
+    {
+        if (((x1 - x2) * (y1_ - y2_) - (y1 - y2) * (x1_ - x2_)) <= 0)
+        {
+            theta = asin(1.0) * 1;
+        }
+        else
+        {
+            theta = asin(1.0) * 3;
+        }
+    }
+    else
+     theta =
+        atan(((x1 - x2) * (y1_ - y2_) - (y1 - y2) * (x1_ - x2_)) / ((x1 - x2) * (x1_ - x2_) + (y1 - y2) * (y1_ - y2_)));
+    if ((cos(theta) * (x1 - x2) - sin(theta) * (y1 - y2)) == 0) a = 1;
+    else a = (x1_ - x2_) / (cos(theta) * (x1 - x2) - sin(theta) * (y1 - y2));
+    NCE_F32 c = x1_ - a * cos(theta) * x1 + a * y1 * sin(theta);
+    NCE_F32 d = y1_ - a * sin(theta) * x1 - a * y1 * cos(theta);
+
+    affine_matrix[0] = cos(theta) / a;
+    affine_matrix[1] = sin(theta) / a;
+    affine_matrix[2] = (-sin(theta) * d - c * cos(theta)) / a;
+    affine_matrix[3] = -sin(theta);
+    affine_matrix[4] = cos(theta) / a;
+    affine_matrix[5] = -(cos(theta) * d - sin(theta) * c) / a;
+    affine_matrix[6] = 0;
+    affine_matrix[7] = 0;
+    affine_matrix[8] = 1;
+
+    return NCE_SUCCESS;
+}
+
+NCE_S32 inv_warp_affine(img_t src, img_t dst, NCE_F32 affine_matrix[9])
+{
+    NCE_F32 src_width = src.image_attr.u32Width;
+    NCE_F32 src_height = src.image_attr.u32Height;
+    NCE_F32 src_channel = src.image_attr.u32channel;
+
+    NCE_F32 dst_width = dst.image_attr.u32Width;
+    NCE_F32 dst_height = dst.image_attr.u32Height;
+    NCE_S32 dst_channel = dst.image_attr.u32channel;
+    for (NCE_F32 h = 0; h < dst.image_attr.u32Height; h++)
+    {
+        for (NCE_F32 w = 0; w < dst.image_attr.u32Height; w++)
+        {
+            NCE_F32 src_x = w * affine_matrix[0] + (h + 1) * affine_matrix[1] + affine_matrix[2];
+            NCE_F32 src_y = w * affine_matrix[3] + (h + 1) * affine_matrix[4] + affine_matrix[5];
+
+            if (src_x > src_width || src_x < 0 || src_y > src_height || src_y < 0)
+            {
+                //printf("idx out of range\n");
+                continue;
+            }
+
+            NCE_U32 src_x_lt = (NCE_U32)min(src_x, src_width - 2);
+            NCE_U32 src_y_lt = (NCE_U32)min(src_y, src_height - 2);
+
+            NCE_U32 src_x_rb = src_x_lt + 1;
+            NCE_U32 src_y_rb = src_y_lt + 1;
+
+            NCE_U32 src_x_lb = src_x_lt;
+            NCE_U32 src_y_lb = src_y_lt + 1;
+
+            NCE_U32 src_x_rt = src_x_lt + 1;
+            NCE_U32 src_y_rt = src_y_lt;
+
+            NCE_F32 dx = src_x - src_x_lt;
+            NCE_F32 dy = src_y - src_y_lt;
+
+            NCE_F32 factor_lt = (1 - dx) * (1 - dy);
+            NCE_F32 factor_lb = (1 - dx) * dy;
+            NCE_F32 factor_rt = dx * (1 - dy);
+            NCE_F32 factor_rb = dx * dy;
+
+            for (NCE_U32 c = 0; c < dst_channel; c++)
+            {
+                NCE_U32 dst_index = NCE_U32((NCE_U32)(h * dst_width + w) * dst_channel) + c;
+
+                NCE_U32 src_index_lt = (src_y_lt * (NCE_U32)src_width + src_x_lt) * src_channel + c;
+                NCE_U32 src_index_lb = (src_y_lb * (NCE_U32)src_width + src_x_lb) * src_channel + c;
+                NCE_U32 src_index_rt = (src_y_rt * (NCE_U32)src_width + src_x_rt) * src_channel + c;
+                NCE_U32 src_index_rb = (src_y_rb * (NCE_U32)src_width + src_x_rb) * src_channel + c;
+
+
+                dst.image[dst_index] =
+                    src.image[src_index_lt] * factor_lt + src.image[src_index_lb] * factor_lb
+                    + src.image[src_index_rt] * factor_rt + src.image[src_index_rb] * factor_rb;
+            }
+        }
+    }
+    return NCE_SUCCESS;
+}
 } // namespace nce_alg

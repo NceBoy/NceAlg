@@ -119,7 +119,7 @@ NCE_S32 tddfa::alg_inference(vector<img_t> &pc_img)
 
 NCE_S32 tddfa::alg_get_result(alg_result_info &results, LinkedHashMap<string, tmp_map_result> &st_result_map)
 {
-    results.num = 0;
+    results.num = 1;
 
     NCE_S32 ret = NCE_FAILED;
     if (NULL == pPriv)

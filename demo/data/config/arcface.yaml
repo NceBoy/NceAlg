@@ -1,0 +1,7 @@
+alg_config:
+    mean0: [127.5,127.5,127.5]
+    std0: [0.0078125,0.0078125,0.0078125]
+    output_names: [face_id]
+    dims: 512
+engine_config:
+    model_path: arcface_r18.mnn

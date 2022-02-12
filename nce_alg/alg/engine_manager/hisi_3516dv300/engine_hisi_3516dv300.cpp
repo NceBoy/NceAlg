@@ -86,7 +86,7 @@ public:
         
         char *model_path = (char *)config["model_path"].as<string>().c_str();
         /*Sys init*/
-        mmz_init = config["hisi_mmz_init"].as<bool>;
+        mmz_init = config["hisi_mmz_init"].as<bool>();
         if (mmz_init)
             SAMPLE_COMM_SVP_CheckSysInit();
         /*CNN Load model*/

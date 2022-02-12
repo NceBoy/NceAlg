@@ -38,7 +38,7 @@ foreach(mainfile IN LISTS demos)
     #file(GLOB_RECURSE libs ${PROJECT_SOURCE_DIR}/../nce_alg/platform/${PLATFORM}/lib/*)
     get_filename_component(mainname ${mainfile} NAME_WE)
     add_executable(${mainname} ${mainfile})
-    target_link_libraries(${mainname} nce_alg ${libs} ${EXTRALIB})
+    target_link_libraries(${mainname} nce_alg ${libs} ${EXTRALIB} )
     add_dependencies(${mainname} nce_alg)
 if(ENGINE_RUNTIME_LIB)
     add_custom_command(TARGET ${mainname} 

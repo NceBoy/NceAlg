@@ -358,7 +358,6 @@ NCE_S32 rv1126_engine::engine_get_result(LinkedHashMap<string, tmp_map_result> &
     for (auto &kv : st_engine_result)
     {
         st_engine_result[kv].pu32Feat = (NCE_S32 *)(pPriv->outputs[count].buf);
-        printf("string %s, output %d", kv.c_str(), count);
         count++;
     }
 

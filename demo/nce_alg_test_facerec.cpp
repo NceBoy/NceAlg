@@ -13,7 +13,8 @@
 #include "nce_alg.hpp"
 #include "common.h"
 #include <time.h>
-
+#include "string.h"
+#include <math.h>
 #if (defined WIN32)
 #include <time.h>
 #define OSA_DEBUG_DEFINE_TIME \
@@ -143,16 +144,7 @@ int main(int argc, char *argv[])
                model_input.u32Height,
                model_input.u32channel);
 
-        /*ImageProcessParam pkg2pln;
-        pkg2pln.type                         = PROC_PACKAGE2PLANNER;
-        pkg2pln.Info.package2planner_info.channel = model_input.u32channel;
-        pkg2pln.Info.package2planner_info.height  = model_input.u32Height;
-        pkg2pln.Info.package2planner_info.width   = model_input.u32Width;
 
-        nce_package2planner doo(pkg2pln);
-        printf("before func_resize\n");
-        doo.forward(input_img, input_img);
-        printf("after func_resize\n");*/
 
         ImageProcessParam resized;
         resized.type                         = PROC_RESIZE;
@@ -166,6 +158,17 @@ int main(int argc, char *argv[])
         dooresize.forward(face_img2, face_img2);
         printf("after func_resize\n");
 
+        ImageProcessParam pkg2pln;
+        pkg2pln.type                         = PROC_PACKAGE2PLANNER;
+        pkg2pln.Info.package2planner_info.channel = model_input.u32channel;
+        pkg2pln.Info.package2planner_info.height  = model_input.u32Height;
+        pkg2pln.Info.package2planner_info.width   = model_input.u32Width;
+
+        nce_package2planner doo(pkg2pln);
+
+        doo.forward(face_img1, face_img1);
+        doo.forward(face_img2, face_img2);
+        printf("after func_pkg2pln\n");
         nce_write_img("face_img1.jpg", face_img1);
         nce_write_img("face_img2.jpg", face_img2);
         alg_result_info results1;

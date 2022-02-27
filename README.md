@@ -28,7 +28,7 @@
 | **openppl** | **todo** | **todo** | **todo** | **todo** | **/** |
 ### 效果展示
 
-使用 NceAlg 在 hisi3516 上运行人脸检测算法（[ttf](https://arxiv.org/abs/1909.00700）
+使用 NceAlg 在 hisi3516 上运行人脸检测算法 [ttf](https://arxiv.org/abs/1909.00700）
 
 ![hisi640](https://user-images.githubusercontent.com/57566630/155873273-b292a4d9-c09b-4880-ad6a-92fbcb61b82b.gif)
 

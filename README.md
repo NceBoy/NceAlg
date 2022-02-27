@@ -129,7 +129,7 @@ custom_hook:
         is_body: true
 ```
 
-定义完配置文件后，我们可以通过 nce_alg_machine 的接口来完成模型的初始化、推理及后处理。具体用例参考 [demo]([NceAlg/nce_alg_cpp_test.cpp at master · NceBoy/NceAlg (github.com)](https://github.com/NceBoy/NceAlg/blob/master/demo/nce_alg_cpp_test.cpp))。
+定义完配置文件后，我们可以通过 nce_alg_machine 的接口来完成模型的初始化、推理及后处理。具体用例参考 [demo](https://github.com/NceBoy/NceAlg/blob/master/demo/nce_alg_cpp_test.cpp)。
 
 ### 小贴士
 

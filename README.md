@@ -148,6 +148,7 @@ custom_hook:
 第五期：
 
 **我们在嵌入式上的rpc框架，也是一个通用异构框架，freak，这里暂不赘述。针对NCE_ALG插件，以及freak，有兴趣的可以加群一起学习！欢迎一起来开发维护！！**
+![RDEI~24(HXD7~GT@XFHPRIT](https://user-images.githubusercontent.com/20292101/159109399-a95a6441-0fda-4d3c-af15-e0fd8193ee27.jpg)
 
 ## QQ群号：542468690
 
